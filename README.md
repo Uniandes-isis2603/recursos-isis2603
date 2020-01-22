@@ -1,3 +1,1 @@
-# tutorial-back
-
-Consulte la información en [este enlace](https://github.com/Uniandes-isis2603/tutorial-back/wiki)
+La wiki de este repositorio contiene los recursos del curso Desarrollo de Software en Equipos (ISIS2603)
