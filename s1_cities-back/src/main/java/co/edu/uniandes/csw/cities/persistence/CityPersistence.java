@@ -23,7 +23,7 @@ public class CityPersistence {
 
     private static final Logger LOGGER = Logger.getLogger(CityPersistence.class.getName());
 
-    @PersistenceContext(unitName = "carpoolingPU")
+    @PersistenceContext(unitName = "citiesPU")
     protected EntityManager em;
 
     /**

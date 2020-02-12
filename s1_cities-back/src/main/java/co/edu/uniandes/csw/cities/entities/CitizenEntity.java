@@ -6,8 +6,12 @@
 package co.edu.uniandes.csw.cities.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import uk.co.jemos.podam.common.PodamExclude;
 
@@ -27,6 +31,16 @@ public class CitizenEntity extends BaseEntity implements Serializable {
     	fetch = FetchType.LAZY
     )
     private CityEntity manage;
+    
+    @PodamExclude
+    @OneToMany(
+        mappedBy = "citizen",
+    	cascade = CascadeType.PERSIST,
+    	fetch = FetchType.EAGER,
+    	orphanRemoval = true
+    )
+    private List<DriverLicenseEntity> driverLicenses = 
+        new ArrayList<DriverLicenseEntity>();
 
     /**
      * @return the address
@@ -68,6 +82,20 @@ public class CitizenEntity extends BaseEntity implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the driverLicenses
+     */
+    public List<DriverLicenseEntity> getDriverLicenses() {
+        return driverLicenses;
+    }
+
+    /**
+     * @param driverLicenses the driverLicenses to set
+     */
+    public void setDriverLicenses(List<DriverLicenseEntity> driverLicenses) {
+        this.driverLicenses = driverLicenses;
     }
     
     

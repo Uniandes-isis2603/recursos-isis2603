@@ -20,7 +20,7 @@ import javax.persistence.PersistenceContext;
 public class CitizenPersistence {
     private static final Logger LOGGER = Logger.getLogger(CitizenPersistence.class.getName());
     
-    @PersistenceContext(unitName = "carpoolingPU")
+    @PersistenceContext(unitName = "citiesPU")
     protected EntityManager em;
     
     public CitizenEntity create(CitizenEntity citizenEntity) {

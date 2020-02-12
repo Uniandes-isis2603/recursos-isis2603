@@ -46,7 +46,7 @@ public class CityLogicTest {
     private PodamFactory factory = new PodamFactoryImpl();
 
     private CitizenEntity citizen = new CitizenEntity();
-    
+
     private List<CityEntity> data = new ArrayList<>();
 
     @Deployment
@@ -76,29 +76,90 @@ public class CityLogicTest {
         }
     }
 
-    public void insertData(){
+    public void insertData() {
         citizen = factory.manufacturePojo(CitizenEntity.class);
         em.persist(citizen);
+
+        PodamFactory factory = new PodamFactoryImpl();
+        for (int i = 0; i < 3; i++) {
+            CityEntity entity = factory.manufacturePojo(CityEntity.class);
+
+            em.persist(entity);
+            data.add(entity);
+        }
     }
-    
+
     @Test
     public void createCityTest() throws BusinessLogicException {
         CityEntity newEntity = factory.manufacturePojo(CityEntity.class);
         CityEntity result = cityLogic.createCity(newEntity);
         Assert.assertNotNull(result);
-        
+
         CityEntity entity = em.find(CityEntity.class, result.getId());
         Assert.assertEquals(newEntity.getId(), entity.getId());
         Assert.assertEquals(newEntity.getName(), entity.getName());
-        
+
+    }
+
+    @Test
+    public void getCitiesTest() {
+        List<CityEntity> list = cityLogic.getCities();
+        Assert.assertEquals(data.size(), list.size());
+        for (CityEntity entity : list) {
+            boolean found = false;
+            for (CityEntity storedEntity : data) {
+                if (entity.getId().equals(storedEntity.getId())) {
+                    found = true;
+                }
+            }
+            Assert.assertTrue(found);
+        }
     }
     
     @Test
-    public void prueba() throws BusinessLogicException {
+    public void getCity() {
+        CityEntity entity = data.get(0);
+        CityEntity resultEntity = cityLogic.getCity(entity.getId());
+        Assert.assertNotNull(resultEntity);
+        Assert.assertEquals(entity.getId(), resultEntity.getId());
+        Assert.assertEquals(entity.getName(), resultEntity.getName());
+    }
+    
+    @Test
+    public void updateCityTest() {
+        CityEntity entity = data.get(0);
+        CityEntity pojoEntity = factory.manufacturePojo(CityEntity.class);
+
+        pojoEntity.setId(entity.getId());
+
+        cityLogic.updateCity(pojoEntity.getId(), pojoEntity);
+
+        CityEntity resp = em.find(CityEntity.class, entity.getId());
+
+        Assert.assertEquals(pojoEntity.getId(), resp.getId());
+        Assert.assertEquals(pojoEntity.getName(), resp.getName());
+    }
+    
+    @Test
+    public void deleteCityTest() throws BusinessLogicException {
+        CityEntity entity = data.get(0);
+        cityLogic.deleteCity(entity.getId());
+        CityEntity deleted = em.find(CityEntity.class, entity.getId());
+        Assert.assertNull(deleted);
+    }
+
+    @Test
+    public void addCitizen() throws BusinessLogicException {
         CityEntity newCity = factory.manufacturePojo(CityEntity.class);
         cityLogic.createCity(newCity);
 
         CityEntity city = cityLogic.addCitizen(citizen.getId(), newCity.getId());
         Assert.assertNotNull(city);
+        
+        CitizenEntity newCitizen = cityLogic.getCity(newCity.getId()).getMayor();
+        
+        Assert.assertEquals(citizen.getId(), newCitizen.getId());
+        Assert.assertEquals(citizen.getName(), newCitizen.getName());
+        Assert.assertEquals(citizen.getAddress(), newCitizen.getAddress());
     }
 }
