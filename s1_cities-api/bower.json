@@ -1,0 +1,21 @@
+{
+  "name": "s1_cities",
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": "src/main/webapp/index.html",
+  "dependencies": {
+    "angular-ui-router": "~0.2.15",
+    "angular": "angularjs#^1.6.4",
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.2.1"
+  },
+  "overrides": {
+    "bootstrap": {
+      "main": [
+        "less/bootstrap.less",
+        "dist/css/bootstrap.css",
+        "dist/js/bootstrap.js"
+      ]
+    }
+  }
+}
