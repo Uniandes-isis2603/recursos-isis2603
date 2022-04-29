@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "name": "Taj Mahal",
+    "country": "India",
+    "description": "The Taj Mahal is an Islamic religious building, mosque and tomb built in the 17th century by king Shah Jahan in memory of his wife, Mumtaz Mahal.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/tajmahal.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Petra",
+    "country": "Jordan",
+    "description": "Petra is a historic and archaeological city in southern Jordan. It is adjacent to the mountain of Jabal Al-Madbah, in a basin surrounded by mountains forming the eastern flank of the Arabah valley running from the Dead Sea to the Gulf of Aqaba.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/petra.jpg"
+  },
+  {
+    "id": 3,
+    "name": "The Great Wall of China",
+    "country": "China",
+    "description": "The Great Wall of China is a series of fortifications that were built across the historical northern borders of ancient Chinese states and Imperial China as protection against various nomadic groups from the Eurasian Steppe.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/greatwallofchina.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Chichen Itza",
+    "country": "Mexico",
+    "description": "Chichen Itza was a large pre-Columbian city built by the Maya people of the Terminal Classic period. The archeological site is located in Tinúm Municipality, Yucatán State, Mexico.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/chichenitza.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Machu Picchu",
+    "country": "Peru",
+    "description": "Machu Picchu is a 15th-century Inca citadel located in the Eastern Cordillera of southern Peru on a 2,430-meter (7,970 ft) mountain ridge.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/machupicchu.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Colosseum",
+    "country": "Italy",
+    "description": "The Colosseum is an oval amphitheatre in the centre of the city of Rome, Italy, just east of the Roman Forum.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/colosseum.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Christ the Redeemer",
+    "country": "Brazil",
+    "description": "Christ the Redeemer is an Art Deco statue of Jesus Christ in Rio de Janeiro, Brazil, created by French sculptor Paul Landowski and built by Brazilian engineer Heitor da Silva Costa, in collaboration with French engineer Albert Caquot.",
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v1/christtheredeemer.jpg"
+  }
+]
