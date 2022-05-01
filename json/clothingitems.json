@@ -5,7 +5,7 @@
     "collection": "Louis Vuitton X Supreme",
     "price": 2910,
     "description": "The Supreme x Louis Vuitton SS ’17 collection featured a range of apparel, footwear, jewelry and accessories, and miscellaneous items – none bearing a more recognizable than this tee featuring the NYC brand’s famed Box Logo. Here, we see a clean, premium white tee sporting the Box Logo in red, with LV monogram co-branding appearing throughout.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/boxlogoteesupremelv.jpg"
   },
   {
     "id": 2,
@@ -13,7 +13,7 @@
     "collection": "Off-White Vol",
     "price": 1293,
     "description": "The Off-White x Nike Air Force 1 Low “Volt” came out in December 2018 and added a blast of color to a year of releases from Virgil Abloh and the Swoosh.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/airforce1offwhite.jpg"
   },
   {
     "id": 3,
@@ -21,7 +21,7 @@
     "collection": "MX Oat",
     "price": 359,
     "description": "The YEEZY BOOST 350 V2 features an upper composed of re-engineered Primeknit. The post-dyed monofilament side stripe is woven into the upper.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/yeezyboost.jpg"
   },
   {
     "id": 4,
@@ -29,7 +29,7 @@
     "collection": "Orange Skeleton",
     "price": 276,
     "description": "The Nike Air Force 1 Low “Orange Skeleton” for Halloween 2020 is a spooky and festive release of the iconic lifestyle silhouette by Nike.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/airforce1loworange.jpg"
   },
   {
     "id": 5,
@@ -37,7 +37,7 @@
     "collection": "Black",
     "price": 366,
     "description": "The Kanye West Donda Two-Layer Long Sleeve Tee is co-created with Balenciaga Creative Director, Denma Gvasalia.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/dondasleevete.jpg"
   },
   {
     "id": 6,
@@ -45,6 +45,6 @@
     "collection": "Dior",
     "price": 12207,
     "description": "The special AJ1 is made entirely in Italy featuring a mixture of white and Dior Gray leather, with an Oblique monogrammed Swoosh (similar in style to the graphic featured on the fashion house's popular B23 high-top sneaker) and hand-painted edges.",
-    "image": ""
+    "image": "https://raw.githubusercontent.com/Uniandes-isis2603/recursos-isis2603/master/images/p2_v3/aj1dior.jpg"
   }
 ]
