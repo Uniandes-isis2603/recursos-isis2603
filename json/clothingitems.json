@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "MONOGRAM BOX LOGO TEE",
+    "collection": "Louis Vuitton X Supreme",
+    "price": 2910,
+    "description": "The Supreme x Louis Vuitton SS ’17 collection featured a range of apparel, footwear, jewelry and accessories, and miscellaneous items – none bearing a more recognizable than this tee featuring the NYC brand’s famed Box Logo. Here, we see a clean, premium white tee sporting the Box Logo in red, with LV monogram co-branding appearing throughout.",
+    "image": ""
+  },
+  {
+    "id": 2,
+    "name": "THE 10: NIKE AIR FORCE 1 LOW",
+    "collection": "Off-White Vol",
+    "price": 1293,
+    "description": "The Off-White x Nike Air Force 1 Low “Volt” came out in December 2018 and added a blast of color to a year of releases from Virgil Abloh and the Swoosh.",
+    "image": ""
+  },
+  {
+    "id": 3,
+    "name": "YEEZY BOOST 350 V2",
+    "collection": "MX Oat",
+    "price": 359,
+    "description": "The YEEZY BOOST 350 V2 features an upper composed of re-engineered Primeknit. The post-dyed monofilament side stripe is woven into the upper.",
+    "image": ""
+  },
+  {
+    "id": 4,
+    "name": "AIR FORCE 1 LOW",
+    "collection": "Orange Skeleton",
+    "price": 276,
+    "description": "The Nike Air Force 1 Low “Orange Skeleton” for Halloween 2020 is a spooky and festive release of the iconic lifestyle silhouette by Nike.",
+    "image": ""
+  },
+  {
+    "id": 5,
+    "name": "DONDA TWO LAYER LONG SLEEVE TE",
+    "collection": "Black",
+    "price": 366,
+    "description": "The Kanye West Donda Two-Layer Long Sleeve Tee is co-created with Balenciaga Creative Director, Denma Gvasalia.",
+    "image": ""
+  },
+  {
+    "id": 6,
+    "name": "AIR JORDAN 1 RETRO HIGH",
+    "collection": "Dior",
+    "price": 12207,
+    "description": "The special AJ1 is made entirely in Italy featuring a mixture of white and Dior Gray leather, with an Oblique monogrammed Swoosh (similar in style to the graphic featured on the fashion house's popular B23 high-top sneaker) and hand-painted edges.",
+    "image": ""
+  }
+]
