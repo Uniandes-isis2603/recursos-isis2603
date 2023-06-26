@@ -5,12 +5,12 @@
 {Describa el contexto y el plantemiento del problema, por ejemplo, usando dos o tres oraciones o en forma de una historia ilustrativa.
 Es posible que desee articular el problema en forma de pregunta}
 
-<!-- This is an optional element. Feel free to remove. -->
-## Decision Drivers
+<!-- Elemento opcional. -->
+## Impulsores de la decisión
 
-* {decision driver 1, e.g., a force, facing concern, …}
-* {decision driver 2, e.g., a force, facing concern, …}
-* … <!-- numbers of drivers can vary -->
+* {impulsor de decisión 1, e.g., …}
+* {impulsor de decisión 2, e.g., …}
+* … <!-- el número de decisiones es variable -->
 
 ## Opciones a considerar
 
@@ -22,14 +22,14 @@ Es posible que desee articular el problema en forma de pregunta}
 ## Resultado de la decisión
 
 Opción seleccionada: "{título de la opción}", porque
-{justificación. e.g., only option, which meets k.o. criterion decision driver | which resolves force {force} | … | comes out best (see below)}.
+{justificación}.
 
-<!-- This is an optional element. Feel free to remove. -->
-### Consequences
+<!-- Elemento opcional. -->
+### Consecuencias
 
-* Good, because {positive consequence, e.g., improvement of one or more desired qualities, …}
-* Bad, because {negative consequence, e.g., compromising one or more desired qualities, …}
-* … <!-- numbers of consequences can vary -->
+* Positivas, porque {…}
+* Negativas, porque {…}
+* … <!-- el número de consecuencias es variable -->
 
 <!-- This is an optional element. Feel free to remove. -->
 ## Validation
