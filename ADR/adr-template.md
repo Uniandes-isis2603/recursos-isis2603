@@ -2,14 +2,14 @@
 
 ## Contexto y planteamiento del problema
 
-{Describa el contexto y el plantemiento del problema, por ejemplo, usando dos o tres oraciones o en forma de una historia ilustrativa.
-Es posible que desee articular el problema en forma de pregunta}
+{Describa el contexto y el plantemiento del problema. Puede usar dos o tres oraciones o en forma de una historia ilustrativa.
+Es posible también articular el problema en forma de pregunta.}
 
 <!-- Elemento opcional. -->
 ## Impulsores de la decisión
 
-* {impulsor de decisión 1, e.g., …}
-* {impulsor de decisión 2, e.g., …}
+* {impulsor de decisión 1}
+* {impulsor de decisión 2}
 * … <!-- el número de decisiones es variable -->
 
 ## Opciones a considerar
@@ -21,8 +21,7 @@ Es posible que desee articular el problema en forma de pregunta}
 
 ## Resultado de la decisión
 
-Opción seleccionada: "{título de la opción}", porque
-{justificación}.
+Opción seleccionada: {título de la opción} porque {justificación}.
 
 <!-- Elemento opcional. -->
 ### Consecuencias
@@ -31,10 +30,10 @@ Opción seleccionada: "{título de la opción}", porque
 * Negativas, porque {…}
 * … <!-- el número de consecuencias es variable -->
 
-<!-- This is an optional element. Feel free to remove. -->
-## Validation
+<!-- Elemento opcional. -->
+## Validación
 
-{describe how the implementation of/compliance with the ADR is validated. E.g., by a review or an ArchUnit test}
+{describa cómo se validó la opción}
 
 <!-- This is an optional element. Feel free to remove. -->
 ## Pros and Cons of the Options
