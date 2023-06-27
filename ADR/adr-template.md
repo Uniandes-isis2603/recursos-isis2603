@@ -1,41 +1,29 @@
-# {Título que condensa el problema y la solución}
+# {short title of solved problem and solution}
 
-## Contexto y planteamiento del problema
+## Context and Problem Statement
 
 {Describa el contexto y el plantemiento del problema. Puede usar dos o tres oraciones o en forma de una historia ilustrativa.
 Es posible también articular el problema en forma de pregunta.}
 
 <!-- Elemento opcional. -->
-## Impulsores de la decisión
+## Decision Drivers
 
 * {impulsor de decisión 1}
 * {impulsor de decisión 2}
 * … <!-- el número de decisiones es variable -->
 
-## Opciones a considerar
+## Considered Options
 
 * {título de la opción 1}
 * {título de la opción 2}
 * {título de la opción 3}
 * … <!-- el número de opciones es variable -->
 
-## Resultado de la decisión
+## Decision Outcome
 
 Opción seleccionada: {título de la opción} porque {justificación}.
 
 <!-- Elemento opcional. -->
-### Consecuencias
-
-* Positivas, porque {…}
-* Negativas, porque {…}
-* … <!-- el número de consecuencias es variable -->
-
-<!-- Elemento opcional. -->
-## Validación
-
-{describa cómo se validó la opción}
-
-<!-- This is an optional element. Feel free to remove. -->
 ## Pros and Cons of the Options
 
 ### {title of option 1}
@@ -50,21 +38,4 @@ Opción seleccionada: {título de la opción} porque {justificación}.
 * Bad, because {argument d}
 * … <!-- numbers of pros and cons can vary -->
 
-### {title of other option}
 
-{example | description | pointer to more information | …}
-
-* Good, because {argument a}
-* Good, because {argument b}
-* Neutral, because {argument c}
-* Bad, because {argument d}
-* …
-
-<!-- This is an optional element. Feel free to remove. -->
-## More Information
-
-{You might want to provide additional evidence/confidence for the decision outcome here and/or
- document the team agreement on the decision and/or
- define when this decision when and how the decision should be realized and if/when it should be re-visited and/or
- how the decision is validated.
- Links to other decisions and resources might here appear as well.}
