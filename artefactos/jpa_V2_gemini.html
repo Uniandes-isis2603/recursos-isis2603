@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase JPA: Mapeo y Persistencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-font { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .highlight-match { background-color: #fecaca; border: 1px solid #ef4444; border-radius: 4px; padding: 0 2px; transition: all 0.3s; }
+        .db-table { border-collapse: collapse; width: 100%; font-size: 0.75rem; background: white; }
+        .db-table th { background-color: #e2e8f0; border: 1px solid #cbd5e1; padding: 4px; color: #475569; }
+        .db-table td { border: 1px solid #cbd5e1; padding: 4px; text-align: center; color: #334155; }
+        .fk-col { background-color: #dcfce7; border-color: #86efac; color: #166534; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans">
+
+    <header class="bg-indigo-900 text-white p-6 shadow-md">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold">📚 Ingeniería de Software: Persistencia con JPA</h1>
+            <p class="text-indigo-200 mt-2">Objetivo: Entender el mapeo ORM, las relaciones bidireccionales y las tablas resultantes.</p>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex overflow-x-auto">
+            <button onclick="setStep(1)" id="btn-1" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-indigo-600 text-indigo-900 transition hover:bg-slate-50">
+                Paso 1: La Entidad
+            </button>
+            <button onclick="setStep(2)" id="btn-2" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-transparent text-gray-500 transition hover:bg-slate-50">
+                Paso 2: Asociaciones y Tablas
+            </button>
+            <button onclick="setStep(3)" id="btn-3" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-transparent text-gray-500 transition hover:bg-slate-50">
+                Paso 3: Repositorio
+            </button>
+            <button onclick="setStep(4)" id="btn-4" class="flex-1 py-4 px-2 text-center font-bold border-b-4 border-transparent text-amber-600 bg-amber-50 transition hover:bg-amber-100">
+                🏆 El Reto (Doble)
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6 min-h-screen">
+
+        <div id="step-1" class="step-content fade-in">
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-800">1. Del Objeto a la Tabla</h2>
+                <p class="mb-6 text-lg">Usamos <strong>Lombok (@Data)</strong> y <strong>JPA (@Entity)</strong>. Observa cómo una clase simple se convierte en una estructura de base de datos.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    <div class="bg-slate-900 text-slate-100 p-6 rounded-lg shadow-inner code-font text-sm relative">
+                        <div class="absolute top-0 right-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-bl">Java Class</div>
+                        <span class="text-yellow-400">@Data</span> <span class="text-gray-500">// Getters, Setters...</span><br>
+                        <span class="text-yellow-400">@Entity</span><br>
+                        <span class="text-purple-400">public class</span> <span class="text-blue-300">EmployeeEntity</span> {<br><br>
+                        &nbsp;&nbsp;<span class="text-yellow-400">@Id</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">private</span> Long id;<br><br>
+                        &nbsp;&nbsp;<span class="text-gray-500">// JPA asume columna "name" VARCHAR</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">private</span> String name;<br><br>
+                        &nbsp;&nbsp;<span class="text-gray-500">// JPA asume columna "salary" DOUBLE</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">private</span> Double salary;<br>
+                        }
+                    </div>
+
+                    <div class="border-2 border-slate-300 rounded-lg p-4 bg-slate-50">
+                        <div class="text-center font-bold text-slate-600 mb-2">Tabla: EMPLOYEE_ENTITY</div>
+                        <table class="db-table">
+                            <thead>
+                                <tr>
+                                    <th>ID (PK)</th>
+                                    <th>NAME</th>
+                                    <th>SALARY</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>101</td>
+                                    <td>Ana García</td>
+                                    <td>3500.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-4 text-center text-xs text-gray-500">
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Nota</span> El nombre de la tabla y columnas se deriva automáticamente de la clase.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-2" class="step-content hidden fade-in">
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-indigo-800">2. Mapeo Objeto vs. Base de Datos</h2>
+                    <button onclick="toggleVisualMatch()" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 font-bold border border-red-300 text-sm">
+                        👁️ Ver correspondencia mappedBy
+                    </button>
+                </div>
+                
+                <p class="mb-6 text-gray-600">Observa las tablas debajo del código. Nota quién tiene la columna extra (Foreign Key) y quién no.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="border-2 border-indigo-100 rounded-lg p-4 bg-indigo-50 flex flex-col h-full">
+                        <div class="mb-2 flex justify-between items-center">
+                            <span class="font-bold text-indigo-900">1. Clase Java (Inversa)</span>
+                            <span class="bg-indigo-200 text-indigo-800 text-xs px-2 py-1 rounded">DepartmentEntity</span>
+                        </div>
+                        
+                        <div class="bg-slate-900 text-slate-100 p-4 rounded code-font text-xs mb-4 flex-grow">
+                            <span class="text-purple-400">public class</span> DepartmentEntity {<br>
+                            &nbsp;&nbsp;@Id private Long id;<br>
+                            &nbsp;&nbsp;private String name;<br><br>
+                            &nbsp;&nbsp;<span class="text-gray-400">// Lista Referencial (No es columna)</span><br>
+                            &nbsp;&nbsp;<span class="text-yellow-400">@OneToMany</span>(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;mappedBy = <span class="text-green-400 font-bold" id="code-mapped-val">"department"</span>,<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;fetch = FetchType.LAZY<br>
+                            &nbsp;&nbsp;)<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">private</span> List&lt;EmployeeEntity&gt; employees;<br>
+                            }
+                        </div>
+
+                        <div class="bg-white border border-gray-300 p-3 rounded shadow-sm">
+                            <p class="text-xs font-bold text-center text-gray-500 mb-1">🔽 Tabla: DEPARTMENT</p>
+                            <table class="db-table">
+                                <thead>
+                                    <tr><th>ID (PK)</th><th>NAME</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>10</td><td>IT</td></tr>
+                                    <tr><td>20</td><td>HR</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="text-xs text-red-500 mt-2 text-center bg-red-50 p-1 rounded">
+                                🚫 ¡Mira! No hay columna de empleados aquí.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-green-100 rounded-lg p-4 bg-green-50 flex flex-col h-full">
+                        <div class="mb-2 flex justify-between items-center">
+                            <span class="font-bold text-green-900">2. Clase Java (Dueña)</span>
+                            <span class="bg-green-200 text-green-800 text-xs px-2 py-1 rounded">EmployeeEntity</span>
+                        </div>
+
+                        <div class="bg-slate-900 text-slate-100 p-4 rounded code-font text-xs mb-4 flex-grow">
+                            <span class="text-purple-400">public class</span> EmployeeEntity {<br>
+                            &nbsp;&nbsp;@Id private Long id;<br>
+                            &nbsp;&nbsp;private String name;<br><br>
+                            &nbsp;&nbsp;<span class="text-gray-400">// Dueño de la relación</span><br>
+                            &nbsp;&nbsp;<span class="text-yellow-400">@ManyToOne</span><br>
+                            &nbsp;&nbsp;<span class="text-purple-400">private</span> DepartmentEntity <span class="text-green-400 font-bold" id="code-attr-name">department</span>;<br>
+                            }
+                        </div>
+
+                         <div class="bg-white border border-gray-300 p-3 rounded shadow-sm">
+                            <p class="text-xs font-bold text-center text-gray-500 mb-1">🔽 Tabla: EMPLOYEE</p>
+                            <table class="db-table">
+                                <thead>
+                                    <tr><th>ID</th><th>NAME</th><th class="fk-col">DEPARTMENT_ID (FK)</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>101</td><td>Juan</td><td class="bg-green-50 font-bold">10</td></tr>
+                                    <tr><td>102</td><td>Maria</td><td class="bg-green-50 font-bold">10</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="text-xs text-green-700 mt-2 text-center bg-green-100 p-1 rounded">
+                                ✅ Aquí está la Foreign Key. Por eso es el "Dueño".
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="step-3" class="step-content hidden fade-in">
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-800">3. El Repositorio (JpaRepository)</h2>
+                <p class="mb-4">Spring Data JPA implementa el acceso a datos por nosotros.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <div class="bg-slate-900 text-white p-4 rounded-lg code-font text-sm mb-4">
+                            <span class="text-yellow-400">@Repository</span><br>
+                            <span class="text-purple-400">public interface</span> EmployeeRepository <br>
+                            &nbsp;&nbsp;<span class="text-purple-400">extends</span> JpaRepository&lt;EmployeeEntity, Long&gt; {<br>
+                            <br>
+                            &nbsp;&nbsp;<span class="text-gray-500">// Métodos listos para usar:</span><br>
+                            &nbsp;&nbsp;<span class="text-gray-500">// save(), findById(), findAll(), delete()...</span><br>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="bg-black rounded-lg p-4 shadow-inner flex flex-col h-64">
+                        <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-2">
+                            <span class="text-gray-400 text-xs">Simulador de Spring Boot</span>
+                            <div class="space-x-2">
+                                <button onclick="runSim('save')" class="text-xs bg-green-700 text-white px-2 py-1 rounded hover:bg-green-600">Test .save()</button>
+                                <button onclick="runSim('find')" class="text-xs bg-blue-700 text-white px-2 py-1 rounded hover:bg-blue-600">Test .findAll()</button>
+                            </div>
+                        </div>
+                        <div id="console-output" class="flex-1 overflow-y-auto font-mono text-xs text-green-400 space-y-1">
+                            <p>> Sistema iniciado...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-4" class="step-content hidden fade-in">
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-amber-500">
+                <div class="flex items-center mb-4">
+                    <span class="text-4xl mr-4">🏆</span>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gran Reto de Asociaciones</h2>
+                        <p class="text-gray-600">Completa el código para dos escenarios distintos.</p>
+                    </div>
+                </div>
+
+                <div class="mb-8 border-b-2 border-gray-200 pb-6">
+                    <h3 class="text-lg font-bold text-amber-700 mb-2">Escenario A: Company (1) <---> Department (N)</h3>
+                    <p class="text-sm text-gray-500 mb-4">Una compañía tiene muchos departamentos. Un departamento pertenece a una compañía.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border rounded p-3 bg-gray-50">
+                            <div class="code-font text-xs bg-white border p-3 rounded">
+                                class CompanyEntity { <br>
+                                &nbsp;&nbsp;@Id Long id; <br>
+                                &nbsp;&nbsp;<input type="text" id="a-anot-1" class="border border-amber-400 rounded px-1 w-28 bg-yellow-50" placeholder="@Anotación?">(<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;mappedBy = "<input type="text" id="a-mapped-1" class="border border-amber-400 rounded px-1 w-20 bg-yellow-50" placeholder="nombre?">"<br>
+                                &nbsp;&nbsp;)<br>
+                                &nbsp;&nbsp;List&lt;DepartmentEntity&gt; departments;<br>
+                                }
+                            </div>
+                        </div>
+                        <div class="border rounded p-3 bg-gray-50">
+                            <div class="code-font text-xs bg-white border p-3 rounded">
+                                class DepartmentEntity { <br>
+                                &nbsp;&nbsp;@Id Long id; <br>
+                                &nbsp;&nbsp;<input type="text" id="a-anot-2" class="border border-amber-400 rounded px-1 w-28 bg-yellow-50" placeholder="@Anotación?"><br>
+                                &nbsp;&nbsp;CompanyEntity <input type="text" id="a-attr-2" class="border border-amber-400 rounded px-1 w-20 bg-yellow-50" placeholder="nombre?">;<br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-blue-700 mb-2">Escenario B: Department (1) <---> Employee (N)</h3>
+                    <p class="text-sm text-gray-500 mb-4">Un departamento tiene muchos empleados. Un empleado pertenece a un departamento.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border rounded p-3 bg-gray-50">
+                            <div class="code-font text-xs bg-white border p-3 rounded">
+                                class DepartmentEntity { <br>
+                                &nbsp;&nbsp;@Id Long id; <br>
+                                &nbsp;&nbsp;<input type="text" id="b-anot-1" class="border border-blue-400 rounded px-1 w-28 bg-blue-50" placeholder="@Anotación?">(<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;mappedBy = "<input type="text" id="b-mapped-1" class="border border-blue-400 rounded px-1 w-20 bg-blue-50" placeholder="nombre?">"<br>
+                                &nbsp;&nbsp;)<br>
+                                &nbsp;&nbsp;List&lt;EmployeeEntity&gt; employees;<br>
+                                }
+                            </div>
+                        </div>
+                        <div class="border rounded p-3 bg-gray-50">
+                            <div class="code-font text-xs bg-white border p-3 rounded">
+                                class EmployeeEntity { <br>
+                                &nbsp;&nbsp;@Id Long id; <br>
+                                &nbsp;&nbsp;<input type="text" id="b-anot-2" class="border border-blue-400 rounded px-1 w-28 bg-blue-50" placeholder="@Anotación?"><br>
+                                &nbsp;&nbsp;DepartmentEntity <input type="text" id="b-attr-2" class="border border-blue-400 rounded px-1 w-20 bg-blue-50" placeholder="nombre?">;<br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="checkChallenge()" class="bg-amber-600 text-white font-bold py-3 px-8 rounded shadow-lg hover:bg-amber-700 transition transform hover:scale-105">
+                        Verificar Todas las Respuestas
+                    </button>
+                    <div id="challenge-feedback" class="mt-4 font-bold text-lg hidden p-4 rounded bg-gray-100"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center p-6 text-gray-500 text-sm">
+        Artefacto Docente JPA - Ingeniería de Software
+    </footer>
+
+    <script>
+        // Control de Pasos (Tabs)
+        function setStep(stepNum) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+            for(let i=1; i<=4; i++) {
+                const btn = document.getElementById(`btn-${i}`);
+                btn.classList.remove('border-indigo-600', 'text-indigo-900');
+                if(i !== 4) btn.classList.add('border-transparent', 'text-gray-500');
+            }
+            document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${stepNum}`);
+            if (stepNum !== 4) {
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+                activeBtn.classList.add('border-indigo-600', 'text-indigo-900');
+            }
+        }
+
+        // Lógica Visual MappedBy (Paso 2)
+        let isMatchVisible = false;
+        function toggleVisualMatch() {
+            const mappedVal = document.getElementById('code-mapped-val'); 
+            const attrName = document.getElementById('code-attr-name');
+            isMatchVisible = !isMatchVisible;
+            if (isMatchVisible) {
+                mappedVal.classList.add('highlight-match');
+                attrName.classList.add('highlight-match');
+            } else {
+                mappedVal.classList.remove('highlight-match');
+                attrName.classList.remove('highlight-match');
+            }
+        }
+
+        // Simulación Repositorio (Paso 3)
+        function runSim(action) {
+            const consoleEl = document.getElementById('console-output');
+            const time = new Date().toLocaleTimeString('es-ES', { hour12: false });
+            let msg = "";
+            if(action === 'save') {
+                msg = `<div class="mb-2 border-l-2 border-green-500 pl-2">
+                    <span class="text-gray-500">[${time}]</span> <span class="text-white">repo.save(emp);</span><br>
+                    <span class="text-yellow-500">SQL:</span> insert into employee_entity (name, salary, department_id) values (?, ?, ?)<br>
+                    <span class="text-green-300">>> OK. ID generado: 55</span>
+                </div>`;
+            } else {
+                msg = `<div class="mb-2 border-l-2 border-blue-500 pl-2">
+                    <span class="text-gray-500">[${time}]</span> <span class="text-white">repo.findAll();</span><br>
+                    <span class="text-yellow-500">SQL:</span> select e.id, e.name, e.department_id from employee_entity e<br>
+                    <span class="text-blue-300">>> Resultado: List size = 14</span>
+                </div>`;
+            }
+            consoleEl.innerHTML += msg;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        // Validación del Reto (Paso 4)
+        function checkChallenge() {
+            const feedback = document.getElementById('challenge-feedback');
+            feedback.classList.remove('hidden', 'text-green-600', 'text-red-600');
+
+            // --- Escenario A (Company - Dept) ---
+            const a_OneToMany = document.getElementById('a-anot-1').value.trim().toLowerCase().includes('onetomany');
+            const a_MappedVal = document.getElementById('a-mapped-1').value.trim();
+            const a_ManyToOne = document.getElementById('a-anot-2').value.trim().toLowerCase().includes('manytoone');
+            const a_AttrName = document.getElementById('a-attr-2').value.trim();
+            
+            const a_Correct = a_OneToMany && a_ManyToOne && (a_MappedVal === a_AttrName) && (a_MappedVal.length > 0);
+
+            // --- Escenario B (Dept - Emp) ---
+            const b_OneToMany = document.getElementById('b-anot-1').value.trim().toLowerCase().includes('onetomany');
+            const b_MappedVal = document.getElementById('b-mapped-1').value.trim();
+            const b_ManyToOne = document.getElementById('b-anot-2').value.trim().toLowerCase().includes('manytoone');
+            const b_AttrName = document.getElementById('b-attr-2').value.trim();
+
+            const b_Correct = b_OneToMany && b_ManyToOne && (b_MappedVal === b_AttrName) && (b_MappedVal.length > 0);
+
+            if (a_Correct && b_Correct) {
+                feedback.innerHTML = "🎉 ¡EXCELENTE TRABAJO! <br> Has entendido perfectamente cómo conectar las clases en ambos escenarios.";
+                feedback.classList.add('text-green-600');
+            } else {
+                let msg = "❌ Aún hay errores. Revisa lo siguiente:<br><ul class='list-disc text-left pl-10 mt-2 font-normal text-sm'>";
+                if(!a_Correct) msg += "<li><strong>Escenario A:</strong> Verifica que uses @OneToMany en la lista, @ManyToOne en la referencia simple, y que el 'mappedBy' coincida con el nombre de la variable.</li>";
+                if(!b_Correct) msg += "<li><strong>Escenario B:</strong> Revisa las anotaciones y el enlace mappedBy entre Department y Employee.</li>";
+                msg += "</ul>";
+                feedback.innerHTML = msg;
+                feedback.classList.add('text-red-600');
+            }
+        }
+    </script>
+</body>
+</html>
