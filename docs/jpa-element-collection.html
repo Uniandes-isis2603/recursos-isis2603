@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPA @ElementCollection - Colecciones de Tipos Básicos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 150px;
+            padding: 18px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            background: white;
+            border-bottom-color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #4a5568;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .highlight-box {
+            background: #edf2f7;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box strong {
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        code {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid #4a5568;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        .keyword { color: #f687b3; }
+        .annotation { color: #fbbf24; }
+        .string { color: #9ae6b4; }
+        .comment { color: #718096; }
+        .class-name { color: #76e4f7; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        tr:hover {
+            background: #edf2f7;
+        }
+
+        .table-container {
+            margin: 30px 0;
+        }
+
+        .table-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+        }
+
+        .table-icon {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .use-case {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .use-case.good {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .use-case.bad {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .use-case-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .use-case.good .use-case-icon {
+            color: #48bb78;
+        }
+
+        .use-case.bad .use-case-icon {
+            color: #f56565;
+        }
+
+        .example-selector {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .example-btn {
+            padding: 12px 24px;
+            background: #edf2f7;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .example-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .example-content {
+            display: none;
+        }
+
+        .example-content.active {
+            display: block;
+            animation: fadeIn 0.4s;
+        }
+
+        .annotation-list {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .annotation-item {
+            margin: 15px 0;
+            padding-left: 20px;
+            border-left: 3px solid #667eea;
+        }
+
+        .annotation-item code {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .tab-button {
+                min-width: 120px;
+                padding: 15px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>@ElementCollection en JPA</h1>
+            <p>Modelado de Colecciones de Tipos Básicos</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('concepto')">Concepto</button>
+            <button class="tab-button" onclick="showTab('cuando-usar')">Cuándo Usar</button>
+            <button class="tab-button" onclick="showTab('ejemplos')">Ejemplos de Código</button>
+            <button class="tab-button" onclick="showTab('tablas')">Estructura de BD</button>
+            <button class="tab-button" onclick="showTab('anotaciones')">Anotaciones</button>
+        </div>
+
+        <div class="content">
+            <!-- Tab: Concepto -->
+            <div id="concepto" class="tab-content active">
+                <h2>¿Qué es @ElementCollection?</h2>
+                
+                <p><code>@ElementCollection</code> es una anotación de JPA que permite almacenar colecciones de <strong>tipos básicos</strong> (String, Integer, Double, etc.) o <strong>embeddables</strong> que no son entidades independientes.</p>
+
+                <div class="highlight-box">
+                    <strong>Característica Principal:</strong>
+                    <p>JPA crea automáticamente una tabla separada para almacenar los elementos de la colección, estableciendo una relación uno-a-muchos entre la entidad principal y los valores almacenados.</p>
+                </div>
+
+                <h3>Diferencia con @OneToMany</h3>
+                <p>A diferencia de <code>@OneToMany</code>, que relaciona entidades completas con su propia identidad (<code>@Id</code>), <code>@ElementCollection</code> se usa para valores simples que no necesitan existir independientemente de la entidad padre.</p>
+
+                <div style="margin: 30px 0;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspecto</th>
+                                <th>@ElementCollection</th>
+                                <th>@OneToMany</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tipo de datos</strong></td>
+                                <td>Tipos básicos o @Embeddable</td>
+                                <td>Entidades con @Id</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Existencia independiente</strong></td>
+                                <td>No, depende de la entidad padre</td>
+                                <td>Sí, entidad independiente</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tabla adicional</strong></td>
+                                <td>Sí, automática</td>
+                                <td>Sí, la tabla de la entidad</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ejemplo de uso</strong></td>
+                                <td>Lista de emails, tags, números</td>
+                                <td>Lista de pedidos, comentarios</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Cuándo Usar -->
+            <div id="cuando-usar" class="tab-content">
+                <h2>¿Cuándo Usar @ElementCollection?</h2>
+
+                <h3>Casos de Uso Apropiados ✓</h3>
+
+                <div class="use-case good">
+                    <div class="use-case-icon">✓</div>
+                    <div>
+                        <strong>Múltiples valores de contacto</strong>
+                        <p>Emails, teléfonos, direcciones cuando no necesitan ser entidades independientes.</p>
+                    </div>
+                </div>
+
+                <div class="use-case good">
+                    <div class="use-case-icon">✓</div>
+                    <div>
+                        <strong>Etiquetas y categorías</strong>
+                        <p>Tags, palabras clave, categorías simples asociadas a un producto o publicación.</p>
+                    </div>
+                </div>
+
+                <div class="use-case good">
+                    <div class="use-case-icon">✓</div>
+                    <div>
+                        <strong>Historial de valores numéricos</strong>
+                        <p>Calificaciones, precios históricos, mediciones que no requieren metadatos adicionales.</p>
+                    </div>
+                </div>
+
+                <div class="use-case good">
+                    <div class="use-case-icon">✓</div>
+                    <div>
+                        <strong>Atributos multivaluados simples</strong>
+                        <p>URLs de redes sociales, habilidades, intereses, lenguajes de programación.</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px;">Cuándo NO Usar ✗</h3>
+
+                <div class="use-case bad">
+                    <div class="use-case-icon">✗</div>
+                    <div>
+                        <strong>Relaciones con otras entidades</strong>
+                        <p>Si necesitas relacionar con otra entidad que tiene su propio ID, usa <code>@OneToMany</code> o <code>@ManyToMany</code>.</p>
+                    </div>
+                </div>
+
+                <div class="use-case bad">
+                    <div class="use-case-icon">✗</div>
+                    <div>
+                        <strong>Datos que necesitan metadatos</strong>
+                        <p>Si cada elemento necesita fecha de creación, autor, estado, etc., mejor crear una entidad completa.</p>
+                    </div>
+                </div>
+
+                <div class="use-case bad">
+                    <div class="use-case-icon">✗</div>
+                    <div>
+                        <strong>Grandes volúmenes de datos</strong>
+                        <p>Para colecciones muy grandes, el rendimiento puede verse afectado. Evalúa otras alternativas.</p>
+                    </div>
+                </div>
+
+                <div class="use-case bad">
+                    <div class="use-case-icon">✗</div>
+                    <div>
+                        <strong>Consultas frecuentes independientes</strong>
+                        <p>Si necesitas consultar frecuentemente los elementos sin la entidad padre, considera una entidad separada.</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 30px;">
+                    <strong>Regla General:</strong>
+                    <p>Usa <code>@ElementCollection</code> cuando los valores en la colección no tienen significado o existencia fuera del contexto de la entidad padre.</p>
+                </div>
+            </div>
+
+            <!-- Tab: Ejemplos -->
+            <div id="ejemplos" class="tab-content">
+                <h2>Ejemplos de Código</h2>
+
+                <div class="example-selector">
+                    <button class="example-btn active" onclick="showExample('strings')">Colección de Strings</button>
+                    <button class="example-btn" onclick="showExample('numeros')">Colección de Números</button>
+                    <button class="example-btn" onclick="showExample('completo')">Ejemplo Completo</button>
+                </div>
+
+                <!-- Ejemplo: Strings -->
+                <div id="example-strings" class="example-content active">
+                    <h3>Producto con Tags (Colección de Strings)</h3>
+                    
+                    <pre><code><span class="annotation">@Entity</span>
+<span class="keyword">public class</span> <span class="class-name">Producto</span> {
+    
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;
+    
+    <span class="keyword">private</span> String nombre;
+    <span class="keyword">private</span> Double precio;
+    
+    <span class="annotation">@ElementCollection</span>
+    <span class="annotation">@CollectionTable</span>(
+        name = <span class="string">"producto_tags"</span>,
+        joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"producto_id"</span>)
+    )
+    <span class="annotation">@Column</span>(name = <span class="string">"tag"</span>)
+    <span class="keyword">private</span> List&lt;String&gt; tags;
+}</code></pre>
+
+                    <h3>Estructura en Base de Datos</h3>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: producto
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>nombre</th>
+                                    <th>precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Laptop HP</td>
+                                    <td>1200.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Mouse Logitech</td>
+                                    <td>45.00</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Teclado Mecánico</td>
+                                    <td>120.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: producto_tags
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>producto_id</th>
+                                    <th>tag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>electrónica</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>computador</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>portátil</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>periférico</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>accesorio</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>periférico</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>gaming</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ejemplo: Números -->
+                <div id="example-numeros" class="example-content">
+                    <h3>Estudiante con Calificaciones (Colección de Números)</h3>
+                    
+                    <pre><code><span class="annotation">@Entity</span>
+<span class="keyword">public class</span> <span class="class-name">Estudiante</span> {
+    
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;
+    
+    <span class="keyword">private</span> String nombre;
+    <span class="keyword">private</span> String programa;
+    
+    <span class="annotation">@ElementCollection</span>
+    <span class="annotation">@CollectionTable</span>(
+        name = <span class="string">"calificaciones"</span>,
+        joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"estudiante_id"</span>)
+    )
+    <span class="annotation">@Column</span>(name = <span class="string">"nota"</span>)
+    <span class="keyword">private</span> List&lt;Double&gt; notas;
+}</code></pre>
+
+                    <h3>Estructura en Base de Datos</h3>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: estudiante
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>nombre</th>
+                                    <th>programa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>María García</td>
+                                    <td>Ingeniería de Software</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Carlos López</td>
+                                    <td>Ingeniería de Sistemas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: calificaciones
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>estudiante_id</th>
+                                    <th>nota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>4.5</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>4.8</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>4.2</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>3.9</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>4.1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ejemplo: Completo -->
+                <div id="example-completo" class="example-content">
+                    <h3>Ejemplo Completo: Usuario con Múltiples Colecciones</h3>
+                    
+                    <pre><code><span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name = <span class="string">"usuarios"</span>)
+<span class="keyword">public class</span> <span class="class-name">Usuario</span> {
+    
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;
+    
+    <span class="keyword">private</span> String nombre;
+    <span class="keyword">private</span> String nombreUsuario;
+    
+    <span class="comment">// Colección de emails</span>
+    <span class="annotation">@ElementCollection</span>
+    <span class="annotation">@CollectionTable</span>(
+        name = <span class="string">"usuario_emails"</span>,
+        joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"usuario_id"</span>)
+    )
+    <span class="annotation">@Column</span>(name = <span class="string">"email"</span>)
+    <span class="keyword">private</span> Set&lt;String&gt; emails;
+    
+    <span class="comment">// Colección de teléfonos</span>
+    <span class="annotation">@ElementCollection</span>
+    <span class="annotation">@CollectionTable</span>(
+        name = <span class="string">"usuario_telefonos"</span>,
+        joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"usuario_id"</span>)
+    )
+    <span class="annotation">@Column</span>(name = <span class="string">"telefono"</span>)
+    <span class="keyword">private</span> Set&lt;String&gt; telefonos;
+    
+    <span class="comment">// Colección de habilidades</span>
+    <span class="annotation">@ElementCollection</span>
+    <span class="annotation">@CollectionTable</span>(
+        name = <span class="string">"usuario_habilidades"</span>,
+        joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"usuario_id"</span>)
+    )
+    <span class="annotation">@Column</span>(name = <span class="string">"habilidad"</span>)
+    <span class="keyword">private</span> List&lt;String&gt; habilidades;
+}</code></pre>
+
+                    <h3>Estructura en Base de Datos</h3>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: usuarios
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>nombre</th>
+                                    <th>nombre_usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Juan Pérez</td>
+                                    <td>jperez</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: usuario_emails
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>usuario_id</th>
+                                    <th>email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>juan@empresa.com</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>jperez@personal.com</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: usuario_telefonos
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>usuario_id</th>
+                                    <th>telefono</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>+57 300 1234567</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>+57 310 7654321</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-title">
+                            <span class="table-icon"></span>
+                            Tabla: usuario_habilidades
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>usuario_id</th>
+                                    <th>habilidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Java</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Spring Boot</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>JPA</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>SQL</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Tablas -->
+            <div id="tablas" class="tab-content">
+                <h2>Estructura de Base de Datos</h2>
+
+                <p>JPA genera automáticamente las tablas necesarias para almacenar las colecciones. Veamos cómo quedan estructuradas:</p>
+
+                <h3>Ejemplo 1: Producto con Tags</h3>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: producto
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>nombre</th>
+                                <th>precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Laptop HP</td>
+                                <td>1200.00</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Mouse Logitech</td>
+                                <td>45.00</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Teclado Mecánico</td>
+                                <td>120.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: producto_tags
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>producto_id</th>
+                                <th>tag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>electrónica</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>computador</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>portátil</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>periférico</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>accesorio</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>periférico</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>gaming</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Ejemplo 2: Estudiante con Calificaciones</h3>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: estudiante
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>nombre</th>
+                                <th>programa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>María García</td>
+                                <td>Ingeniería de Software</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Carlos López</td>
+                                <td>Ingeniería de Sistemas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: calificaciones
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>estudiante_id</th>
+                                <th>nota</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>4.5</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>4.8</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>4.2</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>3.9</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>4.1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Ejemplo 3: Usuario con Múltiples Colecciones</h3>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: usuarios
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>nombre</th>
+                                <th>nombre_usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Juan Pérez</td>
+                                <td>jperez</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: usuario_emails
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>usuario_id</th>
+                                <th>email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>juan@empresa.com</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>jperez@personal.com</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: usuario_telefonos
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>usuario_id</th>
+                                <th>telefono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>+57 300 1234567</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>+57 310 7654321</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-title">
+                        <span class="table-icon"></span>
+                        Tabla: usuario_habilidades
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>usuario_id</th>
+                                <th>habilidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Java</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Spring Boot</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>JPA</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>SQL</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 30px;">
+                    <strong>Observación Importante:</strong>
+                    <p>Cada tabla de colección tiene una foreign key (usuario_id, producto_id, estudiante_id) que referencia a la tabla principal. Los elementos de la colección no tienen su propio ID único, dependen completamente de la entidad padre.</p>
+                </div>
+            </div>
+
+            <!-- Tab: Anotaciones -->
+            <div id="anotaciones" class="tab-content">
+                <h2>Anotaciones de JPA para Colecciones</h2>
+
+                <div class="annotation-list">
+                    <div class="annotation-item">
+                        <code>@ElementCollection</code>
+                        <p><strong>Obligatoria.</strong> Marca un atributo como una colección de elementos básicos o embeddables. Sin esta anotación, JPA no procesará la colección correctamente.</p>
+                        <pre><code><span class="annotation">@ElementCollection</span>
+<span class="keyword">private</span> List&lt;String&gt; tags;</code></pre>
+                    </div>
+
+                    <div class="annotation-item">
+                        <code>@CollectionTable</code>
+                        <p><strong>Opcional.</strong> Especifica el nombre y estructura de la tabla que almacenará los elementos. Si no se especifica, JPA usa convenciones por defecto.</p>
+                        <pre><code><span class="annotation">@ElementCollection</span>
+<span class="annotation">@CollectionTable</span>(
+    name = <span class="string">"producto_tags"</span>,           <span class="comment">// Nombre de la tabla</span>
+    joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"producto_id"</span>)  <span class="comment">// FK</span>
+)
+<span class="keyword">private</span> List&lt;String&gt; tags;</code></pre>
+                    </div>
+
+                    <div class="annotation-item">
+                        <code>@Column</code>
+                        <p><strong>Opcional.</strong> Define el nombre de la columna donde se almacenarán los valores de la colección.</p>
+                        <pre><code><span class="annotation">@ElementCollection</span>
+<span class="annotation">@Column</span>(name = <span class="string">"email_address"</span>)
+<span class="keyword">private</span> Set&lt;String&gt; emails;</code></pre>
+                    </div>
+
+                    <div class="annotation-item">
+                        <code>@OrderColumn</code>
+                        <p><strong>Opcional.</strong> Para listas (<code>List</code>), mantiene el orden de los elementos creando una columna adicional para el índice.</p>
+                        <pre><code><span class="annotation">@ElementCollection</span>
+<span class="annotation">@OrderColumn</span>(name = <span class="string">"posicion"</span>)
+<span class="keyword">private</span> List&lt;String&gt; habilidades;</code></pre>
+                    </div>
+
+                    <div class="annotation-item">
+                        <code>@Enumerated</code>
+                        <p><strong>Para enums.</strong> Define cómo almacenar valores de tipo enum (como String o como entero).</p>
+                        <pre><code><span class="annotation">@ElementCollection</span>
+<span class="annotation">@Enumerated</span>(EnumType.STRING)
+<span class="keyword">private</span> Set&lt;Rol&gt; roles;</code></pre>
+                    </div>
+                </div>
+
+                <h3>Configuración por Defecto vs. Personalizada</h3>
+
+                <table style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Valor por Defecto</th>
+                            <th>Personalizado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Nombre tabla</strong></td>
+                            <td>entidad_atributo</td>
+                            <td>@CollectionTable(name="...")</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre columna FK</strong></td>
+                            <td>entidad_id</td>
+                            <td>@JoinColumn(name="...")</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre columna valor</strong></td>
+                            <td>nombre_atributo</td>
+                            <td>@Column(name="...")</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Ejemplo: Configuración Mínima</h3>
+                <pre><code><span class="comment">// JPA genera nombres automáticamente</span>
+<span class="annotation">@ElementCollection</span>
+<span class="keyword">private</span> List&lt;String&gt; tags;
+
+<span class="comment">// Tabla generada: Producto_tags</span>
+<span class="comment">// Columnas: Producto_id, tags</span></code></pre>
+
+                <h3>Ejemplo: Configuración Completa</h3>
+                <pre><code><span class="comment">// Control total sobre nombres</span>
+<span class="annotation">@ElementCollection</span>
+<span class="annotation">@CollectionTable</span>(
+    name = <span class="string">"producto_etiquetas"</span>,
+    joinColumns = <span class="annotation">@JoinColumn</span>(name = <span class="string">"id_producto"</span>)
+)
+<span class="annotation">@Column</span>(name = <span class="string">"etiqueta"</span>)
+<span class="keyword">private</span> List&lt;String&gt; tags;
+
+<span class="comment">// Tabla generada: producto_etiquetas</span>
+<span class="comment">// Columnas: id_producto, etiqueta</span></code></pre>
+
+                <div class="highlight-box" style="margin-top: 30px;">
+                    <strong>Recomendación:</strong>
+                    <p>Usa configuración personalizada en proyectos profesionales para mantener convenciones de nombres claras y consistentes con el diseño de tu base de datos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Mostrar el contenido seleccionado
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activar el botón seleccionado
+            event.target.classList.add('active');
+        }
+
+        function showExample(exampleName) {
+            // Ocultar todos los ejemplos
+            const examples = document.querySelectorAll('.example-content');
+            examples.forEach(example => example.classList.remove('active'));
+            
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.example-btn');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Mostrar el ejemplo seleccionado
+            document.getElementById('example-' + exampleName).classList.add('active');
+            
+            // Activar el botón seleccionado
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
