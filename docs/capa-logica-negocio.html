@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capa de Lógica de Negocio — Spring Boot</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-card: #f5f7fb;
+    --bg-card-hover: #eef1f8;
+    --accent-green: #059669;
+    --accent-green-dim: #d1fae5;
+    --accent-blue: #2563eb;
+    --accent-blue-dim: #dbeafe;
+    --accent-amber: #d97706;
+    --accent-amber-dim: #fef3c7;
+    --accent-rose: #dc2626;
+    --accent-rose-dim: #fee2e2;
+    --accent-purple: #7c3aed;
+    --accent-purple-dim: #ede9fe;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #9ca3af;
+    --border: #d1d5db;
+    --code-bg: #f3f4f6;
+    --glow-green: rgba(5, 150, 105, 0.1);
+    --glow-blue: rgba(37, 99, 235, 0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+  /* ─── Header ─── */
+  .hero {
+    position: relative;
+    padding: 80px 40px 60px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, var(--glow-green) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, var(--glow-blue) 0%, transparent 50%);
+    pointer-events: none;
+    animation: heroGlow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroGlow {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .badge.spring { background: var(--accent-green-dim); color: var(--accent-green); }
+  .badge.java { background: var(--accent-amber-dim); color: var(--accent-amber); }
+  .badge.jpa { background: var(--accent-blue-dim); color: var(--accent-blue); }
+
+  /* ─── Navigation ─── */
+  .nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .nav-tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.25s;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .nav-tab:hover { color: var(--text-secondary); background: var(--bg-card); }
+
+  .nav-tab.active {
+    color: var(--accent-green);
+    background: var(--accent-green-dim);
+  }
+
+  .nav-tab .tab-num {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    margin-right: 6px;
+    background: var(--bg-secondary);
+  }
+
+  .nav-tab.active .tab-num {
+    background: var(--accent-green);
+    color: var(--bg-primary);
+  }
+
+  /* ─── Content Area ─── */
+  .content-area {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .section { display: none; animation: fadeSlide 0.4s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Section Headers ─── */
+  .section-header {
+    margin-bottom: 32px;
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .section-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(52, 211, 153, 0.2);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card h3 .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .card p, .card li {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+
+  .card ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+
+  .card ul li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+  }
+
+  .card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 4px;
+    color: var(--accent-green);
+    font-weight: bold;
+  }
+
+  /* ─── Code blocks ─── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(30, 41, 59, 0.5);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dots span:nth-child(1) { background: #ef4444; }
+  .code-dots span:nth-child(2) { background: #fbbf24; }
+  .code-dots span:nth-child(3) { background: #34d399; }
+
+  .code-content {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  .code-content code {
+    color: var(--text-secondary);
+    white-space: pre;
+    display: block;
+  }
+
+  .kw { color: #c084fc; }
+  .ann { color: #fbbf24; }
+  .str { color: #34d399; }
+  .cls { color: #60a5fa; }
+  .cmt { color: #4a5568; font-style: italic; }
+  .mth { color: #f9a8d4; }
+  .num { color: #fb923c; }
+  .exc { color: #fb7185; }
+
+  /* ─── Architecture Diagram ─── */
+  .arch-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    margin: 30px 0;
+  }
+
+  .arch-layer {
+    width: 100%;
+    max-width: 520px;
+    padding: 22px 28px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .arch-layer:hover {
+    transform: scale(1.03);
+  }
+
+  .arch-layer.api {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(96, 165, 250, 0.05));
+    border: 1px solid rgba(96, 165, 250, 0.3);
+  }
+
+  .arch-layer.logic {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(52, 211, 153, 0.06));
+    border: 2px solid rgba(52, 211, 153, 0.5);
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.1);
+    z-index: 2;
+  }
+
+  .arch-layer.persistence {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  .arch-layer h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .arch-layer .layer-detail {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .arch-layer.api h4 { color: var(--accent-blue); }
+  .arch-layer.logic h4 { color: var(--accent-green); }
+  .arch-layer.persistence h4 { color: var(--accent-amber); }
+
+  .arch-arrow {
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    padding: 4px 0;
+    text-align: center;
+  }
+
+  .arch-layer-detail-popup {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    width: 100%;
+    max-width: 520px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    animation: fadeSlide 0.3s ease;
+  }
+
+  .arch-layer-detail-popup.visible { display: block; }
+
+  .arch-layer-detail-popup strong { color: var(--text-primary); }
+
+  /* ─── Injection Diagram ─── */
+  .injection-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+
+  .inject-box {
+    padding: 18px 22px;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 160px;
+    transition: all 0.3s;
+  }
+
+  .inject-box:hover { transform: translateY(-4px); }
+
+  .inject-box.controller {
+    background: rgba(96, 165, 250, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+  }
+
+  .inject-box.service {
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+  }
+
+  .inject-box.repo {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  .inject-box h5 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .inject-box.controller h5 { color: var(--accent-blue); }
+  .inject-box.service h5 { color: var(--accent-green); }
+  .inject-box.repo h5 { color: var(--accent-amber); }
+
+  .inject-box .inject-ann {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent-amber);
+    opacity: 0.8;
+  }
+
+  .inject-arrow {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    padding: 0 8px;
+  }
+
+  /* ─── Interactive Rules ─── */
+  .rule-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .rule-card:hover {
+    border-color: rgba(167, 139, 250, 0.3);
+  }
+
+  .rule-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .rule-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .rule-num.green { background: var(--accent-green-dim); color: var(--accent-green); }
+  .rule-num.blue { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .rule-num.amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
+  .rule-num.rose { background: var(--accent-rose-dim); color: var(--accent-rose); }
+  .rule-num.purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
+
+  .rule-title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .rule-toggle {
+    color: var(--text-muted);
+    transition: transform 0.3s;
+    font-size: 1.2rem;
+  }
+
+  .rule-card.open .rule-toggle { transform: rotate(180deg); }
+
+  .rule-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  .rule-card.open .rule-body {
+    max-height: 1200px;
+  }
+
+  .rule-body-inner {
+    padding: 0 24px 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .rule-body-inner p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+
+  /* ─── Quiz ─── */
+  .quiz-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 20px;
+  }
+
+  .quiz-question {
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .quiz-option {
+    padding: 14px 18px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+  }
+
+  .quiz-option:hover {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+  }
+
+  .quiz-option.correct {
+    border-color: var(--accent-green) !important;
+    background: rgba(52, 211, 153, 0.1) !important;
+    color: var(--accent-green) !important;
+  }
+
+  .quiz-option.incorrect {
+    border-color: var(--accent-rose) !important;
+    background: rgba(251, 113, 133, 0.08) !important;
+    color: var(--accent-rose) !important;
+  }
+
+  .quiz-option.disabled { pointer-events: none; }
+
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    display: none;
+    line-height: 1.6;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.success { background: rgba(52, 211, 153, 0.1); border: 1px solid var(--accent-green-dim); color: var(--accent-green); }
+  .quiz-feedback.error { background: rgba(251, 113, 133, 0.08); border: 1px solid var(--accent-rose-dim); color: var(--accent-rose); }
+
+  /* ─── Callout ─── */
+  .callout {
+    padding: 18px 22px;
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .callout.info {
+    background: rgba(96, 165, 250, 0.08);
+    border-left: 3px solid var(--accent-blue);
+    color: var(--text-secondary);
+  }
+
+  .callout.warning {
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid var(--accent-amber);
+    color: var(--text-secondary);
+  }
+
+  .callout.success {
+    background: rgba(52, 211, 153, 0.08);
+    border-left: 3px solid var(--accent-green);
+    color: var(--text-secondary);
+  }
+
+  .callout strong { color: var(--text-primary); }
+
+  /* ─── Highlight inline ─── */
+  .hl { 
+    font-family: 'JetBrains Mono', monospace; 
+    font-size: 0.82em; 
+    background: rgba(167, 139, 250, 0.12); 
+    color: var(--accent-purple); 
+    padding: 2px 7px; 
+    border-radius: 4px; 
+  }
+
+  /* ─── Step indicators ─── */
+  .steps {
+    counter-reset: step;
+    margin: 16px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    counter-increment: step;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .step-text strong { color: var(--text-primary); }
+
+  /* ─── Footer ─── */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ─── Test Section ─── */
+  .test-scenario {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 12px 0;
+  }
+
+  .test-scenario h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .test-pass { color: var(--accent-green); }
+  .test-fail { color: var(--accent-rose); }
+
+  .test-scenario p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 50px 20px 40px; }
+    .content-area { padding: 24px 16px 60px; }
+    .card { padding: 20px; }
+    .nav-tab { padding: 8px 12px; font-size: 0.8rem; }
+    .injection-flow { flex-direction: column; }
+    .inject-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <h1>La Capa de Lógica de Negocio</h1>
+  <p class="subtitle">Arquitectura por capas en Spring Boot — cómo la lógica coordina tu aplicación, valida reglas y se comunica con la persistencia.</p>
+  <div class="badge-row">
+    <span class="badge spring">☘ Spring Boot</span>
+    <span class="badge java">♦ Java</span>
+    <span class="badge jpa">◈ JPA</span>
+  </div>
+</div>
+
+<!-- ═══════ NAV ═══════ -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('overview')">
+    <span class="tab-num">1</span>Arquitectura
+  </button>
+  <button class="nav-tab" onclick="showSection('injection')">
+    <span class="tab-num">2</span>Inyección
+  </button>
+  <button class="nav-tab" onclick="showSection('rules')">
+    <span class="tab-num">3</span>Reglas de Negocio
+  </button>
+  <button class="nav-tab" onclick="showSection('testing')">
+    <span class="tab-num">4</span>Pruebas
+  </button>
+  <button class="nav-tab" onclick="showSection('quiz')">
+    <span class="tab-num">5</span>Quiz
+  </button>
+</nav>
+
+<div class="content-area">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 1: Arquitectura                     -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section active" id="sec-overview">
+    <div class="section-header">
+      <h2>¿Dónde vive la lógica de negocio?</h2>
+      <p>Nuestra aplicación se organiza en tres capas. La capa de lógica es el corazón que conecta la interfaz con los datos.</p>
+    </div>
+
+    <!-- Interactive Architecture Diagram -->
+    <div class="arch-diagram" id="archDiagram">
+      <div class="arch-layer api" onclick="toggleLayerDetail('api')">
+        <h4>🌐 Capa API REST</h4>
+        <div class="layer-detail">Controladores — <span class="hl">@RestController</span></div>
+      </div>
+      <div class="arch-layer-detail-popup" id="detail-api">
+        <strong>Responsabilidad:</strong> Recibe solicitudes HTTP y las traduce a llamadas al servicio. Trabaja con <strong>DTOs</strong> y JSON. No conoce la base de datos directamente.
+      </div>
+
+      <div class="arch-arrow">⇅</div>
+
+      <div class="arch-layer logic" onclick="toggleLayerDetail('logic')">
+        <h4>⚙ Capa de Lógica de Negocio</h4>
+        <div class="layer-detail">Servicios — <span class="hl">@Service</span></div>
+      </div>
+      <div class="arch-layer-detail-popup" id="detail-logic">
+        <strong>Responsabilidad:</strong> Coordina el flujo de la aplicación, <strong>valida reglas de negocio</strong> e invoca la persistencia. Trabaja exclusivamente con objetos <span class="hl">@Entity</span>. No conoce DTOs, JSON ni HTTP.
+      </div>
+
+      <div class="arch-arrow">⇅</div>
+
+      <div class="arch-layer persistence" onclick="toggleLayerDetail('persistence')">
+        <h4>🗄 Capa de Persistencia</h4>
+        <div class="layer-detail">Repositorios — <span class="hl">JpaRepository</span></div>
+      </div>
+      <div class="arch-layer-detail-popup" id="detail-persistence">
+        <strong>Responsabilidad:</strong> Gestiona el acceso a la base de datos. Ofrece métodos CRUD automáticos y permite definir consultas personalizadas. Spring Data JPA genera la implementación automáticamente.
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>Principio clave:</strong> El Backend no conoce DTOs ni JSON ni ninguna otra representación de los recursos. Solo trabaja con entidades (<span class="hl">@Entity</span>).
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">☘</span>
+        ¿Qué es un @Service?
+      </h3>
+      <p>En Spring, las clases de lógica de negocio se anotan con <span class="hl">@Service</span>. Esta anotación le indica al contenedor de Spring que esa clase es un <strong>bean</strong> — un objeto cuyo ciclo de vida es gestionado por el framework.</p>
+      <p style="margin-top:10px;">La convención de nombrado es usar el sufijo <strong>Service</strong>. Por ejemplo: <span class="hl">BookService</span>, <span class="hl">AuthorService</span>, <span class="hl">EditorialService</span>.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-blue-dim);color:var(--accent-blue);">⟶</span>
+        ¿Qué objetos viajan entre capas?
+      </h3>
+      <p>Las clases de la lógica reciben y retornan objetos <span class="hl">@Entity</span> — las mismas clases que representan las tablas en la base de datos. Los controladores se encargan de convertir entre Entity y DTO, pero el servicio nunca toca esa conversión.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">⊞</span>
+        Responsabilidades de la capa de lógica
+      </h3>
+      <ul>
+        <li>Validar las reglas de negocio antes de persistir datos</li>
+        <li>Coordinar la comunicación entre el API y la persistencia</li>
+        <li>Invocar servicios externos cuando sea necesario (ej: validar un ISBN)</li>
+        <li>Lanzar excepciones cuando las reglas no se cumplen</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 2: Inyección de Dependencias        -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="sec-injection">
+    <div class="section-header">
+      <h2>Inyección de Dependencias</h2>
+      <p>Cómo Spring conecta automáticamente las capas de tu aplicación con <span class="hl">@Autowired</span>.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-purple-dim);color:var(--accent-purple);">⟳</span>
+        ¿Qué es la inyección de dependencias?
+      </h3>
+      <p>Imagina que tienes una clase <span class="hl">BookService</span> que necesita acceder a la base de datos mediante <span class="hl">BookRepository</span>. En lugar de que tú crees manualmente la instancia del repositorio con <span class="hl">new BookRepository()</span>, Spring lo hace por ti.</p>
+      <p style="margin-top:12px;">Cuando declaras una variable con <span class="hl">@Autowired</span>, le dices a Spring: <em>"busca en tu contenedor un bean de este tipo e inyéctalo aquí"</em>. Spring resuelve la dependencia y conecta los objetos automáticamente en tiempo de ejecución.</p>
+    </div>
+
+    <!-- Visual flow -->
+    <div class="injection-flow">
+      <div class="inject-box controller">
+        <div class="inject-ann">@RestController</div>
+        <h5>BookController</h5>
+      </div>
+      <div class="inject-arrow">
+        <div style="font-size:0.65rem;color:var(--accent-purple);margin-bottom:2px;">@Autowired</div>
+        →
+      </div>
+      <div class="inject-box service">
+        <div class="inject-ann">@Service</div>
+        <h5>BookService</h5>
+      </div>
+      <div class="inject-arrow">
+        <div style="font-size:0.65rem;color:var(--accent-purple);margin-bottom:2px;">@Autowired</div>
+        →
+      </div>
+      <div class="inject-box repo">
+        <div class="inject-ann">JpaRepository</div>
+        <h5>BookRepository</h5>
+      </div>
+    </div>
+
+    <!-- Code Example 1 -->
+    <h3 style="margin:24px 0 8px;font-size:1rem;">La lógica inyecta la persistencia</h3>
+    <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px;">El servicio declara una dependencia al repositorio. Spring se encarga de crear y entregar la instancia.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>BookService.java</span>
+      </div>
+      <div class="code-content"><code><span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cls">BookService</span>
+{
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">BookRepository</span> repository;
+
+&nbsp;&nbsp;<span class="ann">@Transactional</span>
+&nbsp;&nbsp;<span class="kw">public</span> <span class="cls">List</span>&lt;<span class="cls">BookEntity</span>&gt; <span class="mth">getBooks</span>()
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> repository.<span class="mth">findAll</span>();
+&nbsp;&nbsp;}
+}</code></div>
+    </div>
+
+    <!-- Code Example 2 -->
+    <h3 style="margin:24px 0 8px;font-size:1rem;">El API inyecta la lógica</h3>
+    <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:12px;">El controlador depende del servicio. No necesita conocer cómo se instancia ni sus dependencias internas.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>BookController.java</span>
+      </div>
+      <div class="code-content"><code><span class="ann">@RestController</span>
+<span class="ann">@RequestMapping</span>(<span class="str">"/books"</span>)
+<span class="kw">public class</span> <span class="cls">BookController</span>
+{
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">BookService</span> bookService;
+
+&nbsp;&nbsp;<span class="ann">@GetMapping</span>
+&nbsp;&nbsp;<span class="kw">public</span> <span class="cls">List</span>&lt;<span class="cls">BookDTO</span>&gt; <span class="mth">getAll</span>()
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// convierte Entity → DTO aquí</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> bookService.<span class="mth">getBooks</span>()...;
+&nbsp;&nbsp;}
+}</code></div>
+    </div>
+
+    <div class="callout success">
+      <strong>¿Por qué importa?</strong> La inyección de dependencias permite que cada capa se desacople de las demás. El servicio no sabe cómo funciona el repositorio internamente y el controlador no sabe cómo funciona el servicio. Esto facilita el testing, el mantenimiento y la evolución de la aplicación.
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">🗄</span>
+        ¿Qué es un Repository?
+      </h3>
+      <p>Un <span class="hl">Repository</span> es una interfaz que extiende <span class="hl">JpaRepository</span>. Spring Data JPA genera automáticamente la implementación con métodos CRUD como <span class="hl">findAll()</span>, <span class="hl">findById()</span>, <span class="hl">save()</span> y <span class="hl">deleteById()</span>.</p>
+      <p style="margin-top:10px;">Además, puedes definir consultas personalizadas por convención de nombrado:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>BookRepository.java</span>
+        </div>
+        <div class="code-content"><code><span class="kw">public interface</span> <span class="cls">BookRepository</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">extends</span> <span class="cls">JpaRepository</span>&lt;<span class="cls">BookEntity</span>, <span class="cls">Long</span>&gt;
+{
+&nbsp;&nbsp;<span class="cmt">// Spring genera SQL automáticamente</span>
+&nbsp;&nbsp;<span class="cls">List</span>&lt;<span class="cls">BookEntity</span>&gt; <span class="mth">findByName</span>(<span class="cls">String</span> name);
+&nbsp;&nbsp;<span class="cls">List</span>&lt;<span class="cls">BookEntity</span>&gt; <span class="mth">findByIsbn</span>(<span class="cls">String</span> isbn);
+}</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 3: Reglas de Negocio                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="sec-rules">
+    <div class="section-header">
+      <h2>Reglas de Negocio</h2>
+      <p>La capa de lógica valida las condiciones que deben cumplirse antes de persistir o modificar datos. Haz clic en cada regla para ver su implementación.</p>
+    </div>
+
+    <!-- Rule 1 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num green">1</span>
+        <span class="rule-title">No puede haber dos compañías con el mismo nombre</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Antes de crear o actualizar una compañía, consultamos la base de datos para verificar si ya existe otra con ese nombre. Si existe, lanzamos una excepción.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>CompanyService.java — createCompany()</span>
+            </div>
+            <div class="code-content"><code><span class="ann">@Transactional</span>
+<span class="kw">public</span> <span class="cls">CompanyEntity</span> <span class="mth">createCompany</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">CompanyEntity</span> entity)
+&nbsp;&nbsp;<span class="kw">throws</span> <span class="exc">IllegalOperationException</span>
+{
+&nbsp;&nbsp;<span class="cmt">// 1. Consultar la persistencia</span>
+&nbsp;&nbsp;<span class="cls">List</span>&lt;<span class="cls">CompanyEntity</span>&gt; alreadyExist =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repository.<span class="mth">findByName</span>(entity.<span class="mth">getName</span>());
+
+&nbsp;&nbsp;<span class="cmt">// 2. Validar la regla de negocio</span>
+&nbsp;&nbsp;<span class="kw">if</span> (!alreadyExist.<span class="mth">isEmpty</span>()) {
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Ya existe una compañía con ese nombre"</span>);
+&nbsp;&nbsp;}
+
+&nbsp;&nbsp;<span class="cmt">// 3. Si pasa, persistir</span>
+&nbsp;&nbsp;<span class="kw">return</span> repository.<span class="mth">save</span>(entity);
+}</code></div>
+          </div>
+          <div class="callout warning">
+            <strong>Patrón:</strong> consulta → valida → persiste. Si la validación falla, se lanza una excepción y la operación se cancela.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rule 2 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num blue">2</span>
+        <span class="rule-title">El ISBN del libro debe ser válido (no vacío, no nulo)</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Antes de crear un libro, verificamos que el campo ISBN no esté vacío ni sea nulo. Este es un ejemplo de validación de campo simple.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>BookService.java — createBook()</span>
+            </div>
+            <div class="code-content"><code><span class="ann">@Transactional</span>
+<span class="kw">public</span> <span class="cls">BookEntity</span> <span class="mth">createBook</span>(<span class="cls">BookEntity</span> book)
+&nbsp;&nbsp;<span class="kw">throws</span> <span class="exc">IllegalOperationException</span>
+{
+&nbsp;&nbsp;<span class="cmt">// Validar que el ISBN no sea vacío</span>
+&nbsp;&nbsp;<span class="kw">if</span> (book.<span class="mth">getIsbn</span>() == <span class="kw">null</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|| book.<span class="mth">getIsbn</span>().<span class="mth">isEmpty</span>()) {
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"El ISBN no puede ser vacío"</span>);
+&nbsp;&nbsp;}
+
+&nbsp;&nbsp;<span class="kw">return</span> repository.<span class="mth">save</span>(book);
+}</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rule 3 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num amber">3</span>
+        <span class="rule-title">La fecha de publicación debe ser posterior al nacimiento del autor</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Este ejemplo muestra una regla que involucra datos de dos entidades relacionadas. Necesitamos consultar tanto el libro como su autor para validar.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>BookService.java — validación cruzada</span>
+            </div>
+            <div class="code-content"><code><span class="cmt">// Validar coherencia de fechas</span>
+<span class="kw">if</span> (book.<span class="mth">getPublishDate</span>() != <span class="kw">null</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&nbsp;author.<span class="mth">getBirthDate</span>() != <span class="kw">null</span>)
+{
+&nbsp;&nbsp;<span class="kw">if</span> (book.<span class="mth">getPublishDate</span>()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">before</span>(author.<span class="mth">getBirthDate</span>()))
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"La fecha de publicación no puede "</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="str">"ser anterior al nacimiento del autor"</span>);
+&nbsp;&nbsp;}
+}</code></div>
+          </div>
+          <div class="callout info">
+            <strong>Nota:</strong> Las validaciones cruzadas entre entidades son comunes en reglas de negocio. El servicio tiene acceso a múltiples repositorios para resolver estas dependencias.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rule 4 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num rose">4</span>
+        <span class="rule-title">Un empleado no puede tener un salario superior a 50 millones</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Ejemplo de una regla con validación numérica directa sobre un atributo de la entidad.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>EmployeeService.java</span>
+            </div>
+            <div class="code-content"><code><span class="kw">private static final</span> <span class="cls">Double</span> MAX_SALARY = <span class="num">50000000.0</span>;
+
+<span class="ann">@Transactional</span>
+<span class="kw">public</span> <span class="cls">EmployeeEntity</span> <span class="mth">createEmployee</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">EmployeeEntity</span> emp)
+&nbsp;&nbsp;<span class="kw">throws</span> <span class="exc">IllegalOperationException</span>
+{
+&nbsp;&nbsp;<span class="kw">if</span> (emp.<span class="mth">getSalary</span>() > MAX_SALARY)
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Salario excede el máximo permitido"</span>);
+&nbsp;&nbsp;}
+&nbsp;&nbsp;<span class="kw">return</span> repository.<span class="mth">save</span>(emp);
+}</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rule 5 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num purple">5</span>
+        <span class="rule-title">No puede haber dos departamentos con el mismo nombre en la misma compañía</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Esta regla es contextual: la unicidad del nombre depende de la compañía padre. Necesitamos una consulta personalizada en el repositorio.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>DepartmentRepository.java</span>
+            </div>
+            <div class="code-content"><code><span class="cmt">// Consulta derivada por convención</span>
+<span class="cls">List</span>&lt;<span class="cls">DepartmentEntity</span>&gt; <span class="mth">findByCompanyIdAndName</span>(
+&nbsp;&nbsp;<span class="cls">Long</span> companyId, <span class="cls">String</span> name
+);</code></div>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>DepartmentService.java</span>
+            </div>
+            <div class="code-content"><code><span class="ann">@Transactional</span>
+<span class="kw">public</span> <span class="cls">DepartmentEntity</span> <span class="mth">createDepartment</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">Long</span> companyId, <span class="cls">DepartmentEntity</span> dept)
+&nbsp;&nbsp;<span class="kw">throws</span> <span class="exc">IllegalOperationException</span>
+{
+&nbsp;&nbsp;<span class="cls">List</span>&lt;<span class="cls">DepartmentEntity</span>&gt; existing =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deptRepo.<span class="mth">findByCompanyIdAndName</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;companyId, dept.<span class="mth">getName</span>());
+
+&nbsp;&nbsp;<span class="kw">if</span> (!existing.<span class="mth">isEmpty</span>())
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"Ya existe un departamento con ese nombre "</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="str">"en esta compañía"</span>);
+&nbsp;&nbsp;}
+&nbsp;&nbsp;<span class="kw">return</span> deptRepo.<span class="mth">save</span>(dept);
+}</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success" style="margin-top:24px;">
+      <strong>Patrón general:</strong> Toda regla de negocio sigue el mismo flujo: <strong>consultar</strong> datos existentes → <strong>evaluar</strong> la condición → <strong>lanzar excepción</strong> si no se cumple → <strong>persistir</strong> si todo está correcto.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 4: Pruebas                         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="sec-testing">
+    <div class="section-header">
+      <h2>Pruebas Unitarias de la Lógica</h2>
+      <p>Cada servicio debe tener su clase de pruebas correspondiente con escenarios positivos y negativos usando JUnit.</p>
+    </div>
+
+    <!-- Submenú de Pruebas -->
+    <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; justify-content: flex-start;">
+      <button onclick="showTestingSubsection('config')" style="padding: 10px 18px; background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Configuración</button>
+      <button onclick="showTestingSubsection('entitymanager')" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">TestEntityManager</button>
+      <button onclick="showTestingSubsection('setup')" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Setup</button>
+      <button onclick="showTestingSubsection('podam')" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Podam</button>
+      <button onclick="showTestingSubsection('scenarios')" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Escenarios</button>
+    </div>
+
+    <!-- Subsección: Configuración -->
+    <div id="testing-config" class="testing-subsection" style="display: block;">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">✓</span>
+        Configuración de la clase de prueba
+      </h3>
+      <p>Cada clase de pruebas requiere anotaciones específicas para integrarse con el contexto de Spring y JPA.</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — anotaciones</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@ExtendWith</span>(<span class="cls">SpringExtension</span>.<span class="kw">class</span>)
+<span class="ann">@DataJpaTest</span>
+<span class="ann">@Transactional</span>
+<span class="ann">@Import</span>(<span class="cls">CompanyService</span>.<span class="kw">class</span>)
+<span class="kw">public class</span> <span class="cls">CompanyServiceTest</span>
+{
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">CompanyService</span> companyService;
+
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">TestEntityManager</span> entityManager;
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">PodamFactory</span> factory =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">PodamFactoryImpl</span>();
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">List</span>&lt;<span class="cls">CompanyEntity</span>&gt; companyList =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+}</code></div>
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
+        <p style="margin-bottom: 12px;"><strong>¿Qué hace cada anotación?</strong></p>
+        <ul style="list-style: none; padding: 0;">
+          <li style="margin-bottom: 10px;"><span class="hl">@ExtendWith(SpringExtension.class)</span> — Integra JUnit 5 con Spring para que el contexto de Spring esté disponible durante las pruebas.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@DataJpaTest</span> — Carga solo la configuración necesaria para pruebas de JPA. Desactiva el servidor web y carga solo las capas de BD.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@Transactional</span> — Cada prueba se ejecuta en una transacción que se revierte al terminar, dejando la BD limpia.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@Import(CompanyService.class)</span> — Importa el servicio bajo prueba al contexto de Spring para que pueda ser inyectado.</li>
+          <li><span class="hl">@Autowired</span> — Spring inyecta automáticamente las dependencias marcadas (servicio, entityManager).</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+
+    <!-- Subsección: Setup -->
+    <div id="testing-setup" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">🗄</span>
+        ¿Qué es TestEntityManager?
+      </h3>
+      <p>Es una herramienta proporcionada por Spring Test que permite interactuar con la base de datos de pruebas de forma manual. Se usa para:</p>
+      <ul>
+        <li><strong>Insertar datos de prueba:</strong> <span class="hl">entityManager.persist(entity)</span> — Guarda datos en la BD antes de ejecutar el test.</li>
+        <li><strong>Buscar datos:</strong> <span class="hl">entityManager.find(Class, id)</span> — Obtiene una entidad de la BD para verificar que se persistió correctamente.</li>
+        <li><strong>Ejecutar queries:</strong> <span class="hl">entityManager.createQuery("DELETE FROM...")</span> — Ejecuta consultas SQL directo.</li>
+        <li><strong>Limpiar datos:</strong> Elimina registros de la BD entre pruebas para garantizar aislamiento.</li>
+      </ul>
+      <p style="margin-top: 10px; color: var(--text-secondary);"><strong>Diferencia clave:</strong> El <span class="hl">CompanyService</span> que probamos usa <span class="hl">CompanyRepository</span> (interfaz de persistencia). El <span class="hl">TestEntityManager</span> es nuestro acceso directo a la BD para preparar datos o validar resultados sin pasar por el servicio.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-blue-dim);color:var(--accent-blue);">⟳</span>
+        setUp — Preparar datos antes de cada test
+      </h3>
+      <p>El método anotado con <span class="hl">@BeforeEach</span> limpia y recarga los datos de prueba para garantizar que cada test se ejecute de forma aislada.</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — setUp</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@BeforeEach</span>
+<span class="kw">void</span> <span class="mth">setUp</span>()
+{
+&nbsp;&nbsp;<span class="mth">clearData</span>();
+&nbsp;&nbsp;<span class="mth">insertData</span>();
+}
+
+<span class="kw">private void</span> <span class="mth">clearData</span>()
+{
+&nbsp;&nbsp;entityManager.<span class="mth">getEntityManager</span>()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">createQuery</span>(<span class="str">"delete from CompanyEntity"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">executeUpdate</span>();
+}
+
+<span class="kw">private void</span> <span class="mth">insertData</span>()
+{
+&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < <span class="num">3</span>; i++)
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">CompanyEntity</span> entity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+&nbsp;&nbsp;&nbsp;&nbsp;entityManager.<span class="mth">persist</span>(entity);
+&nbsp;&nbsp;&nbsp;&nbsp;companyList.<span class="mth">add</span>(entity);
+&nbsp;&nbsp;}
+}</code></div>
+      <div style="margin-top: 16px; padding: 14px; background: rgba(96, 165, 250, 0.08); border-left: 3px solid #3b82f6; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary);">
+        <strong>¿Es necesario clearData() si @Transactional revierte los cambios?</strong>
+        <p style="margin: 8px 0 0 0;">Buena pregunta. Técnicamente, cada test se revierte por <span class="hl">@Transactional</span>, pero <span class="hl">clearData()</span> sigue siendo importante porque:</p>
+        <ul style="margin: 8px 0 0 16px; list-style: disc;">
+          <li>Garantiza un estado limpio y explícito antes de cada test</li>
+          <li>Protege contra cambios futuros en la configuración transaccional</li>
+          <li>Hace visible la intención: "limpia antes de insertar datos de prueba"</li>
+          <li>Si usas datos desde <span class="hl">data.sql</span> u otros orígenes, asegura que se limpien correctamente</li>
+        </ul>
+        <p style="margin: 8px 0 0 0;"><strong>En resumen:</strong> No es estrictamente necesario, pero es una buena práctica de limpieza explícita.</p>
+      </div>
+    </div>
+    </div>
+
+    <!-- Subsección: Podam -->
+    <div id="testing-podam" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-purple-dim);color:var(--accent-purple);">⚙</span>
+        ¿Qué es Podam y cómo funciona?
+      </h3>
+      <p><span class="hl">Podam</span> (POjo DAta Maker) es una librería que genera automáticamente instancias de clases con datos aleatorios. En lugar de crear manualmente cada objeto de prueba, Podam lo hace por ti.</p>
+      <p style="margin-top: 10px;"><strong>¿Cómo funciona?</strong></p>
+      <ul style="margin: 8px 0 0 16px; list-style: disc;">
+        <li>Inspecciona la clase que le solicitas (ej: <span class="hl">CompanyEntity</span>)</li>
+        <li>Identifica todos sus atributos y sus tipos (String, Long, Integer, etc.)</li>
+        <li>Genera valores aleatorios apropiados para cada tipo (texto para String, números para Long, etc.)</li>
+        <li>Crea una instancia completamente inicializada</li>
+      </ul>
+      <p style="margin-top: 10px; color: var(--text-secondary);"><strong>Ejemplo:</strong> <span class="hl">factory.manufacturePojo(CompanyEntity.class)</span> genera una CompanyEntity con un nombre aleatorio, descripción aleatoria, ID aleatorio, etc. — todo automático.</p>
+
+      <p style="margin-top: 16px;"><strong>Estrategia de pruebas con Podam</strong></p>
+      <p style="margin-top: 8px;">El flujo típico para probar el método <span class="hl">createCompany()</span> es:</p>
+      <ol style="margin: 8px 0 0 16px; list-style-position: inside;">
+        <li><strong>Usar Podam para generar datos:</strong> <span class="hl">factory.manufacturePojo(CompanyEntity.class)</span> crea una compañía con datos aleatorios válidos.</li>
+        <li><strong>Invocar el método del servicio:</strong> <span class="hl">companyService.createCompany(newEntity)</span> pasa la entidad al servicio bajo prueba.</li>
+        <li><strong>Validar el resultado:</strong> Verificar que <span class="hl">result != null</span> y que tiene ID asignado (indicando que se persistió).</li>
+        <li><strong>Verificar en BD:</strong> Acceder directamente a la BD usando <span class="hl">TestEntityManager</span> (no mediante nuestros propios métodos del servicio). Por ejemplo: <span class="hl">entityManager.find(CompanyEntity.class, result.getId())</span> recupera la compañía directamente de la BD e independientemente del servicio. Esto asegura que realmente se persistió, no solo que el método retornó un valor.</li>
+      </ol>
+      <div style="margin-top: 14px; padding: 12px; background: rgba(251, 113, 133, 0.08); border-left: 3px solid #dc2626; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);">
+        <strong style="color: #dc2626;">⚠ Punto crítico:</strong> Si verificas el resultado usando el mismo método del servicio que estás probando, no estás probando realmente la persistencia. Debes usar <span class="hl">TestEntityManager</span> para acceso directo a la BD y confirmar que los datos realmente fueron guardados, independientemente de la lógica del servicio.
+      </div>
+      <p style="margin-top: 10px; color: var(--text-secondary);"><strong>Ventaja:</strong> Cada ejecución del test genera datos diferentes, lo que prueba que el código funciona con diversos valores, no solo con datos hardcodeados específicos.</p>
+    </div>
+    </div>
+
+    <!-- Subsección: Escenarios -->
+    <div id="testing-scenarios" class="testing-subsection" style="display: none;">
+
+    <!-- Test Scenarios -->
+    <h3 style="margin:28px 0 16px;font-size:1.1rem;">Escenarios de prueba</h3>
+
+    <div class="test-scenario">
+      <h5 class="test-pass">✓ Escenario positivo — Crear compañía válida</h5>
+      <p>Se crea una compañía con datos aleatorios y se verifica que se persiste correctamente.</p>
+      <div class="code-block" style="margin-top:10px;">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>testCreateCompany()</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Test</span>
+<span class="kw">void</span> <span class="mth">testCreateCompany</span>()
+{
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> newEntity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> result =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;companyService.<span class="mth">createCompany</span>(newEntity);
+
+&nbsp;&nbsp;<span class="mth">assertNotNull</span>(result);
+
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> entity = entityManager
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">find</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>, result.<span class="mth">getId</span>());
+
+&nbsp;&nbsp;<span class="mth">assertEquals</span>(newEntity.<span class="mth">getName</span>(), entity.<span class="mth">getName</span>());
+&nbsp;&nbsp;<span class="mth">assertEquals</span>(newEntity.<span class="mth">getDescription</span>(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entity.<span class="mth">getDescription</span>());
+}</code></div>
+      </div>
+    </div>
+
+    <div class="test-scenario" style="margin-top:14px;">
+      <h5 class="test-fail">✗ Escenario negativo — Nombre duplicado</h5>
+      <p>Se intenta crear una compañía con un nombre que ya existe. Se espera que lance una excepción.</p>
+      <div class="code-block" style="margin-top:10px;">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>testCreateInvalidCompany()</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Test</span>
+<span class="kw">void</span> <span class="mth">testCreateInvalidCompany</span>()
+{
+&nbsp;&nbsp;<span class="mth">assertThrows</span>(<span class="exc">IllegalOperationException</span>.<span class="kw">class</span>, () ->
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">CompanyEntity</span> newEntity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// Usar nombre que ya existe</span>
+&nbsp;&nbsp;&nbsp;&nbsp;newEntity.<span class="mth">setName</span>(companyList.<span class="mth">get</span>(<span class="num">0</span>).<span class="mth">getName</span>());
+
+&nbsp;&nbsp;&nbsp;&nbsp;companyService.<span class="mth">createCompany</span>(newEntity);
+&nbsp;&nbsp;});
+}</code></div>
+      </div>
+    </div>
+
+    <div class="callout info" style="margin-top:20px;">
+      <strong>Estrategia de pruebas:</strong> Por cada método del servicio necesitas al menos un test positivo (caso feliz) y uno negativo por cada regla de negocio que valide. Si <span class="hl">createCompany</span> tiene 2 reglas, necesitas mínimo 3 tests: 1 positivo + 2 negativos.
+    </div>
+    </div>
+    </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 5: Quiz                             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section" id="sec-quiz">
+    <div class="section-header">
+      <h2>Verifica tu comprensión</h2>
+      <p>Responde estas preguntas para confirmar que entendiste los conceptos clave de la capa de lógica.</p>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-container" id="q1">
+      <div class="quiz-question">1. ¿Qué anotación identifica a una clase como servicio de lógica de negocio en Spring?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">@RestController</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q1',true)">@Service</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">@Entity</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q1',false)">@Repository</div>
+      </div>
+      <div class="quiz-feedback success" id="q1-ok">¡Correcto! <span class="hl">@Service</span> indica que la clase es un bean gestionado por Spring que contiene lógica de negocio.</div>
+      <div class="quiz-feedback error" id="q1-err">No exactamente. <span class="hl">@RestController</span> es para la capa API, <span class="hl">@Entity</span> para el modelo de datos, y <span class="hl">@Repository</span> para la persistencia. La respuesta correcta es <span class="hl">@Service</span>.</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-container" id="q2" style="margin-top:16px;">
+      <div class="quiz-question">2. ¿Qué hace la anotación @Autowired?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">Crea una nueva tabla en la base de datos</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">Define una ruta HTTP para un endpoint</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q2',true)">Le indica a Spring que inyecte automáticamente una dependencia</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q2',false)">Marca un método como transaccional</div>
+      </div>
+      <div class="quiz-feedback success" id="q2-ok">¡Correcto! <span class="hl">@Autowired</span> delega al contenedor de Spring la resolución e inyección de la dependencia en tiempo de ejecución.</div>
+      <div class="quiz-feedback error" id="q2-err">No es correcto. <span class="hl">@Autowired</span> es exclusivamente para inyección de dependencias — le dice a Spring que busque un bean compatible y lo asigne a esa variable.</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-container" id="q3" style="margin-top:16px;">
+      <div class="quiz-question">3. ¿Qué tipo de objetos maneja la capa de lógica (servicio)?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">DTOs y JSON</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q3',true)">Entidades (@Entity)</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">HttpServletRequest y HttpServletResponse</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q3',false)">Strings directamente</div>
+      </div>
+      <div class="quiz-feedback success" id="q3-ok">¡Correcto! El Backend trabaja exclusivamente con <span class="hl">@Entity</span>. Los DTOs y JSON son responsabilidad de la capa de controladores (API REST).</div>
+      <div class="quiz-feedback error" id="q3-err">Recuerda: el Backend no conoce DTOs, JSON ni HTTP. Solo trabaja con objetos <span class="hl">@Entity</span>, las clases que representan las tablas en la base de datos.</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-container" id="q4" style="margin-top:16px;">
+      <div class="quiz-question">4. En una prueba unitaria, ¿qué se espera cuando se viola una regla de negocio?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">Que el método retorne null</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">Que la base de datos ignore la operación</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q4',true)">Que se lance una excepción (IllegalOperationException)</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q4',false)">Que se registre un log de warning</div>
+      </div>
+      <div class="quiz-feedback success" id="q4-ok">¡Correcto! Se usa <span class="hl">assertThrows(IllegalOperationException.class, () -> {...})</span> para verificar que la excepción se lance correctamente.</div>
+      <div class="quiz-feedback error" id="q4-err">Cuando una regla de negocio se viola, el servicio debe lanzar una <span class="hl">IllegalOperationException</span>, y en la prueba se verifica con <span class="hl">assertThrows</span>.</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-container" id="q5" style="margin-top:16px;">
+      <div class="quiz-question">5. ¿Por qué usamos @BeforeEach y los métodos clearData/insertData en las pruebas?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q5',false)">Para conectar con la base de datos de producción</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q5',true)">Para garantizar que cada test se ejecute bajo las mismas condiciones iniciales</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q5',false)">Para evitar usar Podam</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q5',false)">Porque JUnit obliga a definir estos métodos</div>
+      </div>
+      <div class="quiz-feedback success" id="q5-ok">¡Correcto! Como las pruebas no se ejecutan en un orden específico, el setUp garantiza un estado limpio y predecible antes de cada test.</div>
+      <div class="quiz-feedback error" id="q5-err">El setUp con <span class="hl">@BeforeEach</span> existe para que cada test parta de un estado limpio y conocido, eliminando dependencias entre pruebas.</div>
+    </div>
+
+    <!-- Score -->
+    <div id="scoreBoard" style="display:none;margin-top:28px;text-align:center;padding:28px;background:var(--bg-card);border-radius:14px;border:1px solid var(--border);">
+      <div style="font-size:2.2rem;font-weight:700;font-family:'Playfair Display',serif;" id="scoreText"></div>
+      <p style="color:var(--text-secondary);margin-top:8px;font-size:0.9rem;" id="scoreMsg"></p>
+      <button onclick="resetQuiz()" style="margin-top:16px;padding:10px 24px;background:var(--accent-green-dim);color:var(--accent-green);border:1px solid rgba(52,211,153,0.3);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;">Reintentar</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Curso de Desarrollo de Software — Capa de Lógica de Negocio con Spring Boot
+</div>
+
+<script>
+  // ─── Navigation ───
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // ─── Testing Subsections ───
+  function showTestingSubsection(subsection) {
+    document.querySelectorAll('.testing-subsection').forEach(s => s.style.display = 'none');
+    document.getElementById('testing-' + subsection).style.display = 'block';
+    
+    // Cambiar estilos de botones
+    event.currentTarget.style.background = 'var(--accent-green-dim)';
+    event.currentTarget.style.color = 'var(--accent-green)';
+    event.currentTarget.style.borderColor = 'var(--accent-green)';
+    
+    document.querySelectorAll('[onclick*="showTestingSubsection"]').forEach(btn => {
+      if (btn !== event.currentTarget) {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.borderColor = 'var(--border)';
+      }
+    });
+  }
+
+  // ─── Architecture diagram detail toggle ───
+  let activeDetail = null;
+  function toggleLayerDetail(layer) {
+    const el = document.getElementById('detail-' + layer);
+    if (activeDetail && activeDetail !== el) {
+      activeDetail.classList.remove('visible');
+    }
+    el.classList.toggle('visible');
+    activeDetail = el.classList.contains('visible') ? el : null;
+  }
+
+  // ─── Rules accordion ───
+  function toggleRule(card) {
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.rule-card').forEach(c => c.classList.remove('open'));
+    if (!wasOpen) card.classList.add('open');
+  }
+
+  // ─── Quiz ───
+  let score = 0;
+  let answered = 0;
+  const totalQuestions = 5;
+
+  function checkAnswer(option, qId, correct) {
+    const container = document.getElementById(qId);
+    if (container.classList.contains('answered')) return;
+    container.classList.add('answered');
+
+    const options = container.querySelectorAll('.quiz-option');
+    options.forEach(o => o.classList.add('disabled'));
+
+    if (correct) {
+      option.classList.add('correct');
+      document.getElementById(qId + '-ok').classList.add('show');
+      score++;
+    } else {
+      option.classList.add('incorrect');
+      document.getElementById(qId + '-err').classList.add('show');
+      // highlight correct one
+      options.forEach(o => {
+        if (o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+      });
+    }
+
+    answered++;
+    if (answered === totalQuestions) showScore();
+  }
+
+  function showScore() {
+    const board = document.getElementById('scoreBoard');
+    const text = document.getElementById('scoreText');
+    const msg = document.getElementById('scoreMsg');
+    board.style.display = 'block';
+    text.textContent = score + ' / ' + totalQuestions;
+    if (score === totalQuestions) {
+      text.style.color = 'var(--accent-green)';
+      msg.textContent = '¡Excelente! Dominas los conceptos de la capa de lógica.';
+    } else if (score >= 3) {
+      text.style.color = 'var(--accent-amber)';
+      msg.textContent = 'Buen trabajo. Revisa los conceptos que fallaste para afianzarlos.';
+    } else {
+      text.style.color = 'var(--accent-rose)';
+      msg.textContent = 'Te recomiendo repasar las secciones anteriores y volver a intentarlo.';
+    }
+    board.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function resetQuiz() {
+    score = 0;
+    answered = 0;
+    document.getElementById('scoreBoard').style.display = 'none';
+    for (let i = 1; i <= totalQuestions; i++) {
+      const q = document.getElementById('q' + i);
+      q.classList.remove('answered');
+      q.querySelectorAll('.quiz-option').forEach(o => {
+        o.classList.remove('correct', 'incorrect', 'disabled');
+      });
+      document.getElementById('q' + i + '-ok').classList.remove('show');
+      document.getElementById('q' + i + '-err').classList.remove('show');
+    }
+    document.getElementById('q1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
