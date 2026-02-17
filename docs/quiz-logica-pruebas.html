@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Lógica de Negocio y Pruebas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #111827;
+    --bg-card: #1a2235;
+    --accent-green: #34d399;
+    --accent-green-dim: #065f46;
+    --accent-blue: #60a5fa;
+    --accent-blue-dim: #1e3a5f;
+    --accent-amber: #fbbf24;
+    --accent-amber-dim: #78350f;
+    --accent-rose: #fb7185;
+    --accent-rose-dim: #881337;
+    --accent-purple: #a78bfa;
+    --accent-purple-dim: #4c1d95;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #1e293b;
+    --code-bg: #0d1321;
+    --glow-green: rgba(52, 211, 153, 0.12);
+    --glow-blue: rgba(96, 165, 250, 0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+  .hero {
+    position: relative;
+    padding: 60px 40px 40px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: -40% -20%;
+    width: 140%;
+    height: 180%;
+    background: radial-gradient(ellipse at 25% 30%, var(--glow-green) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 60%, var(--glow-blue) 0%, transparent 55%);
+    pointer-events: none;
+    animation: pulse 7s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse { 0%{opacity:.5} 100%{opacity:.9} }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+    font-weight: 800;
+    position: relative;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .hero p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    position: relative;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ─── Progress bar ─── */
+  .progress-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(10, 14, 23, 0.92);
+    backdrop-filter: blur(12px);
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .progress-score {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-green);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-secondary);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ─── Questions ─── */
+  .questions-area {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .q-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    margin-bottom: 18px;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .q-card:hover { border-color: rgba(167, 139, 250, 0.15); }
+
+  .q-card.answered-correct { border-color: rgba(52, 211, 153, 0.35); }
+  .q-card.answered-wrong { border-color: rgba(251, 113, 133, 0.3); }
+
+  .q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+
+  .q-category {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .cat-logica { background: var(--accent-green-dim); color: var(--accent-green); }
+  .cat-pruebas { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .cat-inyeccion { background: var(--accent-purple-dim); color: var(--accent-purple); }
+  .cat-mixto { background: var(--accent-amber-dim); color: var(--accent-amber); }
+
+  .q-text {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .q-code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 12px 0 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+  }
+
+  .kw { color: #c084fc; }
+  .ann { color: #fbbf24; }
+  .str { color: #34d399; }
+  .cls { color: #60a5fa; }
+  .cmt { color: #4a5568; font-style: italic; }
+  .mth { color: #f9a8d4; }
+  .exc { color: #fb7185; }
+
+  .hl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    background: rgba(167, 139, 250, 0.12);
+    color: var(--accent-purple);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Options */
+  .q-options { display: flex; flex-direction: column; gap: 8px; }
+
+  .q-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  .q-opt:hover:not(.disabled) {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+    background: rgba(167, 139, 250, 0.05);
+  }
+
+  .q-opt .opt-letter {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.25s;
+  }
+
+  .q-opt.correct {
+    border-color: var(--accent-green) !important;
+    background: rgba(52, 211, 153, 0.08) !important;
+    color: var(--accent-green) !important;
+  }
+
+  .q-opt.correct .opt-letter {
+    background: var(--accent-green);
+    color: var(--bg-primary);
+  }
+
+  .q-opt.incorrect {
+    border-color: var(--accent-rose) !important;
+    background: rgba(251, 113, 133, 0.06) !important;
+    color: var(--accent-rose) !important;
+  }
+
+  .q-opt.incorrect .opt-letter {
+    background: var(--accent-rose);
+    color: #fff;
+  }
+
+  .q-opt.disabled { pointer-events: none; opacity: 0.65; }
+  .q-opt.correct.disabled { opacity: 1; }
+
+  /* Feedback */
+  .q-feedback {
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    line-height: 1.65;
+    display: none;
+    animation: feedIn 0.35s ease;
+  }
+
+  @keyframes feedIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  .q-feedback.show { display: block; }
+
+  .q-feedback.ok {
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid var(--accent-green-dim);
+    color: var(--text-secondary);
+  }
+
+  .q-feedback.ok strong { color: var(--accent-green); }
+
+  .q-feedback.nope {
+    background: rgba(251, 113, 133, 0.06);
+    border: 1px solid var(--accent-rose-dim);
+    color: var(--text-secondary);
+  }
+
+  .q-feedback.nope strong { color: var(--accent-rose); }
+
+  /* ─── Results Panel ─── */
+  .results {
+    display: none;
+    text-align: center;
+    padding: 40px 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-top: 12px;
+    animation: feedIn 0.5s ease;
+  }
+
+  .results.show { display: block; }
+
+  .results-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .results-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .results-msg {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 24px;
+    line-height: 1.65;
+  }
+
+  .results-bar-wrap {
+    max-width: 320px;
+    margin: 0 auto 24px;
+    height: 10px;
+    background: var(--bg-secondary);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .results-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .btn-retry {
+    padding: 11px 28px;
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.25s;
+  }
+
+  .btn-retry:hover {
+    background: rgba(52, 211, 153, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .footer {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 32px;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 28px; }
+    .q-card { padding: 20px 18px; }
+    .questions-area { padding: 24px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Quiz: Lógica de Negocio y Pruebas</h1>
+  <p>10 preguntas para verificar tu comprensión de la capa de servicios, reglas de negocio, inyección de dependencias y pruebas unitarias en Spring Boot.</p>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span class="progress-label" id="progLabel">Pregunta 0 de 10</span>
+    <span class="progress-score" id="progScore"></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+</div>
+
+<div class="questions-area" id="questionsArea"></div>
+
+<div class="footer">Curso de Desarrollo de Software — Preparación: Lógica de Negocio y Pruebas</div>
+
+<script>
+const QUESTIONS = [
+  {
+    cat: "logica", catLabel: "Lógica de negocio",
+    text: "¿Cuál es la responsabilidad principal de la capa de lógica de negocio en la arquitectura de tres capas?",
+    options: [
+      "Recibir las peticiones HTTP y convertir JSON a objetos Java",
+      "Coordinar la comunicación entre el API y la persistencia, validando reglas de negocio",
+      "Generar las tablas de la base de datos a partir de las entidades",
+      "Convertir los Entity a DTO antes de enviarlos al cliente"
+    ],
+    correct: 1,
+    okMsg: "La capa de lógica actúa como intermediaria: recibe entidades desde el controlador, valida las reglas de negocio y se comunica con la persistencia para consultar o modificar datos.",
+    errMsg: "La capa de lógica no maneja HTTP ni DTOs ni genera tablas. Su rol es coordinar el flujo entre API y persistencia, y validar las reglas de negocio."
+  },
+  {
+    cat: "inyeccion", catLabel: "Inyección de dependencias",
+    text: "En el siguiente fragmento, ¿qué hace exactamente la anotación <span class='hl'>@Autowired</span>?",
+    code: `<span class="ann">@Service</span>
+<span class="kw">public class</span> <span class="cls">BookService</span> {
+    <span class="ann">@Autowired</span>
+    <span class="kw">private</span> <span class="cls">BookRepository</span> repository;
+}`,
+    options: [
+      "Crea una nueva instancia de BookRepository con <code>new BookRepository()</code>",
+      "Le indica a Spring que busque un bean de tipo BookRepository en su contenedor y lo asigne a esa variable",
+      "Define BookRepository como una tabla en la base de datos",
+      "Hace que BookService herede los métodos de BookRepository"
+    ],
+    correct: 1,
+    okMsg: "<strong>@Autowired</strong> delega al contenedor de Spring la resolución de la dependencia. Spring busca un bean compatible y lo inyecta automáticamente en tiempo de ejecución, sin que el programador tenga que instanciarlo manualmente.",
+    errMsg: "No se usa <code>new</code>, no define tablas ni implica herencia. <strong>@Autowired</strong> le dice a Spring: \"busca en tu contenedor un bean de este tipo e inyéctalo aquí\". Spring resuelve la dependencia automáticamente."
+  },
+  {
+    cat: "logica", catLabel: "Lógica de negocio",
+    text: "¿Qué tipo de objetos viajan entre la capa de lógica y la capa de persistencia?",
+    options: [
+      "DTOs (Data Transfer Objects)",
+      "Objetos JSON serializados",
+      "Entidades anotadas con @Entity",
+      "Strings con los datos en formato CSV"
+    ],
+    correct: 2,
+    okMsg: "El Backend trabaja exclusivamente con objetos <span class='hl'>@Entity</span>. Los DTOs y JSON son responsabilidad de la capa de controladores. Esta separación es un principio fundamental de la arquitectura.",
+    errMsg: "Recuerda: el Backend (lógica + persistencia) no conoce DTOs, JSON ni ninguna otra representación. Solo trabaja con entidades (<span class='hl'>@Entity</span>), las clases que representan las tablas."
+  },
+  {
+    cat: "logica", catLabel: "Lógica de negocio",
+    text: "Cuando una regla de negocio no se cumple (por ejemplo, intentar crear una compañía con un nombre que ya existe), ¿qué debe hacer el método del servicio?",
+    options: [
+      "Retornar <code>null</code> para indicar que la operación falló",
+      "Ignorar la validación y guardar el dato de todas formas",
+      "Lanzar una excepción como <code>IllegalOperationException</code>",
+      "Escribir un mensaje en el log y continuar normalmente"
+    ],
+    correct: 2,
+    okMsg: "El patrón correcto es lanzar una excepción cuando la regla no se cumple. Esto interrumpe el flujo, evita que se persista un dato inválido y permite que la capa de API traduzca la excepción a una respuesta HTTP adecuada.",
+    errMsg: "Retornar null o ignorar la validación son prácticas incorrectas. El servicio debe lanzar una excepción (<span class='hl'>IllegalOperationException</span>) para señalar claramente que la regla de negocio fue violada."
+  },
+  {
+    cat: "logica", catLabel: "Lógica de negocio",
+    text: "Analiza este código. ¿Cuál es el patrón que sigue la validación de la regla de negocio?",
+    code: `<span class="cls">List</span>&lt;<span class="cls">CompanyEntity</span>&gt; alreadyExist =
+    repository.<span class="mth">findByName</span>(entity.<span class="mth">getName</span>());
+<span class="kw">if</span> (!alreadyExist.<span class="mth">isEmpty</span>()) {
+    <span class="kw">throw new</span> <span class="exc">IllegalOperationException</span>(<span class="str">"..."</span>);
+}
+<span class="kw">return</span> repository.<span class="mth">save</span>(entity);`,
+    options: [
+      "Persistir → Validar → Retornar",
+      "Validar → Lanzar excepción si falla → Si no, consultar",
+      "Consultar la persistencia → Validar condición → Persistir si cumple",
+      "Crear DTO → Convertir a Entity → Guardar"
+    ],
+    correct: 2,
+    okMsg: "El patrón es: <strong>consultar</strong> datos existentes en la base de datos → <strong>evaluar</strong> la condición de negocio → <strong>lanzar excepción</strong> si no se cumple → <strong>persistir</strong> si todo es válido. Este patrón se repite en todas las reglas de negocio.",
+    errMsg: "El patrón correcto es: consultar → validar → persistir (o lanzar excepción). Primero se consulta la base de datos con <span class='hl'>findByName</span>, luego se evalúa la condición, y solo si pasa se persiste con <span class='hl'>save</span>."
+  },
+  {
+    cat: "inyeccion", catLabel: "Inyección de dependencias",
+    text: "¿Cuál es la ventaja principal de usar inyección de dependencias en lugar de instanciar objetos directamente con <span class='hl'>new</span>?",
+    options: [
+      "Hace que el código se ejecute más rápido",
+      "Permite desacoplar las capas, facilitando el testing y el mantenimiento",
+      "Evita tener que usar interfaces en el proyecto",
+      "Permite que cualquier clase acceda directamente a la base de datos"
+    ],
+    correct: 1,
+    okMsg: "El desacoplamiento es la ventaja clave. El servicio no necesita saber cómo se construye el repositorio, y el controlador no necesita saber cómo funciona el servicio internamente. Esto facilita enormemente las pruebas unitarias y la evolución de la aplicación.",
+    errMsg: "La inyección de dependencias no tiene que ver con rendimiento ni con eliminar interfaces. Su beneficio principal es el <strong>desacoplamiento</strong>: cada capa ignora los detalles internos de las demás, lo que facilita el testing y el mantenimiento."
+  },
+  {
+    cat: "pruebas", catLabel: "Pruebas unitarias",
+    text: "¿Para qué se usa el método anotado con <span class='hl'>@BeforeEach</span> en las clases de prueba?",
+    options: [
+      "Para ejecutar código una sola vez al iniciar todas las pruebas",
+      "Para garantizar que cada test se ejecute bajo las mismas condiciones iniciales, limpiando e insertando datos",
+      "Para configurar la conexión a la base de datos de producción",
+      "Para inyectar automáticamente los servicios que se van a probar"
+    ],
+    correct: 1,
+    okMsg: "Como las pruebas no se ejecutan en un orden específico, <strong>@BeforeEach</strong> garantiza que antes de cada test se limpien los datos (<span class='hl'>clearData</span>) y se recarguen datos frescos (<span class='hl'>insertData</span>). Así cada test es independiente.",
+    errMsg: "No se ejecuta una sola vez (eso sería @BeforeAll), no configura conexiones ni inyecta servicios. <strong>@BeforeEach</strong> se ejecuta antes de <em>cada</em> test individual para restablecer un estado limpio y predecible."
+  },
+  {
+    cat: "pruebas", catLabel: "Pruebas unitarias",
+    text: "¿Qué verifica el siguiente fragmento de prueba?",
+    code: `<span class="ann">@Test</span>
+<span class="kw">void</span> <span class="mth">testCreateInvalidCompany</span>() {
+    <span class="mth">assertThrows</span>(<span class="exc">IllegalOperationException</span>.<span class="kw">class</span>, () -> {
+        <span class="cls">CompanyEntity</span> newEntity =
+            factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+        newEntity.<span class="mth">setName</span>(companyList.<span class="mth">get</span>(0).<span class="mth">getName</span>());
+        companyService.<span class="mth">createCompany</span>(newEntity);
+    });
+}`,
+    options: [
+      "Que se puede crear una compañía con cualquier nombre",
+      "Que al intentar crear una compañía con un nombre ya existente, se lance una excepción de negocio",
+      "Que Podam genera datos correctamente",
+      "Que el EntityManager puede buscar compañías por nombre"
+    ],
+    correct: 1,
+    okMsg: "Esta prueba verifica el escenario negativo de la regla \"no puede haber dos compañías con el mismo nombre\". Se crea una entidad, se le asigna un nombre que ya existe en la lista de datos de prueba, y se espera que <span class='hl'>createCompany</span> lance <span class='hl'>IllegalOperationException</span>.",
+    errMsg: "Observa que se usa <span class='hl'>companyList.get(0).getName()</span> para asignar un nombre duplicado, y <span class='hl'>assertThrows</span> para verificar que se lance la excepción. Es un test de regla de negocio violada."
+  },
+  {
+    cat: "pruebas", catLabel: "Pruebas unitarias",
+    text: "Si un método del servicio valida 3 reglas de negocio, ¿cuántas pruebas mínimas debería tener?",
+    options: [
+      "1 prueba que cubra todo",
+      "3 pruebas: una por cada regla",
+      "4 pruebas: 1 caso positivo + 1 caso negativo por cada regla",
+      "Solo las pruebas de los casos negativos"
+    ],
+    correct: 2,
+    okMsg: "Se necesita al menos <strong>1 test positivo</strong> (caso feliz donde todo es válido) + <strong>1 test negativo por cada regla</strong> que pueda fallar. Con 3 reglas: 1 positivo + 3 negativos = <strong>4 pruebas mínimas</strong>.",
+    errMsg: "La estrategia correcta es: 1 caso positivo (donde la operación es exitosa) + 1 caso negativo por cada regla de negocio. Así garantizamos que tanto el flujo correcto como cada validación individual están cubiertos."
+  },
+  {
+    cat: "mixto", catLabel: "Integración de conceptos",
+    text: "En la clase de pruebas, ¿por qué usamos un <span class='hl'>TestEntityManager</span> separado en lugar de usar directamente el servicio para insertar datos de prueba?",
+    options: [
+      "Porque el TestEntityManager es más rápido que el servicio",
+      "Porque el servicio no tiene método para insertar datos",
+      "Para aislar la prueba: si insertamos datos a través del servicio, estaríamos dependiendo del código que queremos probar",
+      "Porque Spring no permite usar @Autowired en clases de prueba"
+    ],
+    correct: 2,
+    okMsg: "Si usáramos el servicio para insertar los datos de prueba, un bug en el servicio podría causar fallos en la preparación de datos y no sabríamos si el error está en el setUp o en el método bajo prueba. El <strong>TestEntityManager</strong> permite persistir datos directamente, aislando la prueba del código que se está evaluando.",
+    errMsg: "El motivo es el <strong>aislamiento</strong>. Si el servicio tiene un bug, usarlo para preparar datos contaminaría todas las pruebas. El TestEntityManager accede a la persistencia sin pasar por el servicio, garantizando que solo estamos probando lo que queremos probar."
+  }
+];
+
+let score = 0;
+let answered = 0;
+const total = QUESTIONS.length;
+const letters = ['A', 'B', 'C', 'D'];
+
+const catColors = {
+  logica: 'cat-logica',
+  pruebas: 'cat-pruebas',
+  inyeccion: 'cat-inyeccion',
+  mixto: 'cat-mixto'
+};
+
+const numColors = ['green','blue','amber','rose','purple'];
+
+function buildQuiz() {
+  const area = document.getElementById('questionsArea');
+  let html = '';
+
+  QUESTIONS.forEach((q, i) => {
+    const numColor = numColors[i % numColors.length];
+    const numBg = `var(--accent-${numColor}-dim)`;
+    const numFg = `var(--accent-${numColor})`;
+
+    html += `<div class="q-card" id="qcard-${i}">`;
+    html += `<span class="q-category ${catColors[q.cat]}">${q.catLabel}</span>`;
+    html += `<div class="q-text"><span class="q-num" style="background:${numBg};color:${numFg}">${i+1}</span>${q.text}</div>`;
+
+    if (q.code) {
+      html += `<div class="q-code">${q.code}</div>`;
+    }
+
+    html += `<div class="q-options">`;
+    q.options.forEach((opt, j) => {
+      html += `<div class="q-opt" id="opt-${i}-${j}" onclick="answer(${i},${j})">`;
+      html += `<span class="opt-letter">${letters[j]}</span>`;
+      html += `<span>${opt}</span>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+
+    html += `<div class="q-feedback ok" id="fb-ok-${i}"><strong>✓ ¡Correcto!</strong> ${q.okMsg}</div>`;
+    html += `<div class="q-feedback nope" id="fb-err-${i}"><strong>✗ No es correcto.</strong> ${q.errMsg}</div>`;
+    html += `</div>`;
+  });
+
+  html += `<div class="results" id="results">
+    <div class="results-score" id="resScore"></div>
+    <div class="results-label">respuestas correctas de ${total}</div>
+    <div class="results-bar-wrap"><div class="results-bar-fill" id="resBar"></div></div>
+    <div class="results-msg" id="resMsg"></div>
+    <button class="btn-retry" onclick="resetQuiz()">Reintentar quiz</button>
+  </div>`;
+
+  area.innerHTML = html;
+}
+
+function answer(qi, oi) {
+  const card = document.getElementById(`qcard-${qi}`);
+  if (card.dataset.answered) return;
+  card.dataset.answered = '1';
+  answered++;
+
+  const q = QUESTIONS[qi];
+  const isCorrect = oi === q.correct;
+
+  // Disable all options
+  q.options.forEach((_, j) => {
+    const el = document.getElementById(`opt-${qi}-${j}`);
+    el.classList.add('disabled');
+  });
+
+  // Mark selected
+  const selected = document.getElementById(`opt-${qi}-${oi}`);
+  if (isCorrect) {
+    selected.classList.add('correct');
+    card.classList.add('answered-correct');
+    document.getElementById(`fb-ok-${qi}`).classList.add('show');
+    score++;
+  } else {
+    selected.classList.add('incorrect');
+    card.classList.add('answered-wrong');
+    document.getElementById(`opt-${qi}-${q.correct}`).classList.add('correct');
+    document.getElementById(`fb-err-${qi}`).classList.add('show');
+  }
+
+  updateProgress();
+
+  if (answered === total) {
+    setTimeout(showResults, 600);
+  }
+}
+
+function updateProgress() {
+  document.getElementById('progLabel').textContent = `Pregunta ${answered} de ${total}`;
+  document.getElementById('progScore').textContent = `${score} correcta${score !== 1 ? 's' : ''}`;
+  document.getElementById('progFill').style.width = `${(answered / total) * 100}%`;
+}
+
+function showResults() {
+  const res = document.getElementById('results');
+  const pct = Math.round((score / total) * 100);
+  res.classList.add('show');
+  document.getElementById('resScore').textContent = `${score} / ${total}`;
+
+  const bar = document.getElementById('resBar');
+  let color, msg;
+
+  if (pct >= 90) {
+    color = 'var(--accent-green)';
+    msg = '¡Excelente dominio! Tienes una comprensión sólida de la capa de lógica de negocio, la inyección de dependencias y las pruebas unitarias. Estás listo para implementar.';
+  } else if (pct >= 70) {
+    color = 'var(--accent-blue)';
+    msg = 'Buen trabajo. Tienes una buena base, pero te recomiendo revisar las preguntas que fallaste. Presta especial atención a las retroalimentaciones para reforzar esos conceptos.';
+  } else if (pct >= 50) {
+    color = 'var(--accent-amber)';
+    msg = 'Vas por buen camino, pero hay conceptos que necesitan refuerzo. Revisa el material de la capa de lógica y los ejemplos de pruebas antes de continuar con la implementación.';
+  } else {
+    color = 'var(--accent-rose)';
+    msg = 'Te recomiendo repasar el material completo sobre la capa de lógica, la inyección de dependencias y las pruebas unitarias. Luego intenta el quiz de nuevo — la práctica hace al maestro.';
+  }
+
+  document.getElementById('resScore').style.color = color;
+  document.getElementById('resMsg').textContent = msg;
+  bar.style.background = color;
+  setTimeout(() => { bar.style.width = `${pct}%`; }, 100);
+
+  res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetQuiz() {
+  score = 0;
+  answered = 0;
+  buildQuiz();
+  updateProgress();
+  document.getElementById('progScore').textContent = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Init
+buildQuiz();
+updateProgress();
+</script>
+</body>
+</html>
