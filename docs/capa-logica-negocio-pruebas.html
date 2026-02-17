@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pruebas Unitarias — Spring Boot</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-card: #f5f7fb;
+    --bg-card-hover: #eef1f8;
+    --accent-green: #059669;
+    --accent-green-dim: #d1fae5;
+    --accent-blue: #2563eb;
+    --accent-blue-dim: #dbeafe;
+    --accent-amber: #d97706;
+    --accent-amber-dim: #fef3c7;
+    --accent-rose: #dc2626;
+    --accent-rose-dim: #fee2e2;
+    --accent-purple: #7c3aed;
+    --accent-purple-dim: #ede9fe;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #9ca3af;
+    --border: #d1d5db;
+    --code-bg: #f3f4f6;
+    --glow-green: rgba(5, 150, 105, 0.1);
+    --glow-blue: rgba(37, 99, 235, 0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+  /* ─── Header ─── */
+  .hero {
+    position: relative;
+    padding: 80px 40px 60px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, var(--glow-green) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, var(--glow-blue) 0%, transparent 50%);
+    pointer-events: none;
+    animation: heroGlow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroGlow {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .badge.spring { background: var(--accent-green-dim); color: var(--accent-green); }
+  .badge.java { background: var(--accent-amber-dim); color: var(--accent-amber); }
+  .badge.jpa { background: var(--accent-blue-dim); color: var(--accent-blue); }
+
+
+  /* ─── Content Area ─── */
+  .content-area {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .section { display: none; animation: fadeSlide 0.4s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Section Headers ─── */
+  .section-header {
+    margin-bottom: 32px;
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .section-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(52, 211, 153, 0.2);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card h3 .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .card p, .card li {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+
+  .card ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+
+  .card ul li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+  }
+
+  .card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 4px;
+    color: var(--accent-green);
+    font-weight: bold;
+  }
+
+  /* ─── Code blocks ─── */
+  .code-block {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+  }
+
+  .code-header span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-dots span:nth-child(1) { background: #ef4444; }
+  .code-dots span:nth-child(2) { background: #fbbf24; }
+  .code-dots span:nth-child(3) { background: #34d399; }
+
+  .code-content {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    background: #1e293b;
+  }
+
+  .code-content code {
+    color: #e2e8f0;
+    white-space: pre;
+    display: block;
+  }
+
+  .kw { color: #c084fc; }
+  .ann { color: #fbbf24; }
+  .str { color: #6ee7b7; }
+  .cls { color: #7dd3fc; }
+  .cmt { color: #64748b; font-style: italic; }
+  .mth { color: #f9a8d4; }
+  .num { color: #fdba74; }
+  .exc { color: #fb7185; }
+
+  /* ─── Callout ─── */
+  .callout {
+    padding: 18px 22px;
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .callout.info {
+    background: rgba(96, 165, 250, 0.08);
+    border-left: 3px solid var(--accent-blue);
+    color: var(--text-secondary);
+  }
+
+  .callout.warning {
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid var(--accent-amber);
+    color: var(--text-secondary);
+  }
+
+  .callout.success {
+    background: rgba(52, 211, 153, 0.08);
+    border-left: 3px solid var(--accent-green);
+    color: var(--text-secondary);
+  }
+
+  .callout strong { color: var(--text-primary); }
+
+  /* ─── Highlight inline ─── */
+  .hl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: rgba(167, 139, 250, 0.12);
+    color: var(--accent-purple);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* ─── Step indicators ─── */
+  .steps {
+    counter-reset: step;
+    margin: 16px 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    counter-increment: step;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .step-text strong { color: var(--text-primary); }
+
+  /* ─── Footer ─── */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ─── Test Section ─── */
+  .test-scenario {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 12px 0;
+  }
+
+  .test-scenario h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .test-pass { color: var(--accent-green); }
+  .test-fail { color: var(--accent-rose); }
+
+  .test-scenario p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 50px 20px 40px; }
+    .content-area { padding: 24px 16px 60px; }
+    .card { padding: 20px; }
+    .nav-tab { padding: 8px 12px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <h1>Pruebas Unitarias de la Lógica</h1>
+  <p class="subtitle">Aprende a escribir pruebas unitarias efectivas para la capa de lógica de negocio en Spring Boot usando JUnit, Podam y TestEntityManager.</p>
+  <div class="badge-row">
+    <span class="badge spring">☘ Spring Boot</span>
+    <span class="badge java">♦ Java</span>
+    <span class="badge jpa">◈ JPA</span>
+  </div>
+</div>
+
+<div class="content-area">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SECTION 1: Pruebas                         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section active" id="sec-testing">
+    
+
+    <!-- Submenú de Pruebas -->
+    <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; justify-content: flex-start;">
+      <button onclick="showTestingSubsection('config', this)" style="padding: 10px 18px; background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Configuración</button>
+      <button onclick="showTestingSubsection('entitymanager', this)" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">TestEntityManager</button>
+      <button onclick="showTestingSubsection('setup', this)" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Setup</button>
+      <button onclick="showTestingSubsection('podam', this)" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Podam</button>
+      <button onclick="showTestingSubsection('scenarios', this)" style="padding: 10px 18px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.85rem; transition: all 0.3s;">Escenarios</button>
+    </div>
+
+    <!-- Subsección: Configuración -->
+    <div id="testing-config" class="testing-subsection" style="display: block;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">✓</span>
+        Configuración de la clase de prueba
+      </h3>
+      <p>Cada clase de pruebas requiere anotaciones específicas para integrarse con el contexto de Spring y JPA.</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — anotaciones</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@ExtendWith</span>(<span class="cls">SpringExtension</span>.<span class="kw">class</span>)
+<span class="ann">@DataJpaTest</span>
+<span class="ann">@Transactional</span>
+<span class="ann">@Import</span>(<span class="cls">CompanyService</span>.<span class="kw">class</span>)
+<span class="kw">public class</span> <span class="cls">CompanyServiceTest</span>
+{
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">CompanyService</span> companyService;
+
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">TestEntityManager</span> entityManager;
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">PodamFactory</span> factory =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">PodamFactoryImpl</span>();
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">List</span>&lt;<span class="cls">CompanyEntity</span>&gt; companyList =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+}</code></div>
+      </div>
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
+        <p style="margin-bottom: 12px;"><strong>¿Qué hace cada anotación?</strong></p>
+        <ul style="list-style: none; padding: 0;">
+          <li style="margin-bottom: 10px;"><span class="hl">@ExtendWith(SpringExtension.class)</span> — Integra JUnit 5 con Spring para que el contexto de Spring esté disponible durante las pruebas.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@DataJpaTest</span> — Carga solo la configuración necesaria para pruebas de JPA. Desactiva el servidor web y carga solo las capas de BD.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@Transactional</span> — Cada prueba se ejecuta en una transacción que se revierte al terminar, dejando la BD limpia.</li>
+          <li style="margin-bottom: 10px;"><span class="hl">@Import(CompanyService.class)</span> — Importa el servicio bajo prueba al contexto de Spring para que pueda ser inyectado.</li>
+          <li><span class="hl">@Autowired</span> — Spring inyecta automáticamente las dependencias marcadas (servicio, entityManager).</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+
+    <!-- Subsección: TestEntityManager -->
+    <div id="testing-entitymanager" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">🗄</span>
+        ¿Qué es TestEntityManager?
+      </h3>
+      <p>Es una herramienta proporcionada por Spring Test que permite interactuar con la base de datos de pruebas de forma manual. Se usa para:</p>
+      <ul>
+        <li><strong>Insertar datos de prueba:</strong> <span class="hl">entityManager.persist(entity)</span> — Guarda datos en la BD antes de ejecutar el test.</li>
+        <li><strong>Buscar datos:</strong> <span class="hl">entityManager.find(Class, id)</span> — Obtiene una entidad de la BD para verificar que se persistió correctamente.</li>
+        <li><strong>Ejecutar queries:</strong> <span class="hl">entityManager.createQuery("DELETE FROM...")</span> — Ejecuta consultas SQL directo.</li>
+        <li><strong>Limpiar datos:</strong> Elimina registros de la BD entre pruebas para garantizar aislamiento.</li>
+      </ul>
+      <p style="margin-top: 10px; color: var(--text-secondary);"><strong>Diferencia clave:</strong> El <span class="hl">CompanyService</span> que probamos usa <span class="hl">CompanyRepository</span> (interfaz de persistencia). El <span class="hl">TestEntityManager</span> es nuestro acceso directo a la BD para preparar datos o validar resultados sin pasar por el servicio.</p>
+    </div>
+    </div>
+
+    <!-- Subsección: Setup -->
+    <div id="testing-setup" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-purple-dim);color:var(--accent-purple);">🔄</span>
+        ¿Qué es el setUp y por qué lo necesitamos?
+      </h3>
+      <p>El <strong>setUp</strong> es un método especial que se ejecuta <strong>automáticamente antes de cada test</strong>. Su propósito es preparar un <strong>estado inicial conocido y consistente</strong> para que cada test comience bajo las mismas condiciones.</p>
+      <p style="margin-top: 10px;"><strong>¿Por qué es necesario?</strong> Sin setUp, los tests podrían interferir entre sí:</p>
+      <ul style="margin: 8px 0 0 16px; list-style: disc;">
+        <li>Un test podría dejar datos en la BD que afecten al siguiente test</li>
+        <li>El orden de ejecución de los tests es impredecible (JUnit no garantiza un orden)</li>
+        <li>Un test que funciona solo podría fallar cuando se ejecuta con otros</li>
+      </ul>
+      <p style="margin-top: 10px; color: var(--text-secondary);"><strong>Solución:</strong> El setUp limpia la BD y carga datos frescos antes de cada test, garantizando <strong>aislamiento total</strong>.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-blue-dim);color:var(--accent-blue);">⏱</span>
+        Ciclo de Vida de un Test
+      </h3>
+      <p>JUnit ejecuta cada test siguiendo este ciclo:</p>
+
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px;">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>@BeforeEach — setUp():</strong> Se ejecuta ANTES de cada método <span class="hl">@Test</span>. Limpia la BD y carga datos iniciales.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>@Test — testCreateCompany():</strong> Se ejecuta el test específico. Usa los datos que setUp() preparó.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>@AfterEach (opcional):</strong> Se ejecuta DESPUÉS del test. Generalmente no es necesario porque <span class="hl">@Transactional</span> revierte los cambios automáticamente.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Repetir:</strong> El ciclo se repite para cada método <span class="hl">@Test</span> en la clase.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-top: 14px;">
+        <strong>Ejemplo:</strong> Si tienes 5 métodos <span class="hl">@Test</span>, el setUp() se ejecutará <strong>5 veces</strong> (una antes de cada test). Esto garantiza que cada test empiece con la BD en el mismo estado limpio.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">💻</span>
+        Implementación del setUp
+      </h3>
+      <p>El método setUp típicamente hace dos cosas: <strong>limpiar</strong> la BD y luego <strong>insertar</strong> datos de prueba.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — setUp completo</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@BeforeEach</span>
+<span class="kw">void</span> <span class="mth">setUp</span>()
+{
+&nbsp;&nbsp;<span class="cmt">// 1. Limpiar todos los datos existentes</span>
+&nbsp;&nbsp;<span class="mth">clearData</span>();
+&nbsp;&nbsp;
+&nbsp;&nbsp;<span class="cmt">// 2. Insertar datos frescos para las pruebas</span>
+&nbsp;&nbsp;<span class="mth">insertData</span>();
+}
+
+<span class="cmt">// ──────────────────────────────────────</span>
+<span class="cmt">// Método auxiliar: Limpiar la base de datos</span>
+<span class="cmt">// ──────────────────────────────────────</span>
+<span class="kw">private void</span> <span class="mth">clearData</span>()
+{
+&nbsp;&nbsp;entityManager.<span class="mth">getEntityManager</span>()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">createQuery</span>(<span class="str">"delete from CompanyEntity"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">executeUpdate</span>();
+}
+
+<span class="cmt">// ──────────────────────────────────────</span>
+<span class="cmt">// Método auxiliar: Insertar datos de prueba</span>
+<span class="cmt">// ──────────────────────────────────────</span>
+<span class="kw">private void</span> <span class="mth">insertData</span>()
+{
+&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < <span class="num">3</span>; i++)
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">CompanyEntity</span> entity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+&nbsp;&nbsp;&nbsp;&nbsp;entityManager.<span class="mth">persist</span>(entity);
+&nbsp;&nbsp;&nbsp;&nbsp;companyList.<span class="mth">add</span>(entity);
+&nbsp;&nbsp;}
+}</code></div>
+      </div>
+
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
+        <p style="margin-bottom: 12px;"><strong>Desglose paso a paso:</strong></p>
+
+        <p style="font-weight: 600; color: var(--accent-green); margin-top: 14px;">📌 clearData() — Limpieza de la BD</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">entityManager.getEntityManager()</span> — Obtiene el EntityManager de JPA que maneja la conexión a la BD de pruebas (H2 en memoria).</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">.createQuery("delete from CompanyEntity")</span> — Crea una query JPQL (no SQL nativo) que elimina TODAS las filas de la tabla CompanyEntity.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">.executeUpdate()</span> — Ejecuta la query de eliminación. Retorna el número de filas eliminadas (pero no lo usamos).</div>
+          </div>
+        </div>
+
+        <p style="font-weight: 600; color: var(--accent-blue); margin-top: 20px;">📌 insertData() — Carga de datos de prueba</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">for (int i = 0; i < 3; i++)</span> — Inserta exactamente <strong>3 compañías</strong>. ¿Por qué 3? Para tener suficientes datos para tests negativos (ej: intentar crear una con nombre duplicado).</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">factory.manufacturePojo(...)</span> — Usa Podam para generar una CompanyEntity con datos aleatorios válidos (nombre, descripción, etc.).</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">entityManager.persist(entity)</span> — Guarda la compañía en la base de datos de pruebas usando TestEntityManager.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><span class="hl">companyList.add(entity)</span> — Guarda la compañía en una lista en memoria (<span class="hl">companyList</span> es una variable de instancia de la clase de test). Esto permite que los tests accedan fácilmente a las compañías existentes.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout success" style="margin-top: 14px;">
+        <strong>Variable companyList:</strong> Es una <span class="hl">List&lt;CompanyEntity&gt;</span> declarada en la clase de test. Después del setUp(), contiene las 3 compañías que acabamos de insertar. Los tests pueden usar <span class="hl">companyList.get(0)</span> para acceder a una compañía existente (ej: para tests de nombre duplicado).
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">❓</span>
+        Preguntas Frecuentes
+      </h3>
+
+      <div style="margin-top: 14px; padding: 14px; background: rgba(96, 165, 250, 0.08); border-left: 3px solid #3b82f6; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary);">
+        <strong>¿Es necesario clearData() si @Transactional revierte los cambios?</strong>
+        <p style="margin: 8px 0 0 0;">Buena pregunta. Técnicamente, cada test se revierte automáticamente por <span class="hl">@Transactional</span> (la BD vuelve al estado previo después de cada test). Sin embargo, <span class="hl">clearData()</span> sigue siendo importante porque:</p>
+        <ul style="margin: 8px 0 0 16px; list-style: disc;">
+          <li>Garantiza un <strong>estado limpio explícito</strong> al inicio de cada test</li>
+          <li>Protege contra cambios futuros en la configuración transaccional</li>
+          <li>Hace visible la intención: "empezar con BD vacía"</li>
+          <li>Si usas datos desde <span class="hl">data.sql</span> u otros orígenes, asegura que se limpien correctamente</li>
+        </ul>
+        <p style="margin: 8px 0 0 0;"><strong>En resumen:</strong> No es estrictamente necesario técnicamente, pero es una <strong>buena práctica</strong> de limpieza explícita que hace los tests más robustos y fáciles de entender.</p>
+      </div>
+
+      <div style="margin-top: 14px; padding: 14px; background: rgba(251, 191, 36, 0.08); border-left: 3px solid #d97706; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary);">
+        <strong>¿Por qué insertamos 3 compañías y no solo 1?</strong>
+        <p style="margin: 8px 0 0 0;">Insertar múltiples registros (típicamente 3-5) es útil porque:</p>
+        <ul style="margin: 8px 0 0 16px; list-style: disc;">
+          <li><strong>Tests de búsqueda:</strong> Puedes verificar que findAll() retorna todos los elementos</li>
+          <li><strong>Tests de filtrado:</strong> Puedes buscar uno específico entre varios</li>
+          <li><strong>Tests negativos:</strong> Necesitas datos existentes para probar duplicados o violaciones de unicidad</li>
+          <li><strong>Realismo:</strong> Una BD con varios registros es más representativo del mundo real</li>
+        </ul>
+        <p style="margin: 8px 0 0 0;"><strong>Regla práctica:</strong> Inserta entre 3 y 5 elementos. No demasiados (lentitud) ni muy pocos (tests poco realistas).</p>
+      </div>
+
+      <div style="margin-top: 14px; padding: 14px; background: rgba(124, 58, 237, 0.08); border-left: 3px solid #7c3aed; font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary);">
+        <strong>¿Dónde se declara companyList?</strong>
+        <p style="margin: 8px 0 0 0;">La variable <span class="hl">companyList</span> se declara como variable de instancia en la clase de test:</p>
+        <div class="code-block" style="margin: 10px 0 0 0;">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span>Variables de instancia en CompanyServiceTest</span>
+          </div>
+          <div class="code-content"><code><span class="kw">public class</span> <span class="cls">CompanyServiceTest</span>
+{
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">CompanyService</span> companyService;
+
+&nbsp;&nbsp;<span class="ann">@Autowired</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">TestEntityManager</span> entityManager;
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">PodamFactory</span> factory =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">PodamFactoryImpl</span>();
+
+&nbsp;&nbsp;<span class="cmt">// Lista que almacena las compañías insertadas en setUp()</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">List</span>&lt;<span class="cls">CompanyEntity</span>&gt; companyList =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+}</code></div>
+        </div>
+        <p style="margin: 8px 0 0 0;">Esta lista se <strong>limpia automáticamente</strong> en cada setUp() porque se crea como <span class="hl">new ArrayList&lt;&gt;()</span>, pero puedes también hacer <span class="hl">companyList.clear()</span> al inicio de insertData() para ser más explícito.</p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>Resumen:</strong> El setUp() con <span class="hl">@BeforeEach</span> garantiza que cada test empiece con un <strong>estado conocido y consistente</strong>. Limpia la BD (<span class="hl">clearData()</span>), inserta datos frescos (<span class="hl">insertData()</span>), y permite que los tests sean <strong>independientes</strong> y <strong>repetibles</strong>. Esto es fundamental para tener pruebas confiables que no dependan del orden de ejecución.
+    </div>
+    </div>
+
+    <!-- Subsección: Podam -->
+    <div id="testing-podam" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-purple-dim);color:var(--accent-purple);">⚙</span>
+        ¿Qué es Podam?
+      </h3>
+      <p><span class="hl">Podam</span> (POjo DAta Maker) es una librería Java que genera automáticamente instancias de clases con datos aleatorios válidos. Es especialmente útil en pruebas unitarias porque elimina la necesidad de crear manualmente objetos de prueba con todos sus atributos.</p>
+      <p style="margin-top: 10px;"><strong>¿Cómo funciona?</strong> Podam usa reflexión para inspeccionar la clase, identificar sus atributos (String, Long, Date, etc.) y generar valores aleatorios apropiados para cada tipo.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">✓</span>
+        Ejemplo Simple — Generar una entidad
+      </h3>
+      <p>Supongamos que tienes esta entidad:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>BookEntity.java</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cls">BookEntity</span>
+{
+&nbsp;&nbsp;<span class="ann">@Id</span>
+&nbsp;&nbsp;<span class="ann">@GeneratedValue</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Long</span> id;
+
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">String</span> name;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">String</span> isbn;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Date</span> publishDate;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Integer</span> pages;
+
+&nbsp;&nbsp;<span class="cmt">// getters y setters...</span>
+}</code></div>
+      </div>
+
+      <p style="margin-top: 14px;">En lugar de crear manualmente el objeto así:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>❌ Forma manual (tedioso y repetitivo)</span>
+        </div>
+        <div class="code-content"><code><span class="cls">BookEntity</span> book = <span class="kw">new</span> <span class="cls">BookEntity</span>();
+book.<span class="mth">setName</span>(<span class="str">"El Quijote"</span>);
+book.<span class="mth">setIsbn</span>(<span class="str">"978-1234567890"</span>);
+book.<span class="mth">setPublishDate</span>(<span class="kw">new</span> <span class="cls">Date</span>());
+book.<span class="mth">setPages</span>(<span class="num">863</span>);
+<span class="cmt">// Repetir esto para cada test...</span></code></div>
+      </div>
+
+      <p style="margin-top: 14px;">Con Podam, lo haces en una línea:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>✅ Con Podam (automático)</span>
+        </div>
+        <div class="code-content"><code><span class="cls">PodamFactory</span> factory = <span class="kw">new</span> <span class="cls">PodamFactoryImpl</span>();
+<span class="cls">BookEntity</span> book = factory.<span class="mth">manufacturePojo</span>(<span class="cls">BookEntity</span>.<span class="kw">class</span>);
+
+<span class="cmt">// book ya tiene todos los campos inicializados con valores aleatorios</span>
+<span class="cmt">// name = "algún texto aleatorio"</span>
+<span class="cmt">// isbn = "otro texto aleatorio"</span>
+<span class="cmt">// publishDate = alguna fecha aleatoria</span>
+<span class="cmt">// pages = algún número aleatorio</span></code></div>
+      </div>
+
+      <div class="callout success">
+        <strong>Ventaja:</strong> Cada vez que ejecutas el test, Podam genera datos diferentes. Esto prueba que tu código funciona con diversos valores, no solo con datos específicos hardcodeados.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-rose-dim);color:var(--accent-rose);">⚠</span>
+        Problema: Loop Infinito con Relaciones Bidireccionales
+      </h3>
+      <p>Cuando tienes entidades con relaciones bidireccionales (donde A conoce a B y B conoce a A), Podam puede entrar en un <strong>loop infinito</strong> al intentar generar los objetos.</p>
+
+      <p style="margin-top: 14px;"><strong>Ejemplo del problema:</strong></p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>BookEntity.java — con relación bidireccional</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cls">BookEntity</span>
+{
+&nbsp;&nbsp;<span class="ann">@Id</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Long</span> id;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">String</span> name;
+
+&nbsp;&nbsp;<span class="cmt">// Relación: un libro tiene un autor</span>
+&nbsp;&nbsp;<span class="ann">@ManyToOne</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">AuthorEntity</span> author;
+}</code></div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>AuthorEntity.java — relación inversa</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cls">AuthorEntity</span>
+{
+&nbsp;&nbsp;<span class="ann">@Id</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Long</span> id;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">String</span> name;
+
+&nbsp;&nbsp;<span class="cmt">// Relación inversa: un autor tiene muchos libros</span>
+&nbsp;&nbsp;<span class="ann">@OneToMany</span>(mappedBy = <span class="str">"author"</span>)
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">List</span>&lt;<span class="cls">BookEntity</span>&gt; books;
+}</code></div>
+      </div>
+
+      <div class="callout warning" style="margin-top: 14px;">
+        <strong>¿Qué pasa si intentas generar un BookEntity con Podam?</strong>
+        <ol style="margin: 8px 0 0 20px;">
+          <li>Podam crea un <span class="hl">BookEntity</span></li>
+          <li>Ve que tiene un atributo <span class="hl">author</span>, así que crea un <span class="hl">AuthorEntity</span></li>
+          <li>Ve que <span class="hl">AuthorEntity</span> tiene una lista <span class="hl">books</span>, así que crea libros</li>
+          <li>Cada libro necesita un <span class="hl">author</span>, así que crea más autores</li>
+          <li>Cada autor tiene <span class="hl">books</span>, así que crea más libros...</li>
+          <li><strong>Loop infinito → StackOverflowError</strong> 💥</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-blue-dim);color:var(--accent-blue);">🔧</span>
+        Solución: @PodamExclude
+      </h3>
+      <p>La anotación <span class="hl">@PodamExclude</span> le indica a Podam que <strong>ignore ese atributo</strong> y no intente generar datos para él. Se coloca sobre el atributo que queremos excluir (típicamente el lado inverso de la relación).</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>AuthorEntity.java — con @PodamExclude</span>
+        </div>
+        <div class="code-content"><code><span class="kw">import</span> uk.co.jemos.podam.common.<span class="cls">PodamExclude</span>;
+
+<span class="ann">@Entity</span>
+<span class="kw">public class</span> <span class="cls">AuthorEntity</span>
+{
+&nbsp;&nbsp;<span class="ann">@Id</span>
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Long</span> id;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">String</span> name;
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">Date</span> birthDate;
+
+&nbsp;&nbsp;<span class="cmt">// ✅ Excluir esta colección para evitar loop infinito</span>
+&nbsp;&nbsp;<span class="ann">@PodamExclude</span>
+&nbsp;&nbsp;<span class="ann">@OneToMany</span>(mappedBy = <span class="str">"author"</span>)
+&nbsp;&nbsp;<span class="kw">private</span> <span class="cls">List</span>&lt;<span class="cls">BookEntity</span>&gt; books;
+
+&nbsp;&nbsp;<span class="cmt">// getters y setters...</span>
+}</code></div>
+      </div>
+
+      <p style="margin-top: 14px;">Ahora al generar un <span class="hl">BookEntity</span>:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>Uso en pruebas</span>
+        </div>
+        <div class="code-content"><code><span class="cls">PodamFactory</span> factory = <span class="kw">new</span> <span class="cls">PodamFactoryImpl</span>();
+<span class="cls">BookEntity</span> book = factory.<span class="mth">manufacturePojo</span>(<span class="cls">BookEntity</span>.<span class="kw">class</span>);
+
+<span class="cmt">// ✅ book tiene:</span>
+<span class="cmt">//   - id, name, isbn, publishDate → valores aleatorios</span>
+<span class="cmt">//   - author → un AuthorEntity con id, name, birthDate aleatorios</span>
+<span class="cmt">//   - author.books → null (porque está excluido con @PodamExclude)</span>
+
+<span class="cmt">// ✅ No hay loop infinito</span></code></div>
+      </div>
+
+      <div class="callout info" style="margin-top: 14px;">
+        <strong>Regla práctica:</strong> En relaciones bidireccionales, agrega <span class="hl">@PodamExclude</span> al lado que tiene la colección (<span class="hl">@OneToMany</span> o <span class="hl">@ManyToMany</span>). Así Podam puede generar el lado "muchos" sin problemas, pero no intenta llenar la colección del lado "uno".
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-amber-dim);color:var(--accent-amber);">📋</span>
+        Buenas Prácticas con Podam
+      </h3>
+      <ul>
+        <li><strong>Usa @PodamExclude en colecciones de relaciones inversas:</strong> Evita loops infinitos en relaciones bidireccionales.</li>
+        <li><strong>Declara el factory como variable de instancia:</strong> <span class="hl">private PodamFactory factory = new PodamFactoryImpl();</span> para reutilizarlo en todos los tests.</li>
+        <li><strong>Modifica solo lo necesario:</strong> Genera el objeto con Podam y luego sobrescribe solo los atributos específicos que necesites para el test (ej: <span class="hl">book.setIsbn("specific-value")</span>).</li>
+        <li><strong>No confíes en valores específicos:</strong> Como Podam genera datos aleatorios, no hagas aserciones sobre valores concretos (ej: no asumas que <span class="hl">name</span> será "algo específico"). En su lugar, verifica que el objeto exista y tenga la estructura correcta.</li>
+      </ul>
+    </div>
+
+    <div class="callout success">
+      <strong>Resumen:</strong> Podam ahorra tiempo al generar objetos de prueba automáticamente. Cuando trabajas con entidades relacionadas, usa <span class="hl">@PodamExclude</span> en las colecciones inversas para evitar loops infinitos. Esto es especialmente importante en arquitecturas con múltiples entidades interconectadas como las que usamos en Spring Boot con JPA.
+    </div>
+    </div>
+
+    <!-- Subsección: Escenarios -->
+    <div id="testing-scenarios" class="testing-subsection" style="display: none;">
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-purple-dim);color:var(--accent-purple);">📝</span>
+        ¿Qué son los Escenarios de Prueba?
+      </h3>
+      <p>Los <strong>escenarios de prueba</strong> son casos de uso específicos que verifican que tu código se comporta correctamente. Cada escenario es un método anotado con <span class="hl">@Test</span> que ejecuta el servicio bajo condiciones específicas y valida el resultado.</p>
+      <p style="margin-top: 10px;">Hay dos tipos principales de escenarios:</p>
+      <ul style="margin: 8px 0 0 16px; list-style: disc;">
+        <li><strong>Escenarios positivos (caso feliz):</strong> Verifican que el código funciona cuando todo está correcto.</li>
+        <li><strong>Escenarios negativos:</strong> Verifican que el código maneja correctamente los errores y violaciones de reglas de negocio.</li>
+      </ul>
+      <p style="margin-top: 10px; color: var(--text-secondary);">Por cada método del servicio necesitas <strong>al menos un test positivo</strong> y <strong>un test negativo por cada regla de negocio</strong>. Si <span class="hl">createCompany()</span> valida 2 reglas, necesitas 1 positivo + 2 negativos = <strong>3 tests mínimo</strong>.</p>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-green-dim);color:var(--accent-green);">✓</span>
+        Escenario Positivo — Crear compañía válida
+      </h3>
+      <p>Este test verifica que el método <span class="hl">createCompany()</span> funciona correctamente cuando se proporciona una compañía válida (sin violaciones de reglas).</p>
+
+      <div class="code-block" style="margin-top:14px;">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — testCreateCompany()</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Test</span>
+<span class="kw">void</span> <span class="mth">testCreateCompany</span>()
+{
+&nbsp;&nbsp;<span class="cmt">// Paso 1: Generar datos de prueba</span>
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> newEntity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+
+&nbsp;&nbsp;<span class="cmt">// Paso 2: Invocar el método bajo prueba</span>
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> result =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;companyService.<span class="mth">createCompany</span>(newEntity);
+
+&nbsp;&nbsp;<span class="cmt">// Paso 3: Verificar que retornó un resultado</span>
+&nbsp;&nbsp;<span class="mth">assertNotNull</span>(result);
+
+&nbsp;&nbsp;<span class="cmt">// Paso 4: Buscar en BD usando TestEntityManager</span>
+&nbsp;&nbsp;<span class="cls">CompanyEntity</span> entity = entityManager
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="mth">find</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>, result.<span class="mth">getId</span>());
+
+&nbsp;&nbsp;<span class="cmt">// Paso 5: Verificar que se persistió correctamente</span>
+&nbsp;&nbsp;<span class="mth">assertEquals</span>(newEntity.<span class="mth">getName</span>(), entity.<span class="mth">getName</span>());
+&nbsp;&nbsp;<span class="mth">assertEquals</span>(newEntity.<span class="mth">getDescription</span>(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entity.<span class="mth">getDescription</span>());
+}</code></div>
+      </div>
+
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
+        <p style="margin-bottom: 12px;"><strong>Desglose paso a paso:</strong></p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Generar datos de prueba:</strong> Usamos Podam para crear una <span class="hl">CompanyEntity</span> con datos aleatorios válidos. Esto simula una compañía nueva que queremos guardar.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Invocar el servicio:</strong> Llamamos al método <span class="hl">companyService.createCompany(newEntity)</span> que es el código que estamos probando. Este método debería validar las reglas y guardar la compañía en la base de datos.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Verificar que no retorna null:</strong> <span class="hl">assertNotNull(result)</span> confirma que el método retornó algo (no null). Si retorna null, el test falla inmediatamente.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Buscar en BD independientemente:</strong> Usamos <span class="hl">entityManager.find()</span> para buscar la compañía directamente en la base de datos. <strong>No usamos el servicio</strong> porque queremos verificar que realmente se persistió, no solo que el método retornó algo.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Validar los datos:</strong> <span class="hl">assertEquals()</span> compara los valores originales con los que están en la BD. Si coinciden, significa que la compañía se guardó correctamente con todos sus datos intactos.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout success" style="margin-top: 14px;">
+        <strong>Concepto clave:</strong> Siempre verifica la persistencia usando <span class="hl">TestEntityManager</span>, no llamando de nuevo al servicio. Esto asegura que realmente se guardó en la base de datos, no solo que el servicio dice que lo hizo.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-rose-dim);color:var(--accent-rose);">✗</span>
+        Escenario Negativo — Nombre duplicado
+      </h3>
+      <p>Este test verifica que el método <span class="hl">createCompany()</span> <strong>rechaza correctamente</strong> una compañía cuando se viola la regla de negocio "no puede haber dos compañías con el mismo nombre".</p>
+
+      <div class="code-block" style="margin-top:14px;">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span>CompanyServiceTest.java — testCreateInvalidCompany()</span>
+        </div>
+        <div class="code-content"><code><span class="ann">@Test</span>
+<span class="kw">void</span> <span class="mth">testCreateInvalidCompany</span>()
+{
+&nbsp;&nbsp;<span class="cmt">// assertThrows: verifica que el código lanza una excepción</span>
+&nbsp;&nbsp;<span class="mth">assertThrows</span>(<span class="exc">IllegalOperationException</span>.<span class="kw">class</span>, () ->
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// Paso 1: Generar una compañía nueva</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">CompanyEntity</span> newEntity =
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory.<span class="mth">manufacturePojo</span>(<span class="cls">CompanyEntity</span>.<span class="kw">class</span>);
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// Paso 2: Cambiar el nombre para que sea igual a una existente</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// companyList tiene datos cargados en setUp()</span>
+&nbsp;&nbsp;&nbsp;&nbsp;newEntity.<span class="mth">setName</span>(companyList.<span class="mth">get</span>(<span class="num">0</span>).<span class="mth">getName</span>());
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// Paso 3: Intentar crear (debería fallar)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;companyService.<span class="mth">createCompany</span>(newEntity);
+&nbsp;&nbsp;});
+}</code></div>
+      </div>
+
+      <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
+        <p style="margin-bottom: 12px;"><strong>Desglose paso a paso:</strong></p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>assertThrows:</strong> Esta aserción especial de JUnit 5 ejecuta el código dentro del lambda <span class="hl">() -> {...}</span> y <strong>verifica que lance la excepción indicada</strong>. Si el código NO lanza la excepción, el test falla.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Generar datos base:</strong> Creamos una compañía con Podam, pero luego modificaremos su nombre para violar la regla de negocio.</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Forzar la violación:</strong> Cambiamos el nombre de la nueva compañía para que sea igual al de una existente (que fue cargada en <span class="hl">setUp()</span>). Esto <strong>garantiza que se viole la regla</strong> "nombres únicos".</div>
+          </div>
+          <div class="step">
+            <div class="step-num"></div>
+            <div class="step-text"><strong>Invocar y esperar fallo:</strong> Llamamos a <span class="hl">createCompany()</span>. El servicio debería detectar el nombre duplicado y lanzar <span class="hl">IllegalOperationException</span>. Si lanza la excepción, el test pasa ✓. Si NO lanza excepción, el test falla ✗.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warning" style="margin-top: 14px;">
+        <strong>Importante:</strong> En escenarios negativos, <strong>el éxito del test significa que el código falló correctamente</strong>. Es decir, queremos que lance la excepción. Si el código permite la operación inválida, entonces el test falla porque el servicio no está validando bien.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>
+        <span class="icon" style="background:var(--accent-blue-dim);color:var(--accent-blue);">📊</span>
+        Estrategia General de Pruebas
+      </h3>
+      <p>Para cada método del servicio, sigue esta estrategia:</p>
+
+      <div style="margin-top: 14px; padding: 16px; background: var(--bg-secondary); border-radius: 10px;">
+        <p style="font-weight: 600; margin-bottom: 10px;">1. Identifica qué pruebas necesitas:</p>
+        <ul style="margin: 0 0 16px 20px; list-style: disc; line-height: 1.8;">
+          <li><strong>1 test positivo</strong> que verifique el caso feliz (todo funciona bien)</li>
+          <li><strong>1 test negativo por cada regla de negocio</strong> que el método valide</li>
+        </ul>
+
+        <p style="font-weight: 600; margin-bottom: 10px;">2. Ejemplo con <span class="hl">createBook()</span>:</p>
+        <ul style="margin: 0 0 16px 20px; list-style: disc; line-height: 1.8;">
+          <li>Regla 1: El ISBN no puede ser vacío</li>
+          <li>Regla 2: La fecha de publicación debe ser posterior al nacimiento del autor</li>
+          <li><strong>Tests necesarios:</strong> 1 positivo + 2 negativos = <strong>3 tests</strong></li>
+        </ul>
+
+        <p style="font-weight: 600; margin-bottom: 10px;">3. Nombres descriptivos:</p>
+        <ul style="margin: 0 0 0 20px; list-style: disc; line-height: 1.8;">
+          <li><span class="hl">testCreateBook()</span> — caso feliz</li>
+          <li><span class="hl">testCreateBookWithEmptyIsbn()</span> — valida regla 1</li>
+          <li><span class="hl">testCreateBookWithInvalidPublishDate()</span> — valida regla 2</li>
+        </ul>
+      </div>
+
+      <div class="test-scenario" style="margin-top: 16px;">
+        <h5 style="font-size: 0.9rem; font-weight: 600; color: var(--accent-purple); margin-bottom: 8px;">💡 Tabla de cobertura de pruebas</h5>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="background: var(--bg-secondary);">
+              <th style="padding: 10px; text-align: left; border: 1px solid var(--border);">Método del Servicio</th>
+              <th style="padding: 10px; text-align: center; border: 1px solid var(--border);">Reglas de Negocio</th>
+              <th style="padding: 10px; text-align: center; border: 1px solid var(--border);">Tests Positivos</th>
+              <th style="padding: 10px; text-align: center; border: 1px solid var(--border);">Tests Negativos</th>
+              <th style="padding: 10px; text-align: center; border: 1px solid var(--border);">Total Tests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 10px; border: 1px solid var(--border);"><span class="hl">createCompany()</span></td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border); font-weight: 700;">2</td>
+            </tr>
+            <tr style="background: var(--bg-secondary);">
+              <td style="padding: 10px; border: 1px solid var(--border);"><span class="hl">createBook()</span></td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">2</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">2</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border); font-weight: 700;">3</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid var(--border);"><span class="hl">createDepartment()</span></td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border);">1</td>
+              <td style="padding: 10px; text-align: center; border: 1px solid var(--border); font-weight: 700;">2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <strong>Resumen:</strong> Los escenarios de prueba verifican que tu servicio funciona correctamente (positivo) y rechaza operaciones inválidas (negativo). Cada test sigue el patrón: <strong>preparar datos → ejecutar → validar resultado</strong>. Usa Podam para datos aleatorios, TestEntityManager para verificar persistencia, y assertThrows para validar que las excepciones se lanzan cuando deben.
+    </div>
+    </div>
+    </div>
+
+</div>
+
+<div class="footer">
+  Curso de Desarrollo de Software — Pruebas Unitarias con Spring Boot
+</div>
+
+<script>
+  // ─── Testing Subsections ───
+  function showTestingSubsection(subsection, btn) {
+    console.log('Mostrando subsección:', subsection);
+    console.log('ID buscado:', 'testing-' + subsection);
+
+    // Ocultar todas las subsecciones
+    document.querySelectorAll('.testing-subsection').forEach(s => s.style.display = 'none');
+
+    // Mostrar la subsección seleccionada
+    const targetElement = document.getElementById('testing-' + subsection);
+    console.log('Elemento encontrado:', targetElement);
+
+    if (targetElement) {
+      targetElement.style.display = 'block';
+      console.log('Display cambiado a block');
+    } else {
+      console.error('No se encontró el elemento con ID: testing-' + subsection);
+      return;
+    }
+
+    // Cambiar estilos de botones
+    document.querySelectorAll('[onclick*="showTestingSubsection"]').forEach(button => {
+      button.style.background = 'transparent';
+      button.style.color = 'var(--text-secondary)';
+      button.style.borderColor = 'var(--border)';
+    });
+
+    if (btn) {
+      btn.style.background = 'var(--accent-green-dim)';
+      btn.style.color = 'var(--accent-green)';
+      btn.style.borderColor = 'var(--accent-green)';
+    }
+  }
+</script>
+</body>
+</html>
