@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artefactos – Desarrollo de Software</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f2efe9;
+  --surface:   #faf8f4;
+  --surface2:  #ffffff;
+  --border:    #ddd8d0;
+  --border2:   #ece8e0;
+  --ink:       #1c1814;
+  --ink-mid:   #4a4440;
+  --ink-soft:  #8c847c;
+
+  --api:       #0e7a5a;
+  --api-bg:    #e6f5f0;
+  --api-bdr:   #9dd9c5;
+
+  --logic:     #1d4ed8;
+  --logic-bg:  #e8eefb;
+  --logic-bdr: #93aef0;
+
+  --persist:   #b45309;
+  --persist-bg:#fef4e6;
+  --persist-bdr:#f6c87a;
+
+  --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+  --shadow:    0 4px 20px rgba(28,24,20,.09);
+  --shadow-lg: 0 8px 40px rgba(28,24,20,.12);
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 48px 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 60px,
+    rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+  );
+}
+.hdr-content { position: relative; text-align: center; max-width: 900px; }
+.hdr-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 12px;
+}
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 4vw, 48px);
+  color: #faf8f4;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+header h1 em { font-style: italic; color: #f6c87a; }
+.hdr-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── ARCHITECTURE DIAGRAM ── */
+.arch-diagram {
+  max-width: 1200px;
+  margin: -40px auto 40px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+.arch-container {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) { .arch-container { grid-template-columns: 1fr; } }
+
+/* ── LAYER CARD ── */
+.layer {
+  background: var(--surface);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  transition: all .2s;
+}
+.layer:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.layer-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid var(--border2);
+}
+.layer-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.layer-title-group { flex: 1; }
+.layer-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.layer-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.layer-desc {
+  padding: 16px 24px;
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.6;
+  border-bottom: 1px solid var(--border2);
+  background: var(--surface2);
+}
+
+.layer-links {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artifact-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all .15s;
+  border: 1.5px solid transparent;
+  background: var(--surface2);
+}
+.artifact-link:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.artifact-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.artifact-text {
+  flex: 1;
+}
+.artifact-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  display: block;
+}
+.artifact-subtitle {
+  font-size: 11px;
+  color: var(--ink-soft);
+  display: block;
+}
+.artifact-arrow {
+  font-size: 16px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.artifact-link:hover .artifact-arrow {
+  opacity: 1;
+}
+
+/* Layer specific colors */
+.layer-api .layer-header { background: var(--api-bg); border-bottom-color: var(--api-bdr); }
+.layer-api .layer-number { color: var(--api); }
+.layer-api .layer-title { color: var(--api); }
+.layer-api .artifact-link:hover { border-color: var(--api-bdr); background: var(--api-bg); }
+.layer-api .artifact-icon { background: var(--api-bg); color: var(--api); }
+.layer-api .artifact-link:hover .artifact-name { color: var(--api); }
+
+.layer-logic .layer-header { background: var(--logic-bg); border-bottom-color: var(--logic-bdr); }
+.layer-logic .layer-number { color: var(--logic); }
+.layer-logic .layer-title { color: var(--logic); }
+.layer-logic .artifact-link:hover { border-color: var(--logic-bdr); background: var(--logic-bg); }
+.layer-logic .artifact-icon { background: var(--logic-bg); color: var(--logic); }
+.layer-logic .artifact-link:hover .artifact-name { color: var(--logic); }
+
+.layer-persist .layer-header { background: var(--persist-bg); border-bottom-color: var(--persist-bdr); }
+.layer-persist .layer-number { color: var(--persist); }
+.layer-persist .layer-title { color: var(--persist); }
+.layer-persist .artifact-link:hover { border-color: var(--persist-bdr); background: var(--persist-bg); }
+.layer-persist .artifact-icon { background: var(--persist-bg); color: var(--persist); }
+.layer-persist .artifact-link:hover .artifact-name { color: var(--persist); }
+
+/* ── INFO SECTION ── */
+.info-section {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding: 0 24px;
+}
+.info-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 28px 32px;
+}
+.info-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.info-text {
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.info-item {
+  background: var(--surface);
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+}
+.info-item-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-item-desc {
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  margin-top: 64px;
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  letter-spacing: 1px;
+}
+.footer span { color: #b45309; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.layer {
+  animation: fadeInUp 0.5s ease forwards;
+}
+.layer:nth-child(1) { animation-delay: 0.1s; opacity: 0; }
+.layer:nth-child(2) { animation-delay: 0.2s; opacity: 0; }
+.layer:nth-child(3) { animation-delay: 0.3s; opacity: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
+    <h1>Artefactos de <em>Aprendizaje</em></h1>
+    <div class="hdr-sub">Recursos interactivos organizados por capas de arquitectura empresarial</div>
+  </div>
+</header>
+
+<div class="arch-diagram">
+  <div class="arch-container">
+
+    <!-- ════════════ API REST LAYER ════════════ -->
+    <div class="layer layer-api">
+      <div class="layer-header">
+        <div class="layer-icon">🌐</div>
+        <div class="layer-title-group">
+          <div class="layer-number">Capa 1</div>
+          <div class="layer-title">API REST</div>
+        </div>
+      </div>
+      <div class="layer-desc">
+        Interfaz de comunicación HTTP. Define endpoints, métodos, DTOs y contratos de la API.
+      </div>
+      <div class="layer-links">
+        <a href="uri-simulator.html" class="artifact-link">
+          <div class="artifact-icon">🔗</div>
+          <div class="artifact-text">
+            <span class="artifact-name">URI Simulator</span>
+            <span class="artifact-subtitle">Simulador de URIs REST</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+        <a href="mini-postman-musica.html" class="artifact-link">
+          <div class="artifact-icon">📮</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Mini-Postman Música</span>
+            <span class="artifact-subtitle">Simulador HTTP con DTOs</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ════════════ LOGIC LAYER ════════════ -->
+    <div class="layer layer-logic">
+      <div class="layer-header">
+        <div class="layer-icon">⚙️</div>
+        <div class="layer-title-group">
+          <div class="layer-number">Capa 2</div>
+          <div class="layer-title">Lógica de Negocio</div>
+        </div>
+      </div>
+      <div class="layer-desc">
+        Reglas de negocio, validaciones, servicios y orquestación de operaciones del dominio.
+      </div>
+      <div class="layer-links">
+        <a href="capa-logica-negocio.html" class="artifact-link">
+          <div class="artifact-icon">🧠</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Capa Lógica de Negocio</span>
+            <span class="artifact-subtitle">Conceptos y patrones</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+        <a href="capa-logica-negocio-pruebas.html" class="artifact-link">
+          <div class="artifact-icon">🧪</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Pruebas de Lógica</span>
+            <span class="artifact-subtitle">Testing y validación</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ════════════ PERSISTENCE LAYER ════════════ -->
+    <div class="layer layer-persist">
+      <div class="layer-header">
+        <div class="layer-icon">💾</div>
+        <div class="layer-title-group">
+          <div class="layer-number">Capa 3</div>
+          <div class="layer-title">Persistencia</div>
+        </div>
+      </div>
+      <div class="layer-desc">
+        Acceso a datos, mapeo objeto-relacional (ORM) y gestión de entidades con JPA.
+      </div>
+      <div class="layer-links">
+        <a href="jpa-element-collection.html" class="artifact-link">
+          <div class="artifact-icon">📦</div>
+          <div class="artifact-text">
+            <span class="artifact-name">JPA Element Collection</span>
+            <span class="artifact-subtitle">Colecciones embebidas</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+        <a href="explorador-jpa-interactivo.html" class="artifact-link">
+          <div class="artifact-icon">🔍</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Explorador JPA Interactivo</span>
+            <span class="artifact-subtitle">Asociaciones y relaciones</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ INFO SECTION ════════════ -->
+<div class="info-section">
+  <div class="info-card">
+    <div class="info-title">
+      <span>📚</span>
+      Arquitectura en Capas
+    </div>
+    <p class="info-text">
+      Los artefactos están organizados siguiendo el patrón de arquitectura en capas (Layered Architecture),
+      que separa las responsabilidades en tres niveles fundamentales para aplicaciones empresariales.
+    </p>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-item-title">
+          <span style="color:var(--api);">●</span> Separación de Responsabilidades
+        </div>
+        <div class="info-item-desc">
+          Cada capa tiene un propósito bien definido y se comunica solo con las capas adyacentes.
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-title">
+          <span style="color:var(--logic);">●</span> Independencia Tecnológica
+        </div>
+        <div class="info-item-desc">
+          Las capas pueden evolucionar independientemente usando diferentes tecnologías y frameworks.
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-item-title">
+          <span style="color:var(--persist);">●</span> Facilidad de Pruebas
+        </div>
+        <div class="info-item-desc">
+          Cada capa puede ser probada de forma aislada mediante mocks y stubs de las dependencias.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  ISIS2603 · Universidad de los Andes · <span>Artefactos de Desarrollo de Software</span>
+</div>
+
+</body>
+</html>
