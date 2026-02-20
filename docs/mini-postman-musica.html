@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini-Postman – Simulador HTTP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f2efe9;
+  --surface:   #faf8f4;
+  --surface2:  #ffffff;
+  --border:    #ddd8d0;
+  --border2:   #ece8e0;
+  --ink:       #1c1814;
+  --ink-mid:   #4a4440;
+  --ink-soft:  #8c847c;
+
+  --get:       #0e7a5a;
+  --get-bg:    #e6f5f0;
+  --get-bdr:   #9dd9c5;
+  --post:      #1d4ed8;
+  --post-bg:   #e8eefb;
+  --post-bdr:  #93aef0;
+  --put:       #b45309;
+  --put-bg:    #fef4e6;
+  --put-bdr:   #f6c87a;
+  --delete:    #b91c1c;
+  --delete-bg: #fde8e8;
+  --delete-bdr:#f4a0a0;
+  --patch:     #6b21a8;
+  --patch-bg:  #f3eeff;
+  --patch-bdr: #c4a0f5;
+
+  --s200: #15803d;  --s200bg:#dcfce7;
+  --s201: #1d4ed8;  --s201bg:#dbeafe;
+  --s400: #b45309;  --s400bg:#fef3c7;
+  --s404: #b91c1c;  --s404bg:#fee2e2;
+  --s409: #7c3aed;  --s409bg:#ede9fe;
+  --s500: #9f1239;  --s500bg:#ffe4e6;
+
+  --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+  --shadow:    0 4px 20px rgba(28,24,20,.09);
+  --shadow-lg: 0 8px 40px rgba(28,24,20,.12);
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 32px 48px 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 60px,
+    rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+  );
+}
+.hdr-left { position: relative; }
+.hdr-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 8px;
+}
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(26px, 3.5vw, 40px);
+  color: #faf8f4;
+  line-height: 1.1;
+}
+header h1 em { font-style: italic; color: #f6c87a; }
+.hdr-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  margin-top: 6px;
+}
+.hdr-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: rgba(255,255,255,.5);
+  white-space: nowrap;
+  position: relative;
+}
+
+/* ── MAIN ── */
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── RESOURCE TABS ── */
+.resource-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.res-tab {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.res-tab:last-child { border-right: none; }
+.res-tab:hover { background: var(--bg); color: var(--ink); }
+.res-tab.active { background: var(--ink); color: #faf8f4; font-weight: 700; }
+.res-tab .tab-emoji { font-size: 16px; }
+
+/* ── SCENARIO STRIP ── */
+.scenario-bar {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+.scenario-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.scen-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 6px 13px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.scen-btn:hover { background: var(--ink); color: #faf8f4; border-color: var(--ink); }
+.scen-btn.active { background: var(--ink); color: #faf8f4; border-color: var(--ink); }
+.scen-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── WORKSPACE ── */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 820px) { .workspace { grid-template-columns: 1fr; } }
+
+/* ── PANEL ── */
+.panel {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  flex: 1;
+}
+.panel-body { padding: 20px; }
+
+/* ── METHOD + URL ── */
+.request-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.method-select {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  transition: all .2s;
+  min-width: 105px;
+}
+.url-input {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.url-input:focus { border-color: var(--ink-mid); box-shadow: 0 0 0 3px rgba(28,24,20,.06); }
+
+.method-GET    { border-color: var(--get-bdr) !important;    background: var(--get-bg) !important;    color: var(--get) !important; }
+.method-POST   { border-color: var(--post-bdr) !important;   background: var(--post-bg) !important;   color: var(--post) !important; }
+.method-PUT    { border-color: var(--put-bdr) !important;    background: var(--put-bg) !important;    color: var(--put) !important; }
+.method-DELETE { border-color: var(--delete-bdr) !important; background: var(--delete-bg) !important; color: var(--delete) !important; }
+.method-PATCH  { border-color: var(--patch-bdr) !important;  background: var(--patch-bg) !important;  color: var(--patch) !important; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border2); margin-bottom: 16px; }
+.tab-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 700; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── HEADERS TABLE ── */
+.headers-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.headers-table th {
+  text-align: left; padding: 6px 10px; background: var(--bg);
+  color: var(--ink-soft); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; border-bottom: 1px solid var(--border2);
+}
+.headers-table td { padding: 7px 10px; border-bottom: 1px solid var(--border2); vertical-align: top; }
+.hdr-key { color: var(--post); }
+.hdr-val { color: var(--ink-mid); }
+
+/* ── BODY AREA ── */
+.body-area {
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  resize: vertical;
+  min-height: 140px;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color .2s;
+}
+.body-area:focus { border-color: var(--ink-mid); }
+.body-area:disabled { opacity: .35; cursor: not-allowed; }
+
+/* ── SEND BUTTON ── */
+.send-btn {
+  width: 100%; margin-top: 16px; padding: 13px;
+  border-radius: 9px; border: none;
+  background: var(--ink); color: #faf8f4;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.send-btn:hover { background: #2d2520; box-shadow: 0 4px 16px rgba(28,24,20,.18); transform: translateY(-1px); }
+.send-btn:active { transform: translateY(0); box-shadow: none; }
+.send-btn.loading { pointer-events: none; opacity: .7; }
+
+/* ── RESPONSE ── */
+.response-empty { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+.response-empty .empty-icon { font-size: 40px; margin-bottom: 14px; opacity: .4; }
+.response-empty p { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; }
+
+.status-line {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px; border-bottom: 1px solid var(--border2); flex-wrap: wrap;
+}
+.status-badge { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 6px; }
+.status-time  { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-left: auto; }
+
+.json-block {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7;
+  background: var(--bg); border-radius: 8px; padding: 16px;
+  overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+  border: 1px solid var(--border2);
+}
+.j-key { color: #1d4ed8; } .j-str { color: #15803d; }
+.j-num { color: #b45309; } .j-bool { color: #7c3aed; } .j-null { color: #9f1239; }
+
+/* ── ANATOMY ── */
+.anatomy { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+.anatomy-head { padding: 14px 24px; background: var(--ink); display: flex; align-items: center; gap: 10px; }
+.anatomy-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #faf8f4; }
+.anatomy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+@media (max-width: 600px) { .anatomy-grid { grid-template-columns: 1fr; } }
+.anatomy-col { padding: 24px; border-right: 1px solid var(--border); }
+.anatomy-col:last-child { border-right: none; }
+.anatomy-col-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 16px; }
+.anatomy-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+.anatomy-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+.anatomy-desc { font-size: 13px; color: var(--ink-mid); line-height: 1.5; }
+.anatomy-desc strong { color: var(--ink); }
+
+.codes-row {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+  padding: 20px 24px; background: var(--bg); border-top: 1px solid var(--border);
+}
+@media (max-width: 700px) { .codes-row { grid-template-columns: repeat(3,1fr); } }
+.code-card { border-radius: 9px; padding: 12px 14px; cursor: pointer; border: 1.5px solid transparent; transition: transform .15s, box-shadow .15s; }
+.code-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.code-num { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.code-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: .75; margin-bottom: 6px; }
+.code-desc { font-size: 12px; line-height: 1.45; }
+.code-200 { background: var(--s200bg); color: var(--s200); border-color: #86efac; }
+.code-201 { background: var(--s201bg); color: var(--s201); border-color: #93c5fd; }
+.code-400 { background: var(--s400bg); color: var(--s400); border-color: #fcd34d; }
+.code-404 { background: var(--s404bg); color: var(--s404); border-color: #fca5a5; }
+.code-409 { background: var(--s409bg); color: var(--s409); border-color: #c4b5fd; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+.anim-in { animation: fadeUp .3s ease forwards; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+
+.footer { text-align: center; margin-top: 48px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-soft); letter-spacing: 1px; }
+.footer span { color: #b45309; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
+    <h1>Mini-<em>Postman</em></h1>
+    <div class="hdr-sub">Simulador de peticiones HTTP · API de Música</div>
+  </div>
+  <div class="hdr-badge">localhost:8080 / api</div>
+</header>
+
+<main>
+
+  <!-- RESOURCE SELECTOR -->
+  <div class="resource-tabs">
+    <button class="res-tab active" onclick="switchResource('artistas')" id="rtab-artistas">
+      <span class="tab-emoji">🎤</span> Artistas
+    </button>
+    <button class="res-tab" onclick="switchResource('albumes')" id="rtab-albumes">
+      <span class="tab-emoji">💿</span> Álbumes
+    </button>
+    <button class="res-tab" onclick="switchResource('canciones')" id="rtab-canciones">
+      <span class="tab-emoji">🎵</span> Canciones
+    </button>
+    <button class="res-tab" onclick="switchResource('diagrama')" id="rtab-diagrama">
+      <span class="tab-emoji">📊</span> Diagrama UML
+    </button>
+  </div>
+
+  <!-- DTO REFERENCE PANEL -->
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;">
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;">
+      <span style="font-size:16px;">🗂️</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);">Representaciones DTO del dominio</span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);">GET → siempre DetailDTO &nbsp;|&nbsp; POST/PUT reciben DTO básico (sin colecciones)</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;" id="dto-grid">
+
+      <!-- ARTISTA -->
+      <div style="padding:16px 20px;border-right:1px solid var(--border2);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">🎤 Artista</div>
+        <div style="margin-bottom:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--get-bg);color:var(--get);">ArtistaDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mid);margin-top:6px;line-height:1.7;">
+            id, nombre, nacionalidad,<br>genero, activo
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--post-bg);color:var(--post);">ArtistaDetailDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mid);margin-top:6px;line-height:1.7;">
+            + albumes: <span style="color:var(--get);">[AlbumDTO]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALBUM -->
+      <div style="padding:16px 20px;border-right:1px solid var(--border2);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">💿 Álbum</div>
+        <div style="margin-bottom:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--get-bg);color:var(--get);">AlbumDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mid);margin-top:6px;line-height:1.7;">
+            id, titulo, anio, genero<br>
+            + artista: <span style="color:var(--get);">ArtistaDTO</span> <span style="color:var(--ink-soft);font-size:10px;">(many-to-1)</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--post-bg);color:var(--post);">AlbumDetailDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mid);margin-top:6px;line-height:1.7;">
+            + canciones: <span style="color:var(--get);">[CancionDTO]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANCION -->
+      <div style="padding:16px 20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">🎵 Canción</div>
+        <div style="margin-bottom:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--get-bg);color:var(--get);">CancionDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mid);margin-top:6px;line-height:1.7;">
+            id, titulo, duracionSeg, pista<br>
+            + album: <span style="color:var(--get);">AlbumDTO</span> <span style="color:var(--ink-soft);font-size:10px;">(many-to-1)</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--border2);color:var(--ink-soft);">Sin DetailDTO</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:6px;line-height:1.7;">
+            No tiene colecciones<br>salientes → solo CancionDTO
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DIAGRAMA UML -->
+  <div id="diagrama-container" style="display:none;">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;padding:40px 32px 32px;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;">ISIS2603 · Desarrollo de Software</div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:28px;color:var(--ink);margin-bottom:6px;">Diagrama de <em style="color:#f6c87a;">DTOs</em></h2>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);letter-spacing:1px;">API de Música · Artistas, Álbumes y Canciones</p>
+      </div>
+
+      <div style="background:#ffffff;border-radius:12px;padding:40px 32px 28px;overflow-x:auto;">
+        <svg width="960" height="580" viewBox="0 0 960 580" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+<defs>
+  <filter id="sh" x="-8%" y="-8%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#1a1714" flood-opacity="0.09"/>
+  </filter>
+  <marker id="inherit" markerWidth="14" markerHeight="11" refX="13" refY="5.5" orient="auto">
+    <polygon points="0,0 13,5.5 0,11" fill="#ffffff" stroke="#374151" stroke-width="1.4"/>
+  </marker>
+  <marker id="assoc" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+    <polygon points="0,0 9,4 0,8" fill="#374151"/>
+  </marker>
+  <marker id="dep" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+    <polyline points="0,0 9,4 0,8" fill="none" stroke="#374151" stroke-width="1.5"/>
+  </marker>
+  <marker id="diamond" markerWidth="13" markerHeight="9" refX="1" refY="4.5" orient="auto">
+    <polygon points="1,4.5 6,0 11,4.5 6,9 1,4.5" fill="#374151"/>
+  </marker>
+</defs>
+
+<rect x="20" y="45" width="920" height="238" rx="8" fill="#f9faf8"/>
+<rect x="20" y="333" width="920" height="210" rx="8" fill="#f4f2fd"/>
+<text x="26" y="175" font-family="JetBrains Mono" font-size="8.5" fill="#aaa49e" letter-spacing="2"
+      transform="rotate(-90,26,175)" text-anchor="middle">DTO  BÁSICO</text>
+<text x="26" y="440" font-family="JetBrains Mono" font-size="8.5" fill="#aaa49e" letter-spacing="2"
+      transform="rotate(-90,26,440)" text-anchor="middle">DETAIL  DTO</text>
+<line x1="38" y1="318" x2="942" y2="318" stroke="#ddd8d0" stroke-width="1.5" stroke-dasharray="8 5"/>
+<rect x="390" y="310" width="180" height="18" rx="4" fill="#f9faf8"/>
+<text x="480" y="323" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="9" fill="#8c847c">▼  representación detallada</text>
+
+<rect x="40" y="12" width="196" height="24" rx="5" fill="#e6f5f0"/>
+<text x="138" y="28" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="11" font-weight="700" fill="#0e7a5a">🎤  Artista</text>
+
+<rect x="382" y="12" width="196" height="24" rx="5" fill="#fef4e6"/>
+<text x="480" y="28" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="11" font-weight="700" fill="#b45309">💿  Álbum</text>
+
+<rect x="724" y="12" width="196" height="24" rx="5" fill="#ede9fe"/>
+<text x="822" y="28" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="11" font-weight="700" fill="#6d28d9">🎵  Canción</text>
+
+<g filter="url(#sh)">
+  <rect x="40" y="54" width="196" height="196" rx="7"
+        fill="#f0faf6" stroke="#0e7a5a" stroke-width="2"/>
+  <rect x="40" y="54" width="196" height="50" rx="7" fill="#e6f5f0"/>
+  <rect x="40" y="88" width="196" height="16" fill="#e6f5f0"/>
+  <text x="138" y="73" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="9.5" fill="#0e7a5a" font-style="italic">«DTO»</text>
+  <text x="138" y="90" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="13" font-weight="700" fill="#0e7a5a">ArtistaDTO</text>
+  <line x1="40" y1="104" x2="236" y2="104" stroke="#9dd9c5" stroke-width="1.5"/>
+  <text x="56" y="123" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ id : Long</text>
+  <text x="56" y="141" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ nombre : String</text>
+  <text x="56" y="159" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ nacionalidad : String</text>
+  <text x="56" y="177" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ genero : String</text>
+  <text x="56" y="195" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ activo : Boolean</text>
+  <line x1="40" y1="207" x2="236" y2="207" stroke="#9dd9c5" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="56" y="226" font-family="JetBrains Mono" font-size="9.5"
+        fill="#0e7a5a" font-style="italic">// sin colecciones</text>
+</g>
+
+<g filter="url(#sh)">
+  <rect x="40" y="342" width="196" height="118" rx="7"
+        fill="#f5f8ff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="40" y="342" width="196" height="50" rx="7" fill="#dbeafe"/>
+  <rect x="40" y="376" width="196" height="16" fill="#dbeafe"/>
+  <text x="138" y="361" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="9.5" fill="#1d4ed8" font-style="italic">«DetailDTO»</text>
+  <text x="138" y="379" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="12" font-weight="700" fill="#1d4ed8">ArtistaDetailDTO</text>
+  <line x1="40" y1="392" x2="236" y2="392" stroke="#93aef0" stroke-width="1.5"/>
+  <text x="56" y="411" font-family="JetBrains Mono" font-size="10"
+        fill="#6b7280" font-style="italic">// hereda ArtistaDTO +</text>
+  <text x="56" y="429" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ albumes :</text>
+  <text x="66" y="447" font-family="JetBrains Mono" font-size="11" fill="#0e7a5a">  List&lt;AlbumDTO&gt;</text>
+</g>
+
+<line x1="138" y1="342" x2="138" y2="251"
+      stroke="#374151" stroke-width="1.8" marker-end="url(#inherit)"/>
+<text x="144" y="302" font-family="JetBrains Mono" font-size="9"
+      fill="#6b7280" font-style="italic">extends</text>
+
+<g filter="url(#sh)">
+  <rect x="382" y="54" width="196" height="214" rx="7"
+        fill="#fffbf5" stroke="#b45309" stroke-width="2"/>
+  <rect x="382" y="54" width="196" height="50" rx="7" fill="#fef4e6"/>
+  <rect x="382" y="88" width="196" height="16" fill="#fef4e6"/>
+  <text x="480" y="73" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="9.5" fill="#b45309" font-style="italic">«DTO»</text>
+  <text x="480" y="90" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="13" font-weight="700" fill="#b45309">AlbumDTO</text>
+  <line x1="382" y1="104" x2="578" y2="104" stroke="#f6c87a" stroke-width="1.5"/>
+  <text x="398" y="123" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ id : Long</text>
+  <text x="398" y="141" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ titulo : String</text>
+  <text x="398" y="159" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ anio : Integer</text>
+  <text x="398" y="177" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ genero : String</text>
+  <text x="398" y="195" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ artista :</text>
+  <text x="408" y="213" font-family="JetBrains Mono" font-size="11" fill="#0e7a5a">  ArtistaDTO</text>
+  <line x1="382" y1="225" x2="578" y2="225" stroke="#f6c87a" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="398" y="244" font-family="JetBrains Mono" font-size="9.5"
+        fill="#b45309" font-style="italic">// many-to-1 embebido</text>
+</g>
+
+<g filter="url(#sh)">
+  <rect x="382" y="342" width="196" height="118" rx="7"
+        fill="#f5f8ff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="382" y="342" width="196" height="50" rx="7" fill="#dbeafe"/>
+  <rect x="382" y="376" width="196" height="16" fill="#dbeafe"/>
+  <text x="480" y="361" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="9.5" fill="#1d4ed8" font-style="italic">«DetailDTO»</text>
+  <text x="480" y="379" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="12" font-weight="700" fill="#1d4ed8">AlbumDetailDTO</text>
+  <line x1="382" y1="392" x2="578" y2="392" stroke="#93aef0" stroke-width="1.5"/>
+  <text x="398" y="411" font-family="JetBrains Mono" font-size="10"
+        fill="#6b7280" font-style="italic">// hereda AlbumDTO +</text>
+  <text x="398" y="429" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ canciones :</text>
+  <text x="408" y="447" font-family="JetBrains Mono" font-size="11" fill="#6d28d9">  List&lt;CancionDTO&gt;</text>
+</g>
+
+<line x1="480" y1="342" x2="480" y2="269"
+      stroke="#374151" stroke-width="1.8" marker-end="url(#inherit)"/>
+<text x="486" y="311" font-family="JetBrains Mono" font-size="9"
+      fill="#6b7280" font-style="italic">extends</text>
+
+<g filter="url(#sh)">
+  <rect x="724" y="54" width="196" height="214" rx="7"
+        fill="#faf8ff" stroke="#6d28d9" stroke-width="2"/>
+  <rect x="724" y="54" width="196" height="50" rx="7" fill="#ede9fe"/>
+  <rect x="724" y="88" width="196" height="16" fill="#ede9fe"/>
+  <text x="822" y="73" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="9.5" fill="#6d28d9" font-style="italic">«DTO»</text>
+  <text x="822" y="90" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="13" font-weight="700" fill="#6d28d9">CancionDTO</text>
+  <line x1="724" y1="104" x2="920" y2="104" stroke="#c4a0f5" stroke-width="1.5"/>
+  <text x="740" y="123" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ id : Long</text>
+  <text x="740" y="141" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ titulo : String</text>
+  <text x="740" y="159" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ duracionSeg : Integer</text>
+  <text x="740" y="177" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ pista : Integer</text>
+  <text x="740" y="195" font-family="JetBrains Mono" font-size="11" fill="#1c2d28">+ album :</text>
+  <text x="750" y="213" font-family="JetBrains Mono" font-size="11" fill="#b45309">  AlbumDTO</text>
+  <line x1="724" y1="225" x2="920" y2="225" stroke="#c4a0f5" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="740" y="244" font-family="JetBrains Mono" font-size="9.5"
+        fill="#6d28d9" font-style="italic">// many-to-1 embebido</text>
+</g>
+
+<g filter="url(#sh)">
+  <polygon points="724,342 900,342 920,362 920,460 724,460 724,342"
+           fill="#fffbf5" stroke="#f6c87a" stroke-width="1.8" stroke-dasharray="7 4"/>
+  <polygon points="900,342 920,362 900,362" fill="#fde8aa"/>
+  <line x1="900" y1="342" x2="900" y2="362" stroke="#f6c87a" stroke-width="1.4"/>
+  <line x1="900" y1="362" x2="920" y2="362" stroke="#f6c87a" stroke-width="1.4"/>
+  <text x="822" y="365" text-anchor="middle" font-family="JetBrains Mono"
+        font-size="10" font-weight="700" fill="#92400e">⚠ Sin CancionDetailDTO</text>
+  <line x1="724" y1="374" x2="920" y2="374" stroke="#f6c87a" stroke-width="1"/>
+  <text x="740" y="394" font-family="JetBrains Mono" font-size="10.5" fill="#78350f">Canción no tiene</text>
+  <text x="740" y="412" font-family="JetBrains Mono" font-size="10.5" fill="#78350f">asociaciones de cardinalidad</text>
+  <text x="740" y="430" font-family="JetBrains Mono" font-size="10.5" fill="#78350f">múltiple salientes.</text>
+  <text x="740" y="450" font-family="JetBrains Mono" font-size="10.5"
+        fill="#92400e" font-weight="700">DTO = DetailDTO</text>
+</g>
+
+<line x1="382" y1="200" x2="238" y2="200"
+      stroke="#374151" stroke-width="1.7"/>
+<text x="354" y="194" font-family="JetBrains Mono" font-size="10" fill="#6b7280">*</text>
+<text x="241" y="194" font-family="JetBrains Mono" font-size="10" fill="#6b7280">1</text>
+<rect x="272" y="192" width="56" height="15" rx="3" fill="#f0faf6"/>
+<text x="300" y="203" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="9.5" fill="#374151">artista</text>
+
+<line x1="724" y1="200" x2="580" y2="200"
+      stroke="#374151" stroke-width="1.7"/>
+<text x="696" y="194" font-family="JetBrains Mono" font-size="10" fill="#6b7280">*</text>
+<text x="583" y="194" font-family="JetBrains Mono" font-size="10" fill="#6b7280">1</text>
+<rect x="614" y="192" width="44" height="15" rx="3" fill="#fffbf5"/>
+<text x="636" y="203" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="9.5" fill="#374151">album</text>
+
+<path d="M 236,430 L 300,430 L 300,530 L 456,530 L 456,268"
+      stroke="#374151" stroke-width="1.5" fill="none"/>
+<rect x="302" y="537" width="72" height="15" rx="3" fill="#f0f4ff"/>
+<text x="338" y="548" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="9.5" fill="#374151">albumes</text>
+<text x="449" y="524" font-family="JetBrains Mono" font-size="10" fill="#6b7280">0..*</text>
+
+<path d="M 578,430 L 648,430 L 648,560 L 798,560 L 798,268"
+      stroke="#374151" stroke-width="1.5" fill="none"/>
+<rect x="644" y="565" width="80" height="15" rx="3" fill="#f5f0ff"/>
+<text x="684" y="576" text-anchor="middle" font-family="JetBrains Mono"
+      font-size="9.5" fill="#374151">canciones</text>
+<text x="792" y="554" font-family="JetBrains Mono" font-size="10" fill="#6b7280">0..*</text>
+</svg>
+
+        <div style="display:flex;gap:24px;margin-top:20px;flex-wrap:wrap;justify-content:center;padding-top:16px;border-top:1px solid #e8e4dc;">
+          <div style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4440;">
+            <svg width="46" height="16">
+              <rect x="0" y="2" width="20" height="12" rx="3" fill="#e6f5f0" stroke="#0e7a5a" stroke-width="1.5"/>
+              <text x="23" y="11" font-family="JetBrains Mono" font-size="9" fill="#555">/</text>
+              <rect x="27" y="2" width="18" height="12" rx="3" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+            </svg>
+            DTO básico / DetailDTO
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4440;">
+            <svg width="52" height="16">
+              <line x1="2" y1="8" x2="37" y2="8" stroke="#374151" stroke-width="1.8"/>
+              <polygon points="37,3.5 50,8 37,12.5" fill="white" stroke="#374151" stroke-width="1.4"/>
+            </svg>
+            extends (herencia)
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4440;">
+            <svg width="44" height="16">
+              <line x1="2" y1="8" x2="42" y2="8" stroke="#374151" stroke-width="1.8"/>
+            </svg>
+            asociación many-to-1
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4a4440;">
+            <svg width="44" height="16">
+              <line x1="2" y1="8" x2="42" y2="8" stroke="#374151" stroke-width="1.6"/>
+            </svg>
+            colección 0..* (DetailDTO)
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0;border:1.5px solid #e8e4dc;border-radius:10px;overflow:hidden;margin-top:20px;">
+          <div style="flex:1;padding:10px 14px;border-right:1px solid #e8e4dc;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4a4440;display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:700;padding:2px 8px;border-radius:4px;font-size:10px;background:#dcfce7;color:#15803d;">GET</span>
+            Devuelve <strong>DetailDTO</strong>
+          </div>
+          <div style="flex:1;padding:10px 14px;border-right:1px solid #e8e4dc;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4a4440;display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:700;padding:2px 8px;border-radius:4px;font-size:10px;background:#dbeafe;color:#1d4ed8;">POST</span>
+            Recibe <strong>DTO básico</strong>
+          </div>
+          <div style="flex:1;padding:10px 14px;border-right:1px solid #e8e4dc;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4a4440;display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:700;padding:2px 8px;border-radius:4px;font-size:10px;background:#dbeafe;color:#1d4ed8;">PUT</span>
+            Recibe <strong>DTO básico</strong>
+          </div>
+          <div style="flex:1;padding:10px 14px;border-right:1px solid #e8e4dc;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4a4440;display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:700;padding:2px 8px;border-radius:4px;font-size:10px;background:#fef3c7;color:#b45309;">many-to-1</span>
+            En el <strong>DTO básico</strong>
+          </div>
+          <div style="flex:1;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4a4440;display:flex;align-items:center;gap:8px;">
+            <span style="font-weight:700;padding:2px 8px;border-radius:4px;font-size:10px;background:#ede9fe;color:#6d28d9;">0..*</span>
+            Solo en <strong>DetailDTO</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO BAR -->
+  <div class="scenario-bar" id="scenario-bar">
+    <span class="scenario-label">Escenarios:</span>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- REQUEST PANEL -->
+    <div class="panel" id="req-panel">
+      <div class="panel-head">
+        <span style="font-size:16px;">📤</span>
+        <span class="panel-title">Request</span>
+        <span id="method-pill" style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;background:var(--get-bg);color:var(--get);">GET</span>
+      </div>
+      <div class="panel-body">
+        <div class="request-row">
+          <select class="method-select method-GET" id="method-sel" onchange="onMethodChange()">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+            <option value="PATCH">PATCH</option>
+          </select>
+          <input class="url-input" id="url-input" type="text" value="http://localhost:8080/api/artistas">
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('headers')">Headers</button>
+          <button class="tab-btn" onclick="switchTab('body')">Body</button>
+          <button class="tab-btn" onclick="switchTab('info')">¿Qué envío?</button>
+        </div>
+
+        <div class="tab-content active" id="tab-headers">
+          <table class="headers-table">
+            <thead><tr><th>Clave</th><th>Valor</th></tr></thead>
+            <tbody id="req-headers-body"></tbody>
+          </table>
+        </div>
+
+        <div class="tab-content" id="tab-body">
+          <textarea class="body-area" id="req-body"></textarea>
+        </div>
+
+        <div class="tab-content" id="tab-info">
+          <div id="req-info-text" style="font-size:13px;color:var(--ink-mid);line-height:1.7;">
+            Selecciona un escenario para ver la descripción.
+          </div>
+        </div>
+
+        <button class="send-btn" id="send-btn" onclick="sendRequest()">
+          <span id="btn-label">▶ Enviar petición</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RESPONSE PANEL -->
+    <div class="panel" id="res-panel">
+      <div class="panel-head">
+        <span style="font-size:16px;">📥</span>
+        <span class="panel-title">Response</span>
+        <span id="res-status-mini" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);">—</span>
+      </div>
+      <div id="res-content">
+        <div class="response-empty">
+          <div class="empty-icon">⬆️</div>
+          <p>Haz clic en <strong>Enviar petición</strong><br>para ver la respuesta simulada.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ANATOMY -->
+  <div class="anatomy">
+    <div class="anatomy-head">
+      <span style="font-size:20px;">🔬</span>
+      <span class="anatomy-title">Anatomía de una petición HTTP</span>
+    </div>
+    <div class="anatomy-grid">
+      <div class="anatomy-col">
+        <div class="anatomy-col-title">📤 Request (lo que envías)</div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--get-bg);color:var(--get);">Método</span>
+          <div class="anatomy-desc">El <strong>verbo HTTP</strong> que indica la intención: GET (leer), POST (crear), PUT (actualizar completo), DELETE (borrar), PATCH (actualizar parcial).</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--post-bg);color:var(--post);">URL</span>
+          <div class="anatomy-desc">La <strong>URI del recurso</strong> al que va dirigida la petición. Identifica qué recurso se quiere manipular.</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--put-bg);color:var(--put);">Headers</span>
+          <div class="anatomy-desc">Metadatos de la petición. <strong>Content-Type</strong> indica el formato del body; <strong>Authorization</strong> lleva credenciales; <strong>Accept</strong> dice qué formato espera la respuesta.</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--patch-bg);color:var(--patch);">Body</span>
+          <div class="anatomy-desc">Datos enviados al servidor (solo en POST, PUT, PATCH). En APIs REST normalmente es <strong>JSON</strong>. GET y DELETE no llevan body.</div>
+        </div>
+      </div>
+      <div class="anatomy-col">
+        <div class="anatomy-col-title">📥 Response (lo que recibes)</div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--s200bg);color:var(--s200);">Status</span>
+          <div class="anatomy-desc">Código de 3 dígitos que resume el resultado. <strong>2xx</strong> = éxito, <strong>4xx</strong> = error del cliente, <strong>5xx</strong> = error del servidor.</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--put-bg);color:var(--put);">Headers</span>
+          <div class="anatomy-desc">Metadatos de la respuesta: <strong>Content-Type</strong> del cuerpo devuelto, <strong>Location</strong> (en 201), <strong>Cache-Control</strong>, etc.</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--patch-bg);color:var(--patch);">Body</span>
+          <div class="anatomy-desc">El recurso o mensaje devuelto por el servidor, generalmente en <strong>JSON</strong>. En errores, suele incluir un mensaje descriptivo.</div>
+        </div>
+        <div class="anatomy-item">
+          <span class="anatomy-tag" style="background:var(--s400bg);color:var(--s400);">Tiempo</span>
+          <div class="anatomy-desc">Latencia de la respuesta en milisegundos. En producción influyen la red, la lógica de negocio y la consulta a la base de datos.</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 24px 8px;border-top:1px solid var(--border);background:var(--surface2);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;">Códigos de estado más comunes en APIs REST</div>
+    </div>
+    <div class="codes-row">
+      <div class="code-card code-200" onclick="loadScenario('getAll')">
+        <div class="code-num">200</div>
+        <div class="code-name">OK</div>
+        <div class="code-desc">Éxito en GET o PUT. Devuelve el recurso.</div>
+      </div>
+      <div class="code-card code-201" onclick="loadScenario('create')">
+        <div class="code-num">201</div>
+        <div class="code-name">Created</div>
+        <div class="code-desc">Recurso creado exitosamente (POST).</div>
+      </div>
+      <div class="code-card code-400" onclick="loadScenario('badRequest')">
+        <div class="code-num">400</div>
+        <div class="code-name">Bad Request</div>
+        <div class="code-desc">Datos de la petición inválidos o incompletos.</div>
+      </div>
+      <div class="code-card code-404" onclick="loadScenario('notFound')">
+        <div class="code-num">404</div>
+        <div class="code-name">Not Found</div>
+        <div class="code-desc">El recurso solicitado no existe.</div>
+      </div>
+      <div class="code-card code-409" onclick="loadScenario('duplicate')">
+        <div class="code-num">409</div>
+        <div class="code-name">Conflict</div>
+        <div class="code-desc">El recurso ya existe (duplicado).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">ISIS2603 · Universidad de los Andes · <span>Simulador HTTP – API Música</span></div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// SCENARIOS DATABASE
+// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// DTO PATTERN REFERENCE (shown in info tabs)
+// ArtistaDTO      → atributos propios (sin colecciones)
+// ArtistaDetailDTO→ ArtistaDTO + albumes:[AlbumDTO]
+// AlbumDTO        → atributos + artista:ArtistaDTO  (many-to-1)
+// AlbumDetailDTO  → AlbumDTO  + canciones:[CancionDTO]
+// CancionDTO      → atributos + album:AlbumDTO       (many-to-1)
+//                   (sin DetailDTO: Canción no tiene colecciones salientes)
+// ─────────────────────────────────────────────────────────────
+
+// Shared DTO building blocks
+const artistaDTO = (id, nombre, nacionalidad, genero, activo) =>
+  ({ id, nombre, nacionalidad, genero, activo });
+
+const albumDTO = (id, titulo, anio, genero, artista) =>
+  ({ id, titulo, anio, genero, artista });
+
+const cancionDTO = (id, titulo, duracionSeg, pista, album) =>
+  ({ id, titulo, duracionSeg, pista, album });
+
+// Concrete instances
+const A1 = artistaDTO(1, 'Shakira',      'Colombia', 'Pop / Latin',      true);
+const A2 = artistaDTO(2, 'Carlos Vives', 'Colombia', 'Vallenato / Pop',  true);
+const A3 = artistaDTO(3, 'Juanes',       'Colombia', 'Rock / Latin',     true);
+
+const AL1 = albumDTO(1, 'Laundry Service',  2001, 'Pop',              A1);
+const AL2 = albumDTO(2, 'She Wolf',         2009, 'Pop / Electrónico', A1);
+const AL3 = albumDTO(3, 'La Bicicleta',     2016, 'Vallenato',        A2);
+const AL4 = albumDTO(4, 'Loco de Amor',     2014, 'Rock / Latin',     A3);
+
+const C1 = cancionDTO(1, "Hips Don't Lie",  218, 3,  AL2);
+const C2 = cancionDTO(2, 'La Tortura',       243, 7,  AL1);
+const C3 = cancionDTO(3, 'La Bicicleta',     237, 1,  AL3);
+const C4 = cancionDTO(4, 'A Dios le Pido',   258, 1,  AL4);
+const C5 = cancionDTO(5, 'Es Por Ti',         221, 2,  AL4);
+
+const resources = {
+
+  artistas: {
+    label: '🎤 Artistas',
+    scenarios: {
+      getAll: {
+        label: 'GET todos (ArtistaDetailDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/artistas',
+        body: '',
+        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas retorna un array de ArtistaDetailDTO. La regla del curso es: todos los GET devuelven la representación detallada, tanto para colecciones como para un único recurso.\n\nCada elemento incluye los atributos propios del artista más albumes:[AlbumDTO].',
+        resStatus: 200, resText: 'OK', resTime: 43,
+        resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '3' },
+        resBody: [
+          { ...A1, albumes: [ AL1, AL2 ] },
+          { ...A2, albumes: [ AL3 ] },
+          { ...A3, albumes: [ AL4 ] }
+        ]
+      },
+      getOne: {
+        label: 'GET uno (ArtistaDetailDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/artistas/1',
+        body: '',
+        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas/{id} retorna ArtistaDetailDTO: atributos propios más albumes:[AlbumDTO].\n\nRegla consistente: tanto el GET de colección como el GET individual devuelven DetailDTO. Cada AlbumDTO incluye artista:ArtistaDTO (relación many-to-1 embebida).',
+        resStatus: 200, resText: 'OK', resTime: 21,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...A1, albumes: [ AL1, AL2 ] }
+      },
+      create: {
+        label: 'POST crear (body: ArtistaDTO)', method: 'POST',
+        url: 'http://localhost:8080/api/artistas',
+        body: '{\n  "nombre": "Maluma",\n  "nacionalidad": "Colombia",\n  "genero": "Reggaetón / Pop",\n  "activo": true\n}',
+        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO\n\nRegla del curso: el body del POST contiene solo los atributos propios del recurso (representación básica, sin colecciones). La respuesta 201 devuelve ArtistaDetailDTO con el id asignado.\n\nComo el artista recién creado no tiene álbumes aún, albumes:[] llega vacío.',
+        resStatus: 201, resText: 'Created', resTime: 72,
+        resHeaders: { 'Content-Type': 'application/json', 'Location': '/api/artistas/4' },
+        resBody: { ...artistaDTO(4, 'Maluma', 'Colombia', 'Reggaetón / Pop', true), albumes: [] }
+      },
+      duplicate: {
+        label: 'POST duplicado (409)', method: 'POST',
+        url: 'http://localhost:8080/api/artistas',
+        body: '{\n  "nombre": "Shakira",\n  "nacionalidad": "Colombia",\n  "genero": "Pop / Latin",\n  "activo": true\n}',
+        info: '⚠️ Error 409 Conflict\n\nIntentamos crear un artista con un nombre que ya existe. La capa de lógica detecta el duplicado antes de persistir y lanza una excepción que el controlador convierte en 409 Conflict.',
+        resStatus: 409, resText: 'Conflict', resTime: 31,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 409, error: 'Conflict', message: 'Ya existe un artista con el nombre "Shakira"', timestamp: '2024-08-15T10:32:07' }
+      },
+      update: {
+        label: 'PUT actualizar (body: ArtistaDTO)', method: 'PUT',
+        url: 'http://localhost:8080/api/artistas/3',
+        body: '{\n  "nombre": "Juanes",\n  "nacionalidad": "Colombia",\n  "genero": "Rock / Latin / Pop",\n  "activo": true\n}',
+        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO\n\nPUT recibe solo los atributos propios (sin colecciones). La respuesta devuelve ArtistaDetailDTO: el artista actualizado junto con sus álbumes existentes.',
+        resStatus: 200, resText: 'OK', resTime: 58,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...artistaDTO(3, 'Juanes', 'Colombia', 'Rock / Latin / Pop', true), albumes: [ AL4 ] }
+      },
+      notFound: {
+        label: 'GET no encontrado (404)', method: 'GET',
+        url: 'http://localhost:8080/api/artistas/999',
+        body: '',
+        info: '⚠️ Error 404 Not Found\n\nBuscamos un artista con id 999 inexistente. La capa de lógica lanza una EntityNotFoundException que el controlador convierte en 404.',
+        resStatus: 404, resText: 'Not Found', resTime: 17,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 404, error: 'Not Found', message: 'No se encontró el artista con id 999', timestamp: '2024-08-15T10:35:22' }
+      },
+      delete: {
+        label: 'DELETE eliminar (ArtistaDetailDTO)', method: 'DELETE',
+        url: 'http://localhost:8080/api/artistas/2',
+        body: '',
+        info: '📦 Response: ArtistaDetailDTO\n\nDELETE retorna ArtistaDetailDTO del recurso eliminado como confirmación. El cliente recibe el artista con sus álbumes tal como estaba antes de ser eliminado.',
+        resStatus: 200, resText: 'OK', resTime: 44,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...A2, albumes: [ AL3 ] }
+      },
+      badRequest: {
+        label: 'POST inválido (400)', method: 'POST',
+        url: 'http://localhost:8080/api/artistas',
+        body: '{\n  "nacionalidad": "Colombia"\n}',
+        info: '⚠️ Error 400 Bad Request\n\nEl body omite "nombre", campo obligatorio. La anotación @NotBlank en el DTO activa Bean Validation y el controlador retorna 400 con el campo específico que falla.',
+        resStatus: 400, resText: 'Bad Request', resTime: 14,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 400, error: 'Bad Request', message: 'El campo "nombre" es obligatorio', field: 'nombre', timestamp: '2024-08-15T10:40:11' }
+      }
+    }
+  },
+
+  albumes: {
+    label: '💿 Álbumes',
+    scenarios: {
+      getAll: {
+        label: 'GET todos (AlbumDetailDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/albumes',
+        body: '',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes retorna un array de AlbumDetailDTO. Regla del curso: todos los GET devuelven DetailDTO.\n\nCada elemento incluye: atributos propios + artista:ArtistaDTO (many-to-1) + canciones:[CancionDTO].',
+        resStatus: 200, resText: 'OK', resTime: 51,
+        resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '4' },
+        resBody: [
+          { ...AL1, canciones: [ C2 ] },
+          { ...AL2, canciones: [ C1 ] },
+          { ...AL3, canciones: [ C3 ] },
+          { ...AL4, canciones: [ C4, C5 ] }
+        ]
+      },
+      getOne: {
+        label: 'GET uno (AlbumDetailDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/albumes/4',
+        body: '',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes/{id} retorna AlbumDetailDTO: los campos de AlbumDTO (incluyendo artista:ArtistaDTO) más la colección canciones:[CancionDTO].\n\nCada CancionDTO es la representación básica de la canción. Canción no tiene DetailDTO porque no tiene asociaciones de cardinalidad múltiple salientes.',
+        resStatus: 200, resText: 'OK', resTime: 38,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...AL4, canciones: [ C4, C5 ] }
+      },
+      getByArtista: {
+        label: 'GET subrecurso /artistas/1/albumes', method: 'GET',
+        url: 'http://localhost:8080/api/artistas/1/albumes',
+        body: '',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO) — Subrecurso\n\nGET /api/artistas/{id}/albumes devuelve [AlbumDetailDTO]: la misma regla aplica a los subrecursos. Cada álbum trae sus canciones embebidas.',
+        resStatus: 200, resText: 'OK', resTime: 38,
+        resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '2' },
+        resBody: [
+          { ...AL1, canciones: [ C2 ] },
+          { ...AL2, canciones: [ C1 ] }
+        ]
+      },
+      create: {
+        label: 'POST crear (body: AlbumDTO)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes',
+        body: '{\n  "titulo": "Las Mujeres Ya No Lloran",\n  "anio": 2024,\n  "genero": "Pop / Latin",\n  "artistaId": 1\n}',
+        info: '📦 Request: AlbumDTO (básico) → Response: AlbumDetailDTO\n\nEl body del POST envía solo atributos propios más artistaId (sin colecciones). La respuesta 201 devuelve AlbumDetailDTO con artista:ArtistaDTO resuelto y canciones:[] vacío (el álbum recién creado no tiene canciones aún).',
+        resStatus: 201, resText: 'Created', resTime: 81,
+        resHeaders: { 'Content-Type': 'application/json', 'Location': '/api/albumes/5' },
+        resBody: { ...albumDTO(5, 'Las Mujeres Ya No Lloran', 2024, 'Pop / Latin', A1), canciones: [] }
+      },
+      duplicate: {
+        label: 'POST duplicado (409)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes',
+        body: '{\n  "titulo": "Laundry Service",\n  "anio": 2001,\n  "genero": "Pop",\n  "artistaId": 1\n}',
+        info: '⚠️ Error 409 Conflict\n\nEl artista ya tiene un álbum con ese título. La lógica de negocio verifica la unicidad título+artista antes de persistir.',
+        resStatus: 409, resText: 'Conflict', resTime: 29,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 409, error: 'Conflict', message: 'El artista ya tiene un álbum titulado "Laundry Service"', timestamp: '2024-08-15T11:10:03' }
+      },
+      update: {
+        label: 'PUT actualizar (body: AlbumDTO)', method: 'PUT',
+        url: 'http://localhost:8080/api/albumes/3',
+        body: '{\n  "titulo": "La Bicicleta (Edición Especial)",\n  "anio": 2016,\n  "genero": "Vallenato / Pop",\n  "artistaId": 2\n}',
+        info: '📦 Request: AlbumDTO (básico) → Response: AlbumDetailDTO\n\nPUT recibe atributos propios más artistaId. La respuesta devuelve AlbumDetailDTO: álbum actualizado con artista:ArtistaDTO + canciones:[CancionDTO].',
+        resStatus: 200, resText: 'OK', resTime: 62,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...albumDTO(3, 'La Bicicleta (Edición Especial)', 2016, 'Vallenato / Pop', A2), canciones: [ C3 ] }
+      },
+      notFound: {
+        label: 'GET no encontrado (404)', method: 'GET',
+        url: 'http://localhost:8080/api/albumes/888',
+        body: '',
+        info: '⚠️ Error 404 Not Found\n\nÁlbum con id 888 inexistente. La capa de lógica lanza EntityNotFoundException → 404.',
+        resStatus: 404, resText: 'Not Found', resTime: 19,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 404, error: 'Not Found', message: 'No se encontró el álbum con id 888', timestamp: '2024-08-15T11:15:44' }
+      },
+      delete: {
+        label: 'DELETE eliminar (AlbumDetailDTO)', method: 'DELETE',
+        url: 'http://localhost:8080/api/albumes/4',
+        body: '',
+        info: '📦 Response: AlbumDetailDTO\n\nDELETE retorna AlbumDetailDTO del recurso eliminado: el álbum con artista:ArtistaDTO y las canciones que tenía antes de ser eliminado.',
+        resStatus: 200, resText: 'OK', resTime: 53,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { ...AL4, canciones: [ C4, C5 ] }
+      },
+      badRequest: {
+        label: 'POST inválido (400)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes',
+        body: '{\n  "titulo": "Sin artista"\n}',
+        info: '⚠️ Error 400 Bad Request\n\nFalta "artistaId", necesario para establecer la relación Álbum→Artista. Sin él la capa de lógica no puede resolver el objeto artista:ArtistaDTO.',
+        resStatus: 400, resText: 'Bad Request', resTime: 12,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 400, error: 'Bad Request', message: 'El campo "artistaId" es obligatorio', field: 'artistaId', timestamp: '2024-08-15T11:20:00' }
+      }
+    }
+  },
+
+  canciones: {
+    label: '🎵 Canciones',
+    scenarios: {
+      getAll: {
+        label: 'GET todas (CancionDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/canciones',
+        body: '',
+        info: '📦 Representación BÁSICA = DETALLADA (CancionDTO)\n\nGET /api/canciones devuelve [CancionDTO]. La regla GET→DetailDTO aplica, pero Canción no tiene DetailDTO porque no tiene asociaciones de cardinalidad múltiple salientes.\n\nCancionDTO ya incluye album:AlbumDTO (many-to-1), que a su vez contiene artista:ArtistaDTO. Esta cadena proporciona contexto completo sin necesidad de un DetailDTO separado.',
+        resStatus: 200, resText: 'OK', resTime: 61,
+        resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '5' },
+        resBody: [ C1, C2, C3, C4, C5 ]
+      },
+      getOne: {
+        label: 'GET una (CancionDTO)', method: 'GET',
+        url: 'http://localhost:8080/api/canciones/1',
+        body: '',
+        info: '📦 Representación BÁSICA (CancionDTO) — única representación\n\nGET /api/canciones/{id} retorna CancionDTO. Canción solo tiene representación básica porque no tiene relaciones de cardinalidad múltiple salientes.\n\nLa respuesta incluye album:AlbumDTO (con artista:ArtistaDTO adentro), lo que permite navegar la jerarquía Canción→Álbum→Artista.',
+        resStatus: 200, resText: 'OK', resTime: 22,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: C1
+      },
+      getByAlbum: {
+        label: 'GET subrecurso /albumes/4/canciones', method: 'GET',
+        url: 'http://localhost:8080/api/albumes/4/canciones',
+        body: '',
+        info: '📦 Representación BÁSICA (CancionDTO) — Subrecurso\n\nGET /api/albumes/{id}/canciones es el subrecurso de canciones de un álbum. Canciones es un subrecurso porque tiene un composite (rombo negro) en el modelo conceptual con Álbum.\n\nEste endpoint es equivalente a la colección canciones del AlbumDetailDTO.',
+        resStatus: 200, resText: 'OK', resTime: 34,
+        resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '2' },
+        resBody: [ C4, C5 ]
+      },
+      create: {
+        label: 'POST crear (body: CancionDTO)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes/2/canciones',
+        body: '{\n  "titulo": "Bzrp Music Sessions #53",\n  "duracionSeg": 198,\n  "pista": 13\n}',
+        info: '📦 Request: CancionDTO sin relaciones → Response: CancionDTO completo\n\nEl body del POST envía solo atributos propios. El albumId se toma de la URL (/albumes/2/canciones), no del body.\n\nLa respuesta 201 devuelve CancionDTO con album:AlbumDTO ya resuelto (que incluye artista:ArtistaDTO).',
+        resStatus: 201, resText: 'Created', resTime: 77,
+        resHeaders: { 'Content-Type': 'application/json', 'Location': '/api/canciones/6' },
+        resBody: cancionDTO(6, 'Bzrp Music Sessions #53', 198, 13, AL2)
+      },
+      duplicate: {
+        label: 'POST duplicada (409)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes/2/canciones',
+        body: '{\n  "titulo": "Hips Don\'t Lie",\n  "duracionSeg": 218,\n  "pista": 3\n}',
+        info: '⚠️ Error 409 Conflict\n\nEl álbum ya tiene una canción con ese título. La lógica valida unicidad de título dentro del álbum antes de persistir.',
+        resStatus: 409, resText: 'Conflict', resTime: 26,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 409, error: 'Conflict', message: "El álbum ya contiene una canción titulada \"Hips Don't Lie\"", timestamp: '2024-08-15T12:05:30' }
+      },
+      update: {
+        label: 'PUT actualizar (body: CancionDTO)', method: 'PUT',
+        url: 'http://localhost:8080/api/canciones/3',
+        body: '{\n  "titulo": "La Bicicleta (feat. Shakira)",\n  "duracionSeg": 241,\n  "pista": 1\n}',
+        info: '📦 Request: CancionDTO sin relaciones → Response: CancionDTO completo\n\nPUT recibe solo atributos propios. La respuesta devuelve CancionDTO con album:AlbumDTO (que incluye artista:ArtistaDTO).',
+        resStatus: 200, resText: 'OK', resTime: 59,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: cancionDTO(3, 'La Bicicleta (feat. Shakira)', 241, 1, AL3)
+      },
+      notFound: {
+        label: 'GET no encontrada (404)', method: 'GET',
+        url: 'http://localhost:8080/api/canciones/777',
+        body: '',
+        info: '⚠️ Error 404 Not Found\n\nCanción con id 777 inexistente. EntityNotFoundException → 404.',
+        resStatus: 404, resText: 'Not Found', resTime: 16,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 404, error: 'Not Found', message: 'No se encontró la canción con id 777', timestamp: '2024-08-15T12:10:15' }
+      },
+      delete: {
+        label: 'DELETE eliminar (CancionDTO)', method: 'DELETE',
+        url: 'http://localhost:8080/api/canciones/5',
+        body: '',
+        info: '📦 Representación BÁSICA (CancionDTO)\n\nDELETE /api/canciones/{id} elimina la canción. Retorna CancionDTO con album:AlbumDTO como confirmación.',
+        resStatus: 200, resText: 'OK', resTime: 47,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: C5
+      },
+      badRequest: {
+        label: 'POST inválido (400)', method: 'POST',
+        url: 'http://localhost:8080/api/albumes/2/canciones',
+        body: '{\n  "duracionSeg": 198\n}',
+        info: '⚠️ Error 400 Bad Request\n\nEl body omite "titulo", campo obligatorio del CancionDTO. @NotBlank en el DTO dispara Bean Validation → 400.',
+        resStatus: 400, resText: 'Bad Request', resTime: 11,
+        resHeaders: { 'Content-Type': 'application/json' },
+        resBody: { status: 400, error: 'Bad Request', message: 'El campo "titulo" es obligatorio', field: 'titulo', timestamp: '2024-08-15T12:15:00' }
+      }
+    }
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let currentResource = 'artistas';
+let currentScenario = null;
+
+const statusColors = {
+  200: { bg: 'var(--s200bg)', color: 'var(--s200)' },
+  201: { bg: 'var(--s201bg)', color: 'var(--s201)' },
+  400: { bg: 'var(--s400bg)', color: 'var(--s400)' },
+  404: { bg: 'var(--s404bg)', color: 'var(--s404)' },
+  409: { bg: 'var(--s409bg)', color: 'var(--s409)' }
+};
+
+// ─────────────────────────────────────────────────────────────
+// SWITCH RESOURCE
+// ─────────────────────────────────────────────────────────────
+function switchResource(res) {
+  currentResource = res;
+  document.querySelectorAll('.res-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('rtab-' + res).classList.add('active');
+
+  if (res === 'diagrama') {
+    // Mostrar diagrama UML, ocultar resto
+    document.getElementById('diagrama-container').style.display = 'block';
+    document.getElementById('dto-grid').parentElement.style.display = 'none';
+    document.getElementById('scenario-bar').style.display = 'none';
+    document.querySelector('.workspace').style.display = 'none';
+  } else {
+    // Mostrar interfaz normal, ocultar diagrama
+    document.getElementById('diagrama-container').style.display = 'none';
+    document.getElementById('dto-grid').parentElement.style.display = 'block';
+    document.getElementById('scenario-bar').style.display = 'flex';
+    document.querySelector('.workspace').style.display = 'grid';
+    renderScenarioBar();
+    const firstKey = Object.keys(resources[res].scenarios)[0];
+    loadScenario(firstKey);
+  }
+}
+
+function renderScenarioBar() {
+  const bar = document.getElementById('scenario-bar');
+  const scens = resources[currentResource].scenarios;
+  bar.innerHTML = '<span class="scenario-label">Escenarios:</span>';
+  Object.entries(scens).forEach(([key, s]) => {
+    const methodColors = {
+      GET:    'var(--get)',
+      POST:   'var(--post)',
+      PUT:    'var(--put)',
+      DELETE: 'var(--delete)',
+      PATCH:  'var(--patch)'
+    };
+    const btn = document.createElement('button');
+    btn.className = 'scen-btn';
+    btn.id = 'scen-' + key;
+    btn.innerHTML = `<span class="scen-dot" style="background:${methodColors[s.method]};"></span>${s.label}`;
+    btn.onclick = () => loadScenario(key);
+    bar.appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// LOAD SCENARIO
+// ─────────────────────────────────────────────────────────────
+function loadScenario(key) {
+  const scens = resources[currentResource].scenarios;
+  const s = scens[key];
+  if (!s) return;
+  currentScenario = s;
+
+  document.querySelectorAll('.scen-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('scen-' + key);
+  if (btn) btn.classList.add('active');
+
+  document.getElementById('method-sel').value = s.method;
+  document.getElementById('url-input').value  = s.url;
+  document.getElementById('req-body').value   = s.body;
+  document.getElementById('req-info-text').textContent = s.info;
+
+  onMethodChange();
+  updateReqHeaders(s.method);
+
+  document.getElementById('res-content').innerHTML = `
+    <div class="response-empty">
+      <div class="empty-icon">⬆️</div>
+      <p>Haz clic en <strong>Enviar petición</strong><br>para ver la respuesta simulada.</p>
+    </div>`;
+  document.getElementById('res-status-mini').textContent = '—';
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function updateReqHeaders(method) {
+  const hasBody = ['POST','PUT','PATCH'].includes(method);
+  const tbody = document.getElementById('req-headers-body');
+  tbody.innerHTML = `
+    <tr><td class="hdr-key">Content-Type</td><td class="hdr-val">${hasBody ? 'application/json' : '—'}</td></tr>
+    <tr><td class="hdr-key">Accept</td><td class="hdr-val">application/json</td></tr>
+    <tr><td class="hdr-key">Authorization</td><td class="hdr-val">Bearer &lt;token&gt;</td></tr>
+  `;
+  const bodyEl = document.getElementById('req-body');
+  bodyEl.disabled = !hasBody;
+  bodyEl.placeholder = hasBody ? '{\n  "campo": "valor"\n}' : 'GET y DELETE no envían body al servidor.';
+}
+
+function onMethodChange() {
+  const method = document.getElementById('method-sel').value;
+  const sel    = document.getElementById('method-sel');
+  sel.className = `method-select method-${method}`;
+  const pill = document.getElementById('method-pill');
+  const colors = {
+    GET:    { bg:'var(--get-bg)',    color:'var(--get)' },
+    POST:   { bg:'var(--post-bg)',   color:'var(--post)' },
+    PUT:    { bg:'var(--put-bg)',    color:'var(--put)' },
+    DELETE: { bg:'var(--delete-bg)', color:'var(--delete)' },
+    PATCH:  { bg:'var(--patch-bg)',  color:'var(--patch)' }
+  };
+  const c = colors[method] || colors.GET;
+  pill.style.background = c.bg;
+  pill.style.color      = c.color;
+  pill.textContent      = method;
+  updateReqHeaders(method);
+}
+
+function sendRequest() {
+  const btn = document.getElementById('send-btn');
+  btn.classList.add('loading');
+  document.getElementById('btn-label').innerHTML = '<span class="spinner"></span> Enviando...';
+  const delay = currentScenario ? currentScenario.resTime * 8 + 400 : 600;
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    document.getElementById('btn-label').textContent = '▶ Enviar petición';
+    if (currentScenario) renderResponse(currentScenario);
+  }, delay);
+}
+
+function renderResponse(s) {
+  const sc  = statusColors[s.resStatus] || { bg:'#f5f5f5', color:'#333' };
+  const resEl = document.getElementById('res-content');
+  document.getElementById('res-status-mini').innerHTML =
+    `<span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${sc.color};">${s.resStatus} ${s.resText}</span>`;
+
+  let hdrRows = '';
+  Object.entries(s.resHeaders).forEach(([k,v]) => {
+    hdrRows += `<tr><td class="hdr-key">${k}</td><td class="hdr-val">${v}</td></tr>`;
+  });
+
+  resEl.innerHTML = `
+    <div class="anim-in">
+      <div class="status-line">
+        <span class="status-badge" style="background:${sc.bg};color:${sc.color};">${s.resStatus} ${s.resText}</span>
+        <span class="status-time">⏱ ${s.resTime} ms</span>
+      </div>
+      <div style="padding:16px 20px;">
+        <div class="tabs" style="margin-bottom:12px;">
+          <button class="tab-btn active" onclick="switchResTab('rbody')">Body</button>
+          <button class="tab-btn" onclick="switchResTab('rheaders')">Headers</button>
+        </div>
+        <div class="tab-content active" id="tab-rbody">
+          <div class="json-block">${syntaxHighlight(JSON.stringify(s.resBody, null, 2))}</div>
+        </div>
+        <div class="tab-content" id="tab-rheaders">
+          <table class="headers-table">
+            <thead><tr><th>Clave</th><th>Valor</th></tr></thead>
+            <tbody>${hdrRows}</tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;border-radius:8px;background:${sc.bg};border:1px solid ${sc.color}22;font-size:13px;color:${sc.color};font-family:'JetBrains Mono',monospace;">
+          <strong>${s.resStatus}</strong> — ${getStatusExplanation(s.resStatus)}
+        </div>
+      </div>
+    </div>`;
+}
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+      let cls = 'j-num';
+      if (/^"/.test(match))        cls = /:$/.test(match) ? 'j-key' : 'j-str';
+      else if (/true|false/.test(match)) cls = 'j-bool';
+      else if (/null/.test(match)) cls = 'j-null';
+      return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+function getStatusExplanation(code) {
+  return {
+    200: 'El recurso fue obtenido o actualizado exitosamente.',
+    201: 'El recurso fue creado. El header Location indica su nueva URL.',
+    204: 'Operación exitosa sin contenido en la respuesta.',
+    400: 'La petición tiene datos inválidos o incompletos. Revisa el body.',
+    401: 'No autenticado. Debes enviar credenciales válidas.',
+    403: 'Autenticado pero sin permisos para este recurso.',
+    404: 'El recurso no existe en el servidor.',
+    409: 'Conflicto: el recurso ya existe o hay un estado incompatible.',
+    500: 'Error interno del servidor. No es culpa del cliente.'
+  }[code] || 'Ver documentación para más detalles.';
+}
+
+function switchTab(name) {
+  ['headers','body','info'].forEach(t => {
+    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === name);
+  });
+  document.querySelectorAll('#req-panel .tabs .tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['headers','body','info'][i] === name);
+  });
+}
+
+function switchResTab(name) {
+  ['rbody','rheaders'].forEach(t => {
+    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === name);
+  });
+  document.querySelectorAll('#res-content .tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['rbody','rheaders'][i] === name);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+switchResource('artistas');
+</script>
+</body>
+</html>

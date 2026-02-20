@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de URIs – Conceptos REST</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --warm-white: #fffef9;
+    --ink: #1a1410;
+    --ink-mid: #3d3530;
+    --ink-light: #7a6f66;
+    --accent: #c0392b;
+    --accent-soft: #e8d5d0;
+    --teal: #1a6b72;
+    --teal-soft: #d0e8ea;
+    --amber: #d97706;
+    --amber-soft: #fef3c7;
+    --violet: #6d28d9;
+    --violet-soft: #ede9fe;
+    --green: #15803d;
+    --green-soft: #dcfce7;
+    --border: #e5ddd5;
+    --shadow: 0 4px 24px rgba(26,20,16,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Fraunces', Georgia, serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 40px 48px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.15;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 300px; height: 150px;
+    border-radius: 50%;
+    background: var(--teal);
+    opacity: 0.12;
+  }
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  header p {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: rgba(250,247,242,0.6);
+    position: relative;
+  }
+
+  /* SYNTAX BAR */
+  .syntax-section {
+    background: var(--ink-mid);
+    padding: 20px 48px;
+    border-bottom: 3px solid var(--accent);
+  }
+  .syntax-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: rgba(250,247,242,0.5);
+  }
+  .syntax-formula {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(11px, 1.5vw, 14px);
+    color: #f0ead8;
+    word-break: break-all;
+    line-height: 1.6;
+  }
+  .syn-scheme { color: #f87171; }
+  .syn-sep    { color: rgba(240,234,216,0.4); }
+  .syn-auth   { color: #fbbf24; }
+  .syn-host   { color: #34d399; }
+  .syn-port   { color: #60a5fa; }
+  .syn-path   { color: #c084fc; }
+  .syn-query  { color: #fb923c; }
+  .syn-frag   { color: #f472b6; }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    header, .syntax-section { padding-left: 24px; padding-right: 24px; }
+  }
+
+  /* CARD */
+  .card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .card-body { padding: 24px; }
+
+  /* FORM INPUTS */
+  .field {
+    margin-bottom: 18px;
+  }
+  .field-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px var(--teal-soft);
+  }
+  .field-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    margin-top: 5px;
+  }
+
+  /* EXAMPLES BUTTONS */
+  .examples-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 10px;
+  }
+  .examples-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ex-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ex-btn:hover {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  /* URI DISPLAY */
+  .uri-display-card {
+    grid-column: 1 / -1;
+  }
+  .uri-display-card .card-head {
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .uri-display-card .card-title { color: var(--cream); }
+
+  .uri-built {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(13px, 2vw, 16px);
+    background: #1e1a16;
+    color: #f0ead8;
+    padding: 20px 24px;
+    border-radius: 10px;
+    word-break: break-all;
+    line-height: 1.8;
+    min-height: 60px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .uri-built .placeholder {
+    color: rgba(240,234,216,0.25);
+    font-style: italic;
+  }
+
+  /* COMPONENT BREAKDOWN */
+  .breakdown-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .comp-pill {
+    border-radius: 10px;
+    padding: 12px 14px;
+    opacity: 0.35;
+    transition: opacity 0.3s, transform 0.2s;
+  }
+  .comp-pill.active {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  .comp-pill-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .comp-pill-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    word-break: break-all;
+    font-weight: 700;
+  }
+  .comp-pill-desc {
+    font-family: 'Fraunces', serif;
+    font-size: 12px;
+    margin-top: 4px;
+    opacity: 0.75;
+  }
+
+  /* COLOR ASSIGNMENTS */
+  .c-scheme  { background: #fef2f2; color: #991b1b; }
+  .c-host    { background: var(--green-soft); color: #14532d; }
+  .c-port    { background: #eff6ff; color: #1e40af; }
+  .c-path    { background: var(--violet-soft); color: #4c1d95; }
+  .c-query   { background: var(--amber-soft); color: #78350f; }
+  .c-frag    { background: #fdf2f8; color: #831843; }
+
+  .u-scheme  { color: #f87171; }
+  .u-host    { color: #34d399; }
+  .u-port    { color: #60a5fa; }
+  .u-path    { color: #c084fc; }
+  .u-query   { color: #fb923c; }
+  .u-frag    { color: #f472b6; }
+  .u-sep     { color: rgba(240,234,216,0.35); }
+
+  /* EXPLANATION PANEL */
+  .explanation-card { grid-column: 1 / -1; }
+  .explanation-card .card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+  @media (max-width: 768px) {
+    .explanation-card .card-body { grid-template-columns: 1fr; }
+  }
+  .exp-item {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .exp-item:last-child { border-right: none; }
+  .exp-item:hover { background: var(--cream); }
+  .exp-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .exp-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .exp-desc {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.55;
+  }
+
+  /* QUIZ SECTION */
+  .quiz-section {
+    margin-top: 8px;
+  }
+  .quiz-q {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--amber-soft);
+    border: 1.5px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    color: #78350f;
+  }
+  .quiz-q strong { display: block; margin-bottom: 4px; }
+  .quiz-input-row {
+    display: flex; gap: 8px;
+  }
+  .quiz-input {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--cream);
+    outline: none;
+  }
+  .quiz-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+  .quiz-btn {
+    padding: 9px 16px;
+    border-radius: 7px;
+    border: none;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .quiz-btn:hover { background: var(--accent); transform: translateY(-1px); }
+  .quiz-feedback {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 7px;
+    margin-top: 8px;
+    display: none;
+  }
+  .quiz-feedback.correct {
+    display: block;
+    background: var(--green-soft);
+    color: #14532d;
+    border: 1.5px solid #86efac;
+  }
+  .quiz-feedback.wrong {
+    display: block;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1.5px solid #fca5a5;
+  }
+
+  /* FOOTER BADGE */
+  .footer-badge {
+    text-align: center;
+    margin-top: 48px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-light);
+  }
+  .footer-badge span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">ISIS2603 · Desarrollo de Software</div>
+  <h1>Simulador de URIs</h1>
+  <p>Construye y descompone URIs componente por componente</p>
+</header>
+
+<div class="syntax-section">
+  <div class="syntax-label">Sintaxis genérica de una URI</div>
+  <div class="syntax-formula">
+    <span class="syn-scheme">scheme</span><span class="syn-sep">:[//[</span><span class="syn-auth">user:password@</span><span class="syn-sep">]</span><span class="syn-host">host</span><span class="syn-sep">[:</span><span class="syn-port">port</span><span class="syn-sep">]][/]</span><span class="syn-path">path</span><span class="syn-sep">[?</span><span class="syn-query">query</span><span class="syn-sep">][#</span><span class="syn-frag">fragment</span><span class="syn-sep">]</span>
+  </div>
+</div>
+
+<main>
+  <div class="grid">
+
+    <!-- BUILDER CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:#f0faf0;">🧱</div>
+        <div class="card-title">Construye tu URI</div>
+      </div>
+      <div class="card-body">
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#f87171;"></span><span class="u-scheme" style="color:#c0392b;">scheme</span></div>
+          <select id="inp-scheme" onchange="buildURI()">
+            <option value="http">http</option>
+            <option value="https">https</option>
+            <option value="ftp">ftp</option>
+            <option value="">— ninguno —</option>
+          </select>
+          <div class="field-hint">El protocolo de comunicación</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#34d399;"></span><span style="color:#15803d;">host</span></div>
+          <input id="inp-host" type="text" placeholder="ej. www.uniandes.edu.co" oninput="buildURI()">
+          <div class="field-hint">Nombre de dominio o dirección IP</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#60a5fa;"></span><span style="color:#1d4ed8;">port</span> <span style="font-weight:400;color:var(--ink-light);font-size:10px;">(opcional)</span></div>
+          <input id="inp-port" type="text" placeholder="ej. 8080" oninput="buildURI()">
+          <div class="field-hint">Puerto del servidor (por defecto: 80/443)</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#c084fc;"></span><span style="color:#6d28d9;">path</span></div>
+          <input id="inp-path" type="text" placeholder="ej. /api/estudiantes/1" oninput="buildURI()">
+          <div class="field-hint">Ruta al recurso dentro del servidor</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#fb923c;"></span><span style="color:#d97706;">query</span> <span style="font-weight:400;color:var(--ink-light);font-size:10px;">(opcional)</span></div>
+          <input id="inp-query" type="text" placeholder="ej. semestre=2024-2&programa=sistemas" oninput="buildURI()">
+          <div class="field-hint">Parámetros clave=valor separados por &</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span class="field-dot" style="background:#f472b6;"></span><span style="color:#be185d;">fragment</span> <span style="font-weight:400;color:var(--ink-light);font-size:10px;">(opcional)</span></div>
+          <input id="inp-frag" type="text" placeholder="ej. seccion-3" oninput="buildURI()">
+          <div class="field-hint">Ancla dentro del recurso (solo cliente)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EXAMPLES CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:#ede9fe;">💡</div>
+        <div class="card-title">Ejemplos rápidos</div>
+      </div>
+      <div class="card-body">
+        <div class="examples-title">Carga un ejemplo y analiza sus componentes</div>
+        <div class="examples-row">
+          <button class="ex-btn" onclick="loadExample('spotify')">🎵 Spotify API</button>
+          <button class="ex-btn" onclick="loadExample('uniandes')">🎓 Uniandes</button>
+          <button class="ex-btn" onclick="loadExample('google')">🔍 Google Search</button>
+          <button class="ex-btn" onclick="loadExample('libros')">📚 API Libros</button>
+          <button class="ex-btn" onclick="loadExample('estudiantes')">👩‍🎓 API Estudiantes</button>
+          <button class="ex-btn" onclick="loadExample('github')">🐙 GitHub API</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- URI DISPLAY -->
+    <div class="card uri-display-card">
+      <div class="card-head">
+        <div class="card-icon" style="background:rgba(192,57,43,0.15);">🔗</div>
+        <div class="card-title" style="color:var(--cream);">URI construida</div>
+      </div>
+      <div class="card-body">
+        <div class="uri-built" id="uri-output">
+          <span class="placeholder">Completa los campos para construir tu URI...</span>
+        </div>
+
+        <div class="breakdown-title">Componentes identificados</div>
+        <div class="components-grid">
+          <div class="comp-pill c-scheme" id="pill-scheme">
+            <div class="comp-pill-name">scheme</div>
+            <div class="comp-pill-value" id="pv-scheme">—</div>
+            <div class="comp-pill-desc">Protocolo</div>
+          </div>
+          <div class="comp-pill c-host" id="pill-host">
+            <div class="comp-pill-name">host</div>
+            <div class="comp-pill-value" id="pv-host">—</div>
+            <div class="comp-pill-desc">Servidor</div>
+          </div>
+          <div class="comp-pill c-port" id="pill-port">
+            <div class="comp-pill-name">port</div>
+            <div class="comp-pill-value" id="pv-port">—</div>
+            <div class="comp-pill-desc">Puerto</div>
+          </div>
+          <div class="comp-pill c-path" id="pill-path">
+            <div class="comp-pill-name">path</div>
+            <div class="comp-pill-value" id="pv-path">—</div>
+            <div class="comp-pill-desc">Recurso</div>
+          </div>
+          <div class="comp-pill c-query" id="pill-query">
+            <div class="comp-pill-name">query</div>
+            <div class="comp-pill-value" id="pv-query">—</div>
+            <div class="comp-pill-desc">Parámetros</div>
+          </div>
+          <div class="comp-pill c-frag" id="pill-frag">
+            <div class="comp-pill-name">fragment</div>
+            <div class="comp-pill-value" id="pv-frag">—</div>
+            <div class="comp-pill-desc">Ancla</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPLANATION CARD -->
+    <div class="card explanation-card">
+      <div class="card-head">
+        <div class="card-icon" style="background:var(--teal-soft);">📖</div>
+        <div class="card-title">¿Qué significa cada componente?</div>
+      </div>
+      <div class="card-body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0;">
+        <div class="exp-item">
+          <div class="exp-label" style="color:#c0392b;">scheme</div>
+          <div class="exp-name">Protocolo</div>
+          <div class="exp-desc">Define cómo se comunican cliente y servidor. <strong>http</strong> es texto plano; <strong>https</strong> agrega cifrado TLS. En APIs REST se prefiere siempre <em>https</em>.</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label" style="color:#15803d;">host</div>
+          <div class="exp-name">Servidor</div>
+          <div class="exp-desc">Nombre de dominio (o IP) que localiza el servidor en la red. El DNS resuelve el nombre a una dirección IP para establecer la conexión.</div>
+        </div>
+        <div class="exp-item">
+          <div class="exp-label" style="color:#1d4ed8;">port</div>
+          <div class="exp-name">Puerto</div>
+          <div class="exp-desc">Puerta de entrada al proceso del servidor. Puerto 80 (http) y 443 (https) son implícitos. En desarrollo local se usa comúnmente el <strong>8080</strong>.</div>
+        </div>
+        <div class="exp-item" style="border-top:1px solid var(--border);">
+          <div class="exp-label" style="color:#6d28d9;">path</div>
+          <div class="exp-name">Ruta al recurso</div>
+          <div class="exp-desc">Identifica el recurso dentro del servidor. En APIs REST debe usar <strong>sustantivos en plural</strong>: <code>/libros</code>, <code>/estudiantes/42</code>, no verbos.</div>
+        </div>
+        <div class="exp-item" style="border-top:1px solid var(--border);">
+          <div class="exp-label" style="color:#d97706;">query</div>
+          <div class="exp-name">Parámetros</div>
+          <div class="exp-desc">Pares <code>clave=valor</code> separados por <code>&</code>. Se usan para filtros, paginación o búsqueda. Comienzan con <code>?</code> al final del path.</div>
+        </div>
+        <div class="exp-item" style="border-top:1px solid var(--border);border-right:none;">
+          <div class="exp-label" style="color:#be185d;">fragment</div>
+          <div class="exp-name">Ancla</div>
+          <div class="exp-desc">Referencia a una sección dentro del recurso. Empieza con <code>#</code>. El servidor <strong>nunca lo recibe</strong>; lo interpreta únicamente el navegador del cliente.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- QUIZ CARD -->
+    <div class="card" style="grid-column: 1 / -1; margin-top: 8px;">
+      <div class="card-head">
+        <div class="card-icon" style="background:var(--amber-soft);">🧠</div>
+        <div class="card-title">Ejercicio rápido</div>
+      </div>
+      <div class="card-body">
+        <div class="quiz-section">
+          <div id="quiz-container"></div>
+        </div>
+      </div>
+    </div>
+
+  <div class="footer-badge">
+    ISIS2603 · Universidad de los Andes · <span>Conceptos REST</span>
+  </div>
+</main>
+
+<script>
+const examples = {
+  spotify: {
+    scheme: 'https', host: 'api.spotify.com', port: '', path: '/v1/artists/4Z8W4fKeB5YxbusRsdQVPb/albums', query: 'include_groups=album&market=CO&limit=10', frag: ''
+  },
+  uniandes: {
+    scheme: 'https', host: 'www.uniandes.edu.co', port: '', path: '/programas/ingenieria-sistemas', query: '', frag: 'pensum'
+  },
+  google: {
+    scheme: 'https', host: 'www.google.com', port: '', path: '/search', query: 'q=REST+API+spring+boot&hl=es', frag: ''
+  },
+  libros: {
+    scheme: 'http', host: 'localhost', port: '8080', path: '/api/libros/42', query: '', frag: ''
+  },
+  estudiantes: {
+    scheme: 'http', host: 'localhost', port: '8080', path: '/api/estudiantes', query: 'programa=sistemas&semestre=2024-2&page=1', frag: ''
+  },
+  github: {
+    scheme: 'https', host: 'api.github.com', port: '', path: '/repos/octocat/Hello-World/issues', query: 'state=open&labels=bug&per_page=30', frag: ''
+  }
+};
+
+const quizzes = [
+  {
+    uri: 'https://api.ejemplo.com:443/cursos/5?idioma=es#modulo2',
+    question: '¿Cuál es el path de esta URI?',
+    answer: '/cursos/5',
+    hint: 'El path va después del host:port, antes del ?'
+  },
+  {
+    uri: 'http://localhost:8080/api/libros?genero=ciencia',
+    question: '¿Cuál es el valor del parámetro query "genero"?',
+    answer: 'ciencia',
+    hint: 'Busca el par clave=valor después del ?'
+  },
+  {
+    uri: 'https://www.uniandes.edu.co/pregrados#ingenieria',
+    question: '¿Cuál es el fragment de esta URI?',
+    answer: 'ingenieria',
+    hint: 'El fragment viene después del # (sin incluir el #)'
+  },
+  {
+    uri: 'http://misovirtual.uniandes.edu.co:8080/cursos/isis2603',
+    question: '¿Cuál es el puerto explícito en esta URI?',
+    answer: '8080',
+    hint: 'El puerto viene después del host, separado por :'
+  },
+  {
+    uri: 'https://api.github.com/users/octocat/repos?type=public',
+    question: '¿Qué recurso identifica el host de esta URI?',
+    answer: 'api.github.com',
+    hint: 'El host es el nombre de dominio que localiza el servidor'
+  }
+];
+
+let currentQuiz = 0;
+
+function renderQuiz() {
+  const q = quizzes[currentQuiz];
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="quiz-q">
+      <strong>🔎 Analiza esta URI:</strong>
+      <code style="word-break:break-all;">${q.uri}</code>
+    </div>
+    <div style="font-family:'Fraunces',serif;font-size:14px;margin-bottom:10px;color:var(--ink-mid);">${q.question}</div>
+    <div class="quiz-input-row">
+      <input class="quiz-input" id="quiz-ans" placeholder="Tu respuesta..." onkeydown="if(event.key==='Enter')checkQuiz()">
+      <button class="quiz-btn" onclick="checkQuiz()">Verificar</button>
+      <button class="quiz-btn" style="background:var(--teal);" onclick="nextQuiz()">Siguiente →</button>
+    </div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--ink-light);margin-top:8px;">${currentQuiz+1}/${quizzes.length}</div>
+  `;
+}
+
+function checkQuiz() {
+  const ans = document.getElementById('quiz-ans').value.trim().toLowerCase();
+  const correct = quizzes[currentQuiz].answer.toLowerCase();
+  const fb = document.getElementById('quiz-feedback');
+  if (ans === correct) {
+    fb.className = 'quiz-feedback correct';
+    fb.textContent = '✅ ¡Correcto! ' + quizzes[currentQuiz].answer;
+  } else {
+    fb.className = 'quiz-feedback wrong';
+    fb.textContent = '❌ No exactamente. Pista: ' + quizzes[currentQuiz].hint;
+  }
+}
+
+function nextQuiz() {
+  currentQuiz = (currentQuiz + 1) % quizzes.length;
+  renderQuiz();
+}
+
+function loadExample(key) {
+  const e = examples[key];
+  document.getElementById('inp-scheme').value = e.scheme;
+  document.getElementById('inp-host').value = e.host;
+  document.getElementById('inp-port').value = e.port;
+  document.getElementById('inp-path').value = e.path;
+  document.getElementById('inp-query').value = e.query;
+  document.getElementById('inp-frag').value = e.frag;
+  buildURI();
+}
+
+function buildURI() {
+  const scheme = document.getElementById('inp-scheme').value.trim();
+  const host   = document.getElementById('inp-host').value.trim();
+  const port   = document.getElementById('inp-port').value.trim();
+  const path   = document.getElementById('inp-path').value.trim();
+  const query  = document.getElementById('inp-query').value.trim();
+  const frag   = document.getElementById('inp-frag').value.trim();
+
+  const out = document.getElementById('uri-output');
+
+  if (!host) {
+    out.innerHTML = '<span class="placeholder">Completa los campos para construir tu URI...</span>';
+    clearPills();
+    return;
+  }
+
+  let html = '';
+  let uri  = '';
+
+  if (scheme) {
+    html += `<span class="u-scheme">${scheme}</span><span class="u-sep">://</span>`;
+    uri  += scheme + '://';
+  }
+
+  html += `<span class="u-host">${host}</span>`;
+  uri  += host;
+
+  if (port) {
+    html += `<span class="u-sep">:</span><span class="u-port">${port}</span>`;
+    uri  += ':' + port;
+  }
+
+  if (path) {
+    const p = path.startsWith('/') ? path : '/' + path;
+    html += `<span class="u-path">${p}</span>`;
+    uri  += p;
+  }
+
+  if (query) {
+    html += `<span class="u-sep">?</span><span class="u-query">${query}</span>`;
+    uri  += '?' + query;
+  }
+
+  if (frag) {
+    html += `<span class="u-sep">#</span><span class="u-frag">${frag}</span>`;
+    uri  += '#' + frag;
+  }
+
+  out.innerHTML = html;
+
+  // Pills
+  setPill('scheme', scheme, scheme ? `Protocolo ${scheme.toUpperCase()}` : '');
+  setPill('host',   host,   host ? 'Servidor' : '');
+  setPill('port',   port,   port ? 'Puerto TCP' : '');
+  setPill('path',   path ? (path.startsWith('/') ? path : '/'+path) : '', path ? 'Recurso identificado' : '');
+  setPill('query',  query,  query ? formatQueryParams(query) : '');
+  setPill('frag',   frag,   frag ? 'Ancla (solo cliente)' : '');
+}
+
+function setPill(name, value, desc) {
+  const pill = document.getElementById('pill-' + name);
+  const pv   = document.getElementById('pv-' + name);
+  pv.textContent = value || '—';
+  pill.classList.toggle('active', !!value);
+  // update desc text
+  const descEl = pill.querySelector('.comp-pill-desc');
+  if (descEl) descEl.textContent = desc || (name.charAt(0).toUpperCase() + name.slice(1));
+}
+
+function formatQueryParams(q) {
+  const pairs = q.split('&');
+  return pairs.length > 1 ? `${pairs.length} parámetros` : '1 parámetro';
+}
+
+function clearPills() {
+  ['scheme','host','port','path','query','frag'].forEach(n => {
+    document.getElementById('pill-'+n).classList.remove('active');
+    document.getElementById('pv-'+n).textContent = '—';
+  });
+}
+
+// Init
+renderQuiz();
+loadExample('libros');
+</script>
+
+</body>
+</html>
