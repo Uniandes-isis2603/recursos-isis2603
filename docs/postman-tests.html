@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postman Tests – ISIS2603</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0c0d0f;
+  --s1:      #13151a;
+  --s2:      #181b22;
+  --s3:      #1e2130;
+  --bd:      #252a3a;
+  --bd2:     #303550;
+  --bd3:     #404868;
+
+  --amber:   #f59e0b;
+  --amber-d: #78490a;
+  --amber-bg:#1a1104;
+
+  --pass:    #10b981; --pass-bg: #051a10; --pass-bd: #0a3520;
+  --fail:    #ef4444; --fail-bg: #1a0505; --fail-bd: #3a0a0a;
+  --info:    #38bdf8; --info-bg: #041220; --info-bd: #093040;
+
+  --get:  #10b981; --get-bg:  #051a10;
+  --post: #38bdf8; --post-bg: #041220;
+  --del:  #ef4444; --del-bg:  #1a0505;
+  --put:  #f59e0b; --put-bg:  #1a1104;
+
+  --ink:  #dde3f0;
+  --ink2: #7e8ba8;
+  --ink3: #424d66;
+  --ink4: #272f44;
+
+  --c-kw:  #c792ea;
+  --c-fn:  #82aaff;
+  --c-str: #c3e88d;
+  --c-num: #f78c6c;
+  --c-cmt: #546e7a;
+  --c-pm:  #ffcb6b;
+  --c-prop:#89ddff;
+
+  --r: 8px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:var(--s1);
+  border-bottom:1px solid var(--bd);
+  padding:10px 20px;
+  display:flex;align-items:center;gap:14px;
+  flex-shrink:0;
+}
+.hdr-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:16px;
+  color:var(--ink);letter-spacing:-0.5px;
+}
+.hdr-logo em{color:var(--amber);font-style:normal;}
+.hdr-sep{width:1px;height:16px;background:var(--bd);}
+.hdr-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);
+}
+.hdr-mode-group{
+  margin-left:auto;
+  display:flex;border:1px solid var(--bd);border-radius:7px;overflow:hidden;
+}
+.mode-btn{
+  padding:5px 14px;background:transparent;border:none;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--ink3);cursor:pointer;transition:all .15s;
+}
+.mode-btn.active{background:var(--s3);color:var(--ink);}
+.mode-btn:hover:not(.active){color:var(--ink2);}
+
+/* ── SCENARIO TABS ── */
+.tabs{
+  background:var(--s1);
+  border-bottom:1px solid var(--bd);
+  display:flex;gap:2px;padding:0 16px;
+  overflow-x:auto;flex-shrink:0;
+}
+.tab-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 13px;border:none;background:transparent;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--ink3);cursor:pointer;
+  border-bottom:2px solid transparent;
+  margin-bottom:-1px;white-space:nowrap;flex-shrink:0;
+  transition:all .15s;
+}
+.tab-btn:hover{color:var(--ink2);}
+.tab-btn.active{color:var(--ink);border-bottom-color:var(--amber);}
+.m-pill{
+  font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;
+  letter-spacing:.5px;
+}
+
+/* ── WORKSPACE ── */
+.workspace{
+  display:grid;
+  grid-template-columns:260px 1fr 290px;
+  flex:1;overflow:hidden;
+}
+
+/* ──── LEFT PANEL ──── */
+.left{
+  background:var(--s1);
+  border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.pnl-hd{
+  padding:8px 14px;
+  background:var(--s2);
+  border-bottom:1px solid var(--bd);
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.pnl-hd .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.req-block{padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;}
+.req-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--s3);border:1px solid var(--bd2);
+  border-radius:7px;padding:7px 12px;margin-bottom:10px;
+}
+.req-method{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.req-url{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--ink2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px;
+}
+.code-mini{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;line-height:1.7;
+  background:var(--s3);border:1px solid var(--bd);
+  border-radius:6px;padding:8px 10px;
+  overflow:auto;max-height:90px;white-space:pre;color:var(--ink2);
+}
+
+/* response */
+.res-block{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;
+}
+.res-status-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 14px;background:var(--s2);
+  border-bottom:1px solid var(--bd);flex-shrink:0;
+}
+.status-pill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;
+  padding:2px 10px;border-radius:5px;
+}
+.res-time{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--ink3);margin-left:auto;
+}
+.res-body{
+  flex:1;overflow-y:auto;padding:10px 14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;line-height:1.75;white-space:pre-wrap;color:var(--ink2);
+}
+
+/* ──── CENTER PANEL ──── */
+.center{
+  background:var(--s2);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.center-bar{
+  background:var(--s1);border-bottom:1px solid var(--bd);
+  padding:7px 16px;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.center-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);
+}
+.run-btn{
+  margin-left:auto;
+  display:flex;align-items:center;gap:7px;
+  padding:6px 18px;border-radius:7px;border:none;
+  background:var(--amber);color:#0c0c0a;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .2s;
+}
+.run-btn:hover{background:#fbbf24;box-shadow:0 0 18px rgba(245,158,11,.35);}
+.run-btn:active{transform:scale(.97);}
+
+/* explore mode */
+.explore-view{
+  flex:1;overflow-y:auto;padding:16px 20px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.test-block{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  overflow:hidden;
+}
+.tb-head{
+  padding:8px 14px;background:var(--s3);border-bottom:1px solid var(--bd);
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);
+  display:flex;align-items:center;gap:8px;
+}
+.tb-num{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--bd2);display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;color:var(--ink2);flex-shrink:0;
+}
+.tb-body{padding:12px 14px;display:flex;flex-direction:column;gap:2px;}
+
+.assert-line{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:5px 8px;border-radius:6px;
+  transition:background .15s;cursor:default;
+  position:relative;
+}
+.assert-line:hover{background:var(--s3);}
+.result-dot{
+  width:7px;height:7px;border-radius:50%;
+  margin-top:6px;flex-shrink:0;
+  background:var(--bd2);transition:all .3s;
+}
+.result-dot.pass{background:var(--pass);box-shadow:0 0 5px var(--pass);}
+.result-dot.fail{background:var(--fail);box-shadow:0 0 5px var(--fail);}
+.code-frag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-all;flex:1;
+}
+/* tooltip */
+.explain-tip{
+  display:none;position:absolute;left:calc(100% + 8px);top:0;
+  background:var(--s3);border:1px solid var(--bd2);
+  border-left:3px solid var(--amber);
+  border-radius:8px;padding:10px 13px;
+  font-family:'DM Sans',sans-serif;font-size:11.5px;
+  line-height:1.6;color:var(--ink2);
+  width:240px;z-index:20;pointer-events:none;
+}
+.assert-line:hover .explain-tip{display:block;}
+
+/* build mode */
+.build-view{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+.build-code-area{
+  flex:1;overflow-y:auto;padding:16px 20px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;line-height:1.9;
+  background:var(--bg);
+}
+.build-placeholder{
+  color:var(--ink4);font-style:italic;font-size:11px;
+  font-family:'JetBrains Mono',monospace;
+  text-align:center;padding:30px;
+  border:1.5px dashed var(--bd2);border-radius:var(--r);
+  margin:20px;
+}
+.built-assert{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:4px 8px;border-radius:5px;
+  animation:slideIn .2s ease;
+  cursor:default;
+}
+.built-assert:hover{background:var(--s3);}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.built-remove{
+  margin-top:5px;width:16px;height:16px;border-radius:3px;
+  border:none;background:var(--bd);color:var(--ink3);
+  font-size:10px;cursor:pointer;flex-shrink:0;display:none;
+  align-items:center;justify-content:center;
+}
+.built-assert:hover .built-remove{display:flex;}
+.built-remove:hover{background:var(--fail-bg);color:var(--fail);}
+
+.palette{
+  flex-shrink:0;border-top:1px solid var(--bd);
+  background:var(--s1);padding:10px 14px;
+}
+.palette-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:8px;
+}
+.palette-chips{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.chip{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:6px;
+  border:1px solid var(--bd2);
+  background:var(--s2);color:var(--ink2);
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.chip:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-bg);}
+.chip.used{opacity:.35;pointer-events:none;}
+.chip-icon{font-size:11px;}
+
+/* ──── RIGHT PANEL ──── */
+.right{
+  background:var(--s1);border-left:1px solid var(--bd);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.score-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--bd);border-bottom:1px solid var(--bd);
+  flex-shrink:0;
+}
+.score-cell{
+  background:var(--s2);text-align:center;padding:12px 8px;
+}
+.score-num{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:24px;
+  line-height:1;margin-bottom:3px;
+}
+.score-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);
+}
+.results-scroll{flex:1;overflow-y:auto;padding:10px 12px;}
+.result-item{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:8px 10px;border-radius:7px;
+  margin-bottom:6px;border:1px solid transparent;
+  opacity:0;transform:translateY(5px);
+  transition:opacity .3s,transform .3s;
+}
+.result-item.show{opacity:1;transform:none;}
+.result-item.pass{background:var(--pass-bg);border-color:var(--pass-bd);}
+.result-item.fail{background:var(--fail-bg);border-color:var(--fail-bd);}
+.ri-icon{font-size:11px;flex-shrink:0;margin-top:1px;}
+.ri-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.4;
+}
+.ri-pass{color:var(--pass);}
+.ri-fail{color:var(--fail);}
+.ri-detail{
+  font-size:10px;color:var(--ink3);margin-top:2px;line-height:1.3;
+  font-family:'JetBrains Mono',monospace;
+}
+.no-run{
+  text-align:center;padding:28px 16px;
+  color:var(--ink3);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;
+}
+.no-run-ico{font-size:28px;margin-bottom:10px;opacity:.25;}
+
+/* ── ref card ── */
+.ref-card{
+  margin:10px 12px 12px;
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:var(--r);overflow:hidden;flex-shrink:0;
+}
+.ref-card-hd{
+  padding:6px 12px;background:var(--s3);border-bottom:1px solid var(--bd);
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);
+}
+.ref-card-body{padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+.ref-row{
+  display:flex;gap:8px;align-items:flex-start;
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;line-height:1.5;
+}
+.ref-code{color:var(--c-fn);flex-shrink:0;}
+.ref-desc{color:var(--ink3);}
+
+/* ── scrollbars ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+
+/* ── SYNTAX ── */
+.kw  {color:var(--c-kw);}
+.fn  {color:var(--c-fn);}
+.str {color:var(--c-str);}
+.num {color:var(--c-num);}
+.cmt {color:var(--c-cmt);font-style:italic;}
+.pm  {color:var(--c-pm);}
+.prop{color:var(--c-prop);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">Postman <em>Tests</em></div>
+  <div class="hdr-sep"></div>
+  <div class="hdr-tag">ISIS2603 · API de Música</div>
+  <div class="hdr-mode-group">
+    <button class="mode-btn active" id="mb-explore" onclick="setMode('explore')">📖 Explorar</button>
+    <button class="mode-btn"        id="mb-build"   onclick="setMode('build')">🔨 Construir</button>
+  </div>
+</div>
+
+<!-- SCENARIO TABS -->
+<div class="tabs" id="tabs"></div>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+
+  <!-- LEFT: Request + Response -->
+  <div class="left">
+    <div class="pnl-hd"><div class="dot" style="background:var(--info)"></div>Petición</div>
+    <div class="req-block">
+      <div class="req-pill">
+        <span class="req-method" id="req-method">GET</span>
+        <span class="req-url"    id="req-url">http://localhost:8080/api/artistas</span>
+      </div>
+      <div id="req-body-wrap" style="display:none">
+        <div class="section-label">Body (ArtistaDTO)</div>
+        <div class="code-mini" id="req-body"></div>
+      </div>
+    </div>
+
+    <div class="res-block">
+      <div class="pnl-hd"><div class="dot" style="background:var(--pass)"></div>Respuesta simulada</div>
+      <div class="res-status-bar">
+        <span class="status-pill" id="res-pill">200 OK</span>
+        <span class="res-time"    id="res-time">48 ms</span>
+      </div>
+      <div class="res-body" id="res-body"></div>
+    </div>
+  </div>
+
+  <!-- CENTER: Test editor -->
+  <div class="center">
+    <div class="center-bar">
+      <span class="center-label" id="center-label">Tests &nbsp;—&nbsp; modo Explorar</span>
+      <button class="run-btn" onclick="runTests()">▶ &nbsp;Ejecutar</button>
+    </div>
+
+    <!-- EXPLORE VIEW -->
+    <div class="explore-view" id="explore-view"></div>
+
+    <!-- BUILD VIEW -->
+    <div class="build-view" id="build-view" style="display:none">
+      <div class="build-code-area" id="build-code-area">
+        <div class="build-placeholder" id="build-placeholder">
+          // Selecciona aserciones del panel de abajo<br>// para construir tu test ↓
+        </div>
+      </div>
+      <div class="palette">
+        <div class="palette-label">Aserciones disponibles — haz clic para agregar</div>
+        <div class="palette-chips" id="palette-chips"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Results -->
+  <div class="right">
+    <div class="pnl-hd"><div class="dot" style="background:var(--amber)"></div>Resultados</div>
+    <div class="score-bar">
+      <div class="score-cell">
+        <div class="score-num" id="sc-total" style="color:var(--ink2)">—</div>
+        <div class="score-lbl">Total</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-num" id="sc-pass"  style="color:var(--pass)">—</div>
+        <div class="score-lbl">Pasan</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-num" id="sc-fail"  style="color:var(--fail)">—</div>
+        <div class="score-lbl">Fallan</div>
+      </div>
+    </div>
+    <div class="results-scroll" id="results-scroll">
+      <div class="no-run"><div class="no-run-ico">🧪</div>Presiona <b>▶ Ejecutar</b><br>para correr los tests.</div>
+    </div>
+    <div class="ref-card">
+      <div class="ref-card-hd">📋 Referencia rápida</div>
+      <div class="ref-card-body">
+        <div class="ref-row"><span class="ref-code">pm.response.code</span><span class="ref-desc">Código HTTP</span></div>
+        <div class="ref-row"><span class="ref-code">pm.response.json()</span><span class="ref-desc">Body como objeto JS</span></div>
+        <div class="ref-row"><span class="ref-code">.to.equal(v)</span><span class="ref-desc">Igualdad estricta</span></div>
+        <div class="ref-row"><span class="ref-code">.to.be.a('string')</span><span class="ref-desc">Verifica tipo</span></div>
+        <div class="ref-row"><span class="ref-code">.to.have.property(k)</span><span class="ref-desc">Objeto tiene la clave</span></div>
+        <div class="ref-row"><span class="ref-code">.to.be.an('array')</span><span class="ref-desc">Es arreglo</span></div>
+        <div class="ref-row"><span class="ref-code">.to.be.above(n)</span><span class="ref-desc">Mayor a n</span></div>
+        <div class="ref-row"><span class="ref-code">.to.be.empty</span><span class="ref-desc">Longitud cero</span></div>
+        <div class="ref-row"><span class="ref-code">.to.include(s)</span><span class="ref-desc">String contiene s</span></div>
+        <div class="ref-row"><span class="ref-code">pm.environment.set(k,v)</span><span class="ref-desc">Guarda variable</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// SHARED DATA
+// ═══════════════════════════════════════════════════
+const A1 = {id:1,nombre:"Shakira",nacionalidad:"Colombia",genero:"Pop / Latin",activo:true};
+const A2 = {id:2,nombre:"Carlos Vives",nacionalidad:"Colombia",genero:"Vallenato / Pop",activo:true};
+const A3 = {id:3,nombre:"Juanes",nacionalidad:"Colombia",genero:"Rock / Latin",activo:true};
+const AL1 = {id:1,titulo:"Laundry Service",anio:2001,genero:"Pop",artista:A1};
+const AL2 = {id:2,titulo:"She Wolf",anio:2009,genero:"Pop / Electrónico",artista:A1};
+const AL3 = {id:3,titulo:"La Bicicleta",anio:2016,genero:"Vallenato",artista:A2};
+const AL4 = {id:4,titulo:"Loco de Amor",anio:2014,genero:"Rock / Latin",artista:A3};
+
+// ═══════════════════════════════════════════════════
+// SCENARIOS
+// Each assertion: { id, chipLabel, chipIcon, code(HTML), explain, run(resp)→{pass,detail} }
+// ═══════════════════════════════════════════════════
+const SCENARIOS = [
+
+  // ───── 1. GET /artistas ─────
+  {
+    tab: 'GET /artistas', method:'GET', methodC:'var(--get)', methodBg:'var(--get-bg)',
+    url:'http://localhost:8080/api/artistas',
+    reqBody: null,
+    resCode:200, resText:'OK', resTime:43,
+    resHeaders:{'Content-Type':'application/json','X-Total-Count':'3'},
+    resBody:[{...A1,albumes:[AL1,AL2]},{...A2,albumes:[AL3]},{...A3,albumes:[AL4]}],
+    groups:[
+      {
+        title:'Verificar código HTTP',
+        asserts:[
+          {
+            id:'g1a1',
+            chipLabel:'status === 200', chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status code es 200"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">200</span>);\n});`,
+            explain:'pm.test() define un caso de prueba con nombre. pm.response.code devuelve el código HTTP numérico. .to.equal(200) exige igualdad exacta.',
+            run(r){const ok=r.code===200;return{pass:ok,detail:`Recibido: ${r.code}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar estructura del body',
+        asserts:[
+          {
+            id:'g1a2',
+            chipLabel:'body es array', chipIcon:'📦',
+            code:`<span class="kw">const</span> body = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es un arreglo"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="fn">to.be.an</span>(<span class="str">'array'</span>);\n});`,
+            explain:'pm.response.json() parsea el body. Los GET de colecciones deben retornar un array. .to.be.an("array") verifica el tipo JavaScript.',
+            run(r){const ok=Array.isArray(r.body);return{pass:ok,detail:ok?'Es un Array':`Tipo: ${typeof r.body}`};}
+          },
+          {
+            id:'g1a3',
+            chipLabel:'body.length > 0', chipIcon:'📏',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Arreglo tiene elementos"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(body.length).<span class="fn">to.be.above</span>(<span class="num">0</span>);\n});`,
+            explain:'.to.be.above(0) verifica que la longitud sea mayor a 0. Para una BD con datos de prueba este test nunca debería fallar.',
+            run(r){const ok=Array.isArray(r.body)&&r.body.length>0;return{pass:ok,detail:`length: ${Array.isArray(r.body)?r.body.length:'N/A'}`};}
+          },
+          {
+            id:'g1a4',
+            chipLabel:'cada artista tiene id+nombre', chipIcon:'🔍',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Cada artista tiene id y nombre"</span>, <span class="kw">function</span>() {\n  body.<span class="fn">forEach</span>(a => {\n    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="fn">to.have.property</span>(<span class="str">'id'</span>);\n    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="fn">to.have.property</span>(<span class="str">'nombre'</span>);\n  });\n});`,
+            explain:'forEach aplica las aserciones a cada elemento. .to.have.property("campo") verifica que la clave existe en el objeto. Muy útil para validar el contrato DTO.',
+            run(r){const ok=Array.isArray(r.body)&&r.body.every(a=>a.id!==undefined&&a.nombre);return{pass:ok,detail:ok?'Todos tienen id y nombre':'Algún elemento falta campos'};}
+          },
+          {
+            id:'g1a5',
+            chipLabel:'albumes es array (DetailDTO)', chipIcon:'💿',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Respuesta es ArtistaDetailDTO"</span>, <span class="kw">function</span>() {\n  body.<span class="fn">forEach</span>(a => {\n    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="fn">to.have.property</span>(<span class="str">'albumes'</span>);\n    <span class="pm">pm</span>.<span class="fn">expect</span>(a.albumes).<span class="fn">to.be.an</span>(<span class="str">'array'</span>);\n  });\n});`,
+            explain:'Verifica que la respuesta sea ArtistaDetailDTO (no DTO básico). Si albumes no existe, el backend devolvió el DTO equivocado.',
+            run(r){const ok=Array.isArray(r.body)&&r.body.every(a=>Array.isArray(a.albumes));return{pass:ok,detail:ok?'Todos tienen albumes:[]':'Falta campo albumes'};}
+          }
+        ]
+      },
+      {
+        title:'Verificar Content-Type',
+        asserts:[
+          {
+            id:'g1a6',
+            chipLabel:'Content-Type: JSON', chipIcon:'📋',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Content-Type es application/json"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(\n    <span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Content-Type'</span>)\n  ).<span class="fn">to.include</span>(<span class="str">'application/json'</span>);\n});`,
+            explain:'pm.response.headers.get() lee un header HTTP. .to.include() es mejor que .equal() porque el Content-Type puede incluir ";charset=UTF-8".',
+            run(r){const ct=r.headers['Content-Type']||'';const ok=ct.includes('application/json');return{pass:ok,detail:`Content-Type: ${ct}`};}
+          }
+        ]
+      }
+    ]
+  },
+
+  // ───── 2. GET /artistas/1 ─────
+  {
+    tab:'GET /artistas/1', method:'GET', methodC:'var(--get)', methodBg:'var(--get-bg)',
+    url:'http://localhost:8080/api/artistas/1',
+    reqBody:null,
+    resCode:200,resText:'OK',resTime:21,
+    resHeaders:{'Content-Type':'application/json'},
+    resBody:{...A1,albumes:[AL1,AL2]},
+    groups:[
+      {
+        title:'Verificar código HTTP',
+        asserts:[
+          {
+            id:'g2a1',chipLabel:'status === 200',chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status code es 200"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">200</span>);\n});`,
+            explain:'GET de un recurso individual exitoso → 200 OK. Nunca 201 (eso es para POST).',
+            run(r){return{pass:r.code===200,detail:`Recibido: ${r.code}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar atributos del ArtistaDetailDTO',
+        asserts:[
+          {
+            id:'g2a2',chipLabel:'body es objeto (no array)',chipIcon:'📦',
+            code:`<span class="kw">const</span> artista = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es objeto, no arreglo"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista).<span class="fn">to.be.an</span>(<span class="str">'object'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista).<span class="fn">not.to.be.an</span>(<span class="str">'array'</span>);\n});`,
+            explain:'Un recurso individual devuelve objeto, no arreglo. .not.to.be.an() niega la aserción. En JS todo Array es también un "object", por eso hay que negar explícitamente.',
+            run(r){const ok=r.body&&typeof r.body==='object'&&!Array.isArray(r.body);return{pass:ok,detail:ok?'Es objeto ✓':`tipo: ${typeof r.body}`};}
+          },
+          {
+            id:'g2a3',chipLabel:'id === 1',chipIcon:'🔑',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"id es 1 (coincide con la URL)"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista.id).<span class="fn">to.equal</span>(<span class="num">1</span>);\n});`,
+            explain:'El id retornado debe coincidir con el id pedido en la URL. Si no coincide, hay un bug en el controlador o en la query.',
+            run(r){return{pass:r.body?.id===1,detail:`id: ${r.body?.id}`};}
+          },
+          {
+            id:'g2a4',chipLabel:'nombre es string',chipIcon:'🔤',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"nombre es string no vacío"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista.nombre).<span class="fn">to.be.a</span>(<span class="str">'string'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista.nombre.length).<span class="fn">to.be.above</span>(<span class="num">0</span>);\n});`,
+            explain:'.to.be.a("string") verifica el tipo. La segunda aserción encadenada verifica que no sea string vacío "".',
+            run(r){const ok=typeof r.body?.nombre==='string'&&r.body.nombre.length>0;return{pass:ok,detail:`nombre: "${r.body?.nombre}"`};}
+          },
+          {
+            id:'g2a5',chipLabel:'activo es boolean',chipIcon:'✅',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"activo es boolean"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista.activo).<span class="fn">to.be.a</span>(<span class="str">'boolean'</span>);\n});`,
+            explain:'Verifica el tipo del campo. Detecta errores de serialización donde un boolean llega como string "true" en vez de true.',
+            run(r){const ok=typeof r.body?.activo==='boolean';return{pass:ok,detail:`activo: ${r.body?.activo} (${typeof r.body?.activo})`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar colección albumes (DetailDTO)',
+        asserts:[
+          {
+            id:'g2a6',chipLabel:'albumes es array',chipIcon:'💿',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes es arreglo"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(artista.albumes).<span class="fn">to.be.an</span>(<span class="str">'array'</span>);\n});`,
+            explain:'albumes debe existir y ser array. Verifica que la respuesta es ArtistaDetailDTO. Si no existe, el endpoint devolvió el DTO básico incorrectamente.',
+            run(r){return{pass:Array.isArray(r.body?.albumes),detail:`albumes: ${Array.isArray(r.body?.albumes)?'array':'ausente'}`};}
+          },
+          {
+            id:'g2a7',chipLabel:'cada album tiene artista embebido',chipIcon:'🔗',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Álbumes tienen artista embebido"</span>, <span class="kw">function</span>() {\n  artista.albumes.<span class="fn">forEach</span>(al => {\n    <span class="pm">pm</span>.<span class="fn">expect</span>(al).<span class="fn">to.have.property</span>(<span class="str">'artista'</span>); <span class="cmt">// many-to-1</span>\n    <span class="pm">pm</span>.<span class="fn">expect</span>(al).<span class="fn">to.have.property</span>(<span class="str">'titulo'</span>);\n  });\n});`,
+            explain:'Verifica que cada AlbumDTO en la colección tiene el campo artista embebido (relación many-to-1 siempre va en el DTO básico).',
+            run(r){const ok=Array.isArray(r.body?.albumes)&&r.body.albumes.every(al=>al.artista&&al.titulo);return{pass:ok,detail:ok?'Estructura correcta':'Falta artista o titulo en album'};}
+          }
+        ]
+      }
+    ]
+  },
+
+  // ───── 3. POST /artistas → 201 ─────
+  {
+    tab:'POST /artistas', method:'POST', methodC:'var(--post)', methodBg:'var(--post-bg)',
+    url:'http://localhost:8080/api/artistas',
+    reqBody:{nombre:"Maluma",nacionalidad:"Colombia",genero:"Reggaetón / Pop",activo:true},
+    resCode:201,resText:'Created',resTime:72,
+    resHeaders:{'Content-Type':'application/json','Location':'/api/artistas/4'},
+    resBody:{id:4,nombre:"Maluma",nacionalidad:"Colombia",genero:"Reggaetón / Pop",activo:true,albumes:[]},
+    groups:[
+      {
+        title:'Verificar código 201 Created (¡no 200!)',
+        asserts:[
+          {
+            id:'g3a1',chipLabel:'status === 201',chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status code es 201 Created"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">201</span>);\n  <span class="cmt">// POST exitoso → 201, nunca 200</span>\n});`,
+            explain:'POST exitoso SIEMPRE retorna 201 Created, no 200 OK. Devolver 200 en un POST es un error de implementación muy común.',
+            run(r){return{pass:r.code===201,detail:`Recibido: ${r.code}${r.code===200?' (debería ser 201)':''}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar header Location',
+        asserts:[
+          {
+            id:'g3a2',chipLabel:'Location header presente',chipIcon:'📍',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Header Location está presente"</span>, <span class="kw">function</span>() {\n  <span class="kw">const</span> loc = <span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Location'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(loc).<span class="fn">to.include</span>(<span class="str">'/api/artistas/'</span>);\n});`,
+            explain:'El estándar HTTP (RFC 9110) exige que 201 Created incluya el header Location con la URL del recurso creado. Verifica que el backend lo implemente.',
+            run(r){const loc=r.headers['Location'];const ok=loc&&loc.includes('/api/artistas/');return{pass:ok,detail:`Location: ${loc||'ausente'}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar body del recurso creado',
+        asserts:[
+          {
+            id:'g3a3',chipLabel:'id asignado por BD',chipIcon:'🔑',
+            code:`<span class="kw">const</span> nuevo = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"id fue asignado por el servidor"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.id).<span class="fn">to.be.a</span>(<span class="str">'number'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.id).<span class="fn">to.be.above</span>(<span class="num">0</span>);\n});`,
+            explain:'El id lo asigna la BD, no el cliente. El body de la respuesta debe traer el id generado. Si id es null o undefined, la serialización falló.',
+            run(r){const ok=r.body?.id&&typeof r.body.id==='number'&&r.body.id>0;return{pass:ok,detail:`id: ${r.body?.id}`};}
+          },
+          {
+            id:'g3a4',chipLabel:'nombre coincide con request',chipIcon:'🔤',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"nombre coincide con el enviado"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.nombre).<span class="fn">to.equal</span>(<span class="str">"Maluma"</span>);\n});`,
+            explain:'El servidor debe devolver exactamente lo que guardó. Si el nombre se distorsiona en el proceso, hay un bug en la capa de servicio o persistencia.',
+            run(r){return{pass:r.body?.nombre==='Maluma',detail:`nombre: "${r.body?.nombre}"`};}
+          },
+          {
+            id:'g3a5',chipLabel:'albumes vacío (recién creado)',chipIcon:'💿',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes inicia vacío"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="fn">to.be.an</span>(<span class="str">'array'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="fn">to.be.empty</span>; <span class="cmt">// recién creado</span>\n});`,
+            explain:'La respuesta es ArtistaDetailDTO. Un artista recién creado no tiene álbumes, así que albumes:[] debe llegar vacío, no ausente.',
+            run(r){const ok=Array.isArray(r.body?.albumes)&&r.body.albumes.length===0;return{pass:ok,detail:`albumes.length: ${r.body?.albumes?.length??'N/A'}`};}
+          }
+        ]
+      },
+      {
+        title:'Guardar id para tests encadenados',
+        asserts:[
+          {
+            id:'g3a6',chipLabel:'guardar id en entorno',chipIcon:'💾',
+            code:`<span class="cmt">// Guarda el id para usarlo en requests siguientes</span>\n<span class="pm">pm</span>.environment.<span class="fn">set</span>(<span class="str">"artistaId"</span>, nuevo.id);\n\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Variable artistaId guardada"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.environment.<span class="fn">get</span>(<span class="str">"artistaId"</span>)).<span class="fn">to.equal</span>(nuevo.id);\n});`,
+            explain:'pm.environment.set() guarda un valor que puedes usar en otros requests como {{artistaId}}. Fundamental para encadenar pruebas: crear → consultar → eliminar.',
+            run(r){const ok=r.body?.id>0;return{pass:ok,detail:`artistaId = ${r.body?.id} guardado`};}
+          }
+        ]
+      }
+    ]
+  },
+
+  // ───── 4. POST duplicate → 409 ─────
+  {
+    tab:'POST → 409', method:'POST', methodC:'var(--post)', methodBg:'var(--post-bg)',
+    url:'http://localhost:8080/api/artistas',
+    reqBody:{nombre:"Shakira",nacionalidad:"Colombia",genero:"Pop / Latin",activo:true},
+    resCode:409,resText:'Conflict',resTime:31,
+    resHeaders:{'Content-Type':'application/json'},
+    resBody:{status:409,error:"Conflict",message:'Ya existe un artista con el nombre "Shakira"',timestamp:"2024-08-15T10:32:07"},
+    groups:[
+      {
+        title:'Verificar código de error 409',
+        asserts:[
+          {
+            id:'g4a1',chipLabel:'status === 409',chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status es 409 Conflict"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">409</span>);\n  <span class="cmt">// duplicado → 409 Conflict, no 400</span>\n});`,
+            explain:'Cuando el recurso ya existe la respuesta debe ser 409 Conflict, no 400 Bad Request. 400 es para datos malformados; 409 es para conflictos de estado.',
+            run(r){return{pass:r.code===409,detail:`Recibido: ${r.code}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar estructura del error',
+        asserts:[
+          {
+            id:'g4a2',chipLabel:'body tiene campo error',chipIcon:'⚠️',
+            code:`<span class="kw">const</span> err = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body tiene campo error"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="fn">to.have.property</span>(<span class="str">'error'</span>);\n});`,
+            explain:'La respuesta de error debe tener estructura consistente. El campo "error" identifica el tipo de error HTTP.',
+            run(r){return{pass:r.body?.error!==undefined,detail:`error: "${r.body?.error}"`};}
+          },
+          {
+            id:'g4a3',chipLabel:'mensaje descriptivo',chipIcon:'💬',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"message es string no vacío"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err.message).<span class="fn">to.be.a</span>(<span class="str">'string'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err.message.length).<span class="fn">to.be.above</span>(<span class="num">0</span>);\n});`,
+            explain:'El mensaje de error debe ser legible por el humano. El frontend lo puede mostrar al usuario para explicar por qué falló la operación.',
+            run(r){const ok=typeof r.body?.message==='string'&&r.body.message.length>0;return{pass:ok,detail:`"${r.body?.message?.slice(0,45)}..."`};}
+          },
+          {
+            id:'g4a4',chipLabel:'status en body === 409',chipIcon:'🔢',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"status en body coincide con HTTP"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err.status).<span class="fn">to.equal</span>(<span class="num">409</span>);\n});`,
+            explain:'El campo status del body debe coincidir con el código HTTP real. Inconsistencias entre ambos son bugs difíciles de detectar en el frontend.',
+            run(r){return{pass:r.body?.status===409,detail:`body.status: ${r.body?.status}`};}
+          }
+        ]
+      }
+    ]
+  },
+
+  // ───── 5. GET → 404 ─────
+  {
+    tab:'GET → 404', method:'GET', methodC:'var(--get)', methodBg:'var(--get-bg)',
+    url:'http://localhost:8080/api/artistas/999',
+    reqBody:null,
+    resCode:404,resText:'Not Found',resTime:17,
+    resHeaders:{'Content-Type':'application/json'},
+    resBody:{status:404,error:"Not Found",message:"No se encontró el artista con id 999",timestamp:"2024-08-15T10:35:22"},
+    groups:[
+      {
+        title:'Verificar código 404 Not Found',
+        asserts:[
+          {
+            id:'g5a1',chipLabel:'status === 404',chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status es 404 Not Found"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">404</span>);\n});`,
+            explain:'Un id inexistente debe retornar 404. Si retorna 200 con null o 500, hay un bug. La capa de servicio debe lanzar EntityNotFoundException.',
+            run(r){return{pass:r.code===404,detail:`Recibido: ${r.code}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar que el body NO es un artista válido',
+        asserts:[
+          {
+            id:'g5a2',chipLabel:'body tiene error, no artista',chipIcon:'🚫',
+            code:`<span class="kw">const</span> err = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es error, no un artista"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="fn">to.have.property</span>(<span class="str">'error'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="fn">not.to.have.property</span>(<span class="str">'nombre'</span>);\n});`,
+            explain:'El body de un 404 debe ser un objeto de error, nunca un artista con null en sus campos. .not.to.have.property() niega la aserción.',
+            run(r){const ok=r.body?.error!==undefined&&r.body?.nombre===undefined;return{pass:ok,detail:ok?'Estructura de error correcta':'Body parece un artista, no un error'};}
+          },
+          {
+            id:'g5a3',chipLabel:'message menciona el id 999',chipIcon:'💬',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Mensaje menciona el id buscado"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(err.message).<span class="fn">to.include</span>(<span class="str">'999'</span>);\n});`,
+            explain:'.to.include() verifica que el string contenga la subcadena. El mensaje de error debe citar el id que se buscó para que el desarrollador sepa exactamente qué falló.',
+            run(r){const ok=String(r.body?.message||'').includes('999');return{pass:ok,detail:`message: "${r.body?.message?.slice(0,50)}"`};}
+          }
+        ]
+      }
+    ]
+  },
+
+  // ───── 6. DELETE ─────
+  {
+    tab:'DELETE /artistas/2', method:'DELETE', methodC:'var(--del)', methodBg:'var(--del-bg)',
+    url:'http://localhost:8080/api/artistas/2',
+    reqBody:null,
+    resCode:200,resText:'OK',resTime:44,
+    resHeaders:{'Content-Type':'application/json'},
+    resBody:{...A2,albumes:[AL3]},
+    groups:[
+      {
+        title:'Verificar código 200 del DELETE',
+        asserts:[
+          {
+            id:'g6a1',chipLabel:'status === 200',chipIcon:'#️⃣',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status es 200 OK"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="fn">to.equal</span>(<span class="num">200</span>);\n  <span class="cmt">// alternativa válida: 204 No Content (sin body)</span>\n});`,
+            explain:'DELETE puede retornar 200 OK con el recurso eliminado como confirmación, o 204 No Content sin body. Nuestra API usa 200 para confirmar qué fue eliminado.',
+            run(r){return{pass:r.code===200,detail:`Recibido: ${r.code}`};}
+          }
+        ]
+      },
+      {
+        title:'Verificar que el body confirma qué fue eliminado',
+        asserts:[
+          {
+            id:'g6a2',chipLabel:'body es ArtistaDetailDTO',chipIcon:'✅',
+            code:`<span class="kw">const</span> borrado = <span class="pm">pm</span>.response.<span class="fn">json</span>();\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es el artista eliminado"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(borrado).<span class="fn">to.have.property</span>(<span class="str">'id'</span>);\n  <span class="pm">pm</span>.<span class="fn">expect</span>(borrado).<span class="fn">to.have.property</span>(<span class="str">'albumes'</span>);\n});`,
+            explain:'La respuesta es el ArtistaDetailDTO del recurso eliminado. El cliente puede mostrar "¿Eliminar Carlos Vives con 1 álbum?" con estos datos.',
+            run(r){const ok=r.body?.id!==undefined&&Array.isArray(r.body?.albumes);return{pass:ok,detail:ok?'Estructura correcta':'Faltan campos'};}
+          },
+          {
+            id:'g6a3',chipLabel:'id eliminado === 2',chipIcon:'🔑',
+            code:`<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Se eliminó el artista correcto"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(borrado.id).<span class="fn">to.equal</span>(<span class="num">2</span>);\n});`,
+            explain:'Verifica que el id del recurso eliminado coincide con el id de la URL. Previene confusiones si el endpoint retorna el artista equivocado.',
+            run(r){return{pass:r.body?.id===2,detail:`id: ${r.body?.id}`};}
+          }
+        ]
+      },
+      {
+        title:'Limpiar variables de entorno',
+        asserts:[
+          {
+            id:'g6a4',chipLabel:'unset artistaId',chipIcon:'🧹',
+            code:`<span class="cmt">// Limpia la variable después de eliminar</span>\n<span class="pm">pm</span>.environment.<span class="fn">unset</span>(<span class="str">"artistaId"</span>);\n\n<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Variable limpiada"</span>, <span class="kw">function</span>() {\n  <span class="pm">pm</span>.<span class="fn">expect</span>(\n    <span class="pm">pm</span>.environment.<span class="fn">get</span>(<span class="str">"artistaId"</span>)\n  ).<span class="fn">to.be</span>(undefined);\n});`,
+            explain:'pm.environment.unset() elimina la variable del entorno. Siempre limpia ids de recursos eliminados para evitar que pruebas posteriores usen ids inválidos.',
+            run(r){return{pass:true,detail:'artistaId eliminado del entorno'};}
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentSc  = 0;
+let mode       = 'explore';   // 'explore' | 'build'
+let builtIds   = [];          // assertion ids added in build mode (ordered)
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function init(){
+  buildTabs();
+  load(0);
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function buildTabs(){
+  const bar = document.getElementById('tabs');
+  bar.innerHTML='';
+  SCENARIOS.forEach((sc,i)=>{
+    const b=document.createElement('button');
+    b.className='tab-btn'+(i===0?' active':'');
+    b.id='tab-'+i;
+    b.innerHTML=`<span class="m-pill" style="color:${sc.methodC};background:${sc.methodBg};">${sc.method}</span>${sc.url.replace('http://localhost:8080','')}`;
+    b.onclick=()=>load(i);
+    bar.appendChild(b);
+  });
+}
+
+function load(idx){
+  currentSc=idx;
+  builtIds=[];
+  document.querySelectorAll('.tab-btn').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  const sc=SCENARIOS[idx];
+  renderLeft(sc);
+  renderCenter(sc);
+  clearResults();
+}
+
+// ═══════════════════════════════════════════════════
+// LEFT PANEL
+// ═══════════════════════════════════════════════════
+const STATUS_STYLE={200:{c:'var(--pass)',bg:'var(--pass-bg)'},201:{c:'#60a5fa',bg:'#041220'},409:{c:'var(--warn-amber,#f59e0b)',bg:'#1a1104'},404:{c:'var(--fail)',bg:'var(--fail-bg)'}};
+function renderLeft(sc){
+  const m=document.getElementById('req-method');
+  m.textContent=sc.method; m.style.color=sc.methodC;
+  document.getElementById('req-url').textContent=sc.url;
+  const bw=document.getElementById('req-body-wrap');
+  if(sc.reqBody){
+    bw.style.display='block';
+    document.getElementById('req-body').textContent=JSON.stringify(sc.reqBody,null,2);
+  } else { bw.style.display='none'; }
+
+  const st=STATUS_STYLE[sc.resCode]||{c:'var(--ink2)',bg:'var(--s2)'};
+  const pill=document.getElementById('res-pill');
+  pill.textContent=`${sc.resCode} ${sc.resText}`;
+  pill.style.color=st.c; pill.style.background=st.bg;
+  document.getElementById('res-time').textContent=`${sc.resTime} ms`;
+  document.getElementById('res-body').innerHTML=jsonHL(JSON.stringify(sc.resBody,null,2));
+}
+
+// ═══════════════════════════════════════════════════
+// CENTER PANEL
+// ═══════════════════════════════════════════════════
+function setMode(m){
+  mode=m;
+  document.getElementById('mb-explore').classList.toggle('active',m==='explore');
+  document.getElementById('mb-build').classList.toggle('active',m==='build');
+  renderCenter(SCENARIOS[currentSc]);
+  clearResults();
+}
+
+function renderCenter(sc){
+  const lbl=document.getElementById('center-label');
+  lbl.textContent=`Tests — modo ${mode==='explore'?'Explorar':'Construir'}`;
+
+  const explV=document.getElementById('explore-view');
+  const bldV=document.getElementById('build-view');
+
+  if(mode==='explore'){
+    explV.style.display='flex'; bldV.style.display='none';
+    renderExplore(sc);
+  } else {
+    explV.style.display='none'; bldV.style.display='flex';
+    renderBuild(sc);
+  }
+}
+
+// ── EXPLORE MODE ──
+function renderExplore(sc){
+  const v=document.getElementById('explore-view');
+  v.innerHTML='';
+  sc.groups.forEach((g,gi)=>{
+    const block=document.createElement('div');
+    block.className='test-block';
+
+    const hd=document.createElement('div');
+    hd.className='tb-head';
+    hd.innerHTML=`<span class="tb-num">${gi+1}</span><span style="color:var(--ink2)">${g.title}</span>`;
+    block.appendChild(hd);
+
+    const body=document.createElement('div');
+    body.className='tb-body';
+    g.asserts.forEach(a=>{
+      const row=document.createElement('div');
+      row.className='assert-line';
+      row.id='el-'+a.id;
+      row.innerHTML=`<div class="result-dot" id="dot-${a.id}"></div><div class="code-frag">${a.code}</div><div class="explain-tip">${a.explain}</div>`;
+      body.appendChild(row);
+    });
+    block.appendChild(body);
+    v.appendChild(block);
+  });
+}
+
+// ── BUILD MODE ──
+function renderBuild(sc){
+  builtIds=[];
+  const codeArea=document.getElementById('build-code-area');
+  codeArea.innerHTML='<div class="build-placeholder" id="build-placeholder">// Selecciona aserciones del panel de abajo<br>// para construir tu test ↓</div>';
+
+  const chips=document.getElementById('palette-chips');
+  chips.innerHTML='';
+
+  const allAsserts=[];
+  sc.groups.forEach(g=>g.asserts.forEach(a=>allAsserts.push(a)));
+
+  allAsserts.forEach(a=>{
+    const chip=document.createElement('div');
+    chip.className='chip'; chip.id='chip-'+a.id;
+    chip.innerHTML=`<span class="chip-icon">${a.chipIcon}</span>${a.chipLabel}`;
+    chip.onclick=()=>addToBuild(a,allAsserts);
+    chips.appendChild(chip);
+  });
+}
+
+function addToBuild(a,allAsserts){
+  if(builtIds.includes(a.id)) return;
+  builtIds.push(a.id);
+
+  // Remove placeholder
+  const ph=document.getElementById('build-placeholder');
+  if(ph) ph.remove();
+
+  // Mark chip as used
+  const chip=document.getElementById('chip-'+a.id);
+  if(chip) chip.classList.add('used');
+
+  // Add code row
+  const ca=document.getElementById('build-code-area');
+  const row=document.createElement('div');
+  row.className='built-assert';
+  row.id='built-'+a.id;
+
+  const remove=document.createElement('button');
+  remove.className='built-remove'; remove.title='Quitar';
+  remove.textContent='✕';
+  remove.onclick=()=>removeFromBuild(a.id,chip);
+
+  const code=document.createElement('div');
+  code.className='code-frag';
+  code.innerHTML=a.code;
+
+  const dot=document.createElement('div');
+  dot.className='result-dot'; dot.id='dot-'+a.id;
+
+  row.appendChild(remove);
+  row.appendChild(code);
+  row.appendChild(dot);
+  ca.appendChild(row);
+
+  clearResults();
+}
+
+function removeFromBuild(id,chip){
+  builtIds=builtIds.filter(x=>x!==id);
+  const row=document.getElementById('built-'+id);
+  if(row) row.remove();
+  if(chip) chip.classList.remove('used');
+
+  const ca=document.getElementById('build-code-area');
+  if(ca.children.length===0){
+    ca.innerHTML='<div class="build-placeholder" id="build-placeholder">// Selecciona aserciones del panel de abajo<br>// para construir tu test ↓</div>';
+  }
+  clearResults();
+}
+
+// ═══════════════════════════════════════════════════
+// RUN TESTS
+// ═══════════════════════════════════════════════════
+function runTests(){
+  const sc=SCENARIOS[currentSc];
+  const resp={code:sc.resCode,time:sc.resTime,body:sc.resBody,headers:sc.resHeaders};
+
+  let toRun=[];
+  if(mode==='explore'){
+    sc.groups.forEach(g=>g.asserts.forEach(a=>toRun.push(a)));
+  } else {
+    const allAsserts=[];
+    sc.groups.forEach(g=>g.asserts.forEach(a=>allAsserts.push(a)));
+    toRun=builtIds.map(id=>allAsserts.find(a=>a.id===id)).filter(Boolean);
+  }
+
+  if(toRun.length===0){
+    document.getElementById('results-scroll').innerHTML=`<div class="no-run"><div class="no-run-ico">⚠️</div>Agrega al menos<br>una aserción primero.</div>`;
+    return;
+  }
+
+  let pass=0,fail=0;
+  const results=toRun.map(a=>{
+    const {pass:p,detail}=a.run(resp);
+    if(p) pass++; else fail++;
+    // update dot
+    const dot=document.getElementById('dot-'+a.id);
+    if(dot){ dot.className='result-dot '+(p?'pass':'fail'); }
+    return{label:a.chipLabel,pass:p,detail};
+  });
+
+  // Summary
+  document.getElementById('sc-total').textContent=toRun.length;
+  document.getElementById('sc-pass').textContent=pass;
+  document.getElementById('sc-fail').textContent=fail;
+
+  // List
+  const scroll=document.getElementById('results-scroll');
+  scroll.innerHTML='';
+  results.forEach((r,i)=>{
+    const item=document.createElement('div');
+    item.className=`result-item ${r.pass?'pass':'fail'}`;
+    item.style.transitionDelay=(i*55)+'ms';
+    item.innerHTML=`<div class="ri-icon">${r.pass?'✓':'✗'}</div><div><div class="ri-label"><span class="${r.pass?'ri-pass':'ri-fail'}">${r.pass?'PASS':'FAIL'}</span>&nbsp; ${r.label}</div><div class="ri-detail">${r.detail}</div></div>`;
+    scroll.appendChild(item);
+    requestAnimationFrame(()=>item.classList.add('show'));
+  });
+}
+
+function clearResults(){
+  document.getElementById('sc-total').textContent='—';
+  document.getElementById('sc-pass').textContent='—';
+  document.getElementById('sc-fail').textContent='—';
+  document.getElementById('results-scroll').innerHTML=`<div class="no-run"><div class="no-run-ico">🧪</div>Presiona <b>▶ Ejecutar</b><br>para correr los tests.</div>`;
+  document.querySelectorAll('.result-dot').forEach(d=>d.className='result-dot');
+}
+
+// ═══════════════════════════════════════════════════
+// JSON HIGHLIGHT
+// ═══════════════════════════════════════════════════
+function jsonHL(str){
+  return str
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,m=>{
+      let c='num';
+      if(/^"/.test(m)) c=/:$/.test(m)?'prop':'str';
+      else if(/true|false/.test(m)) c='kw';
+      else if(/null/.test(m)) c='cmt';
+      return `<span class="${c}">${m}</span>`;
+    });
+}
+
+init();
+</script>
+</body>
+</html>

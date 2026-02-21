@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tests en Postman – ISIS2603</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f7f4ee;--c2:#ede6da;--c3:#dfd6c8;--c4:#ccc0ae;
+  --ink:#1c1814;--ink2:#4a4038;--ink3:#8a7a6a;--ink4:#b8a898;
+  --rust:#c0392b;--rust-bg:#fdf5f4;--rust-l:#e8c5c0;
+  --teal:#1a7a6a;--teal-bg:#f0faf8;--teal-l:#b8ddd8;
+  --code:#1e1c18;
+  --ckw:#f0a060;--cfn:#82aaff;--cstr:#c3e88d;--cnum:#f78c6c;
+  --ccmt:#546e7a;--cpm:#ffcb6b;--cprop:#89ddff;--cch:#c792ea;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--ink);font-family:'Source Serif 4',Georgia,serif;font-weight:300;line-height:1.7;display:grid;grid-template-columns:210px 1fr;min-height:100vh;}
+
+/* SIDEBAR */
+nav{background:var(--ink);position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 0;}
+.nb{padding:0 18px 22px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:12px;}
+.nt{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:5px;}
+.ntitle{font-family:'Playfair Display',serif;font-size:15px;color:#f7f4ee;line-height:1.3;}
+.ntitle em{font-style:italic;color:#f0a060;}
+.nl{display:flex;align-items:center;gap:7px;padding:5px 10px;margin:0 10px;border-radius:5px;color:rgba(255,255,255,.42);font-family:'Source Serif 4',serif;font-size:12px;font-weight:300;cursor:pointer;border:none;background:none;width:calc(100% - 20px);text-align:left;transition:all .14s;}
+.nl:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.05);}
+.nl.active{color:#f0a060;background:rgba(240,160,96,.1);}
+.nn{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.18);width:14px;flex-shrink:0;}
+.nl.active .nn{color:#f0a060;}
+
+/* MAIN */
+main{max-width:860px;padding:52px 56px;}
+.sec{display:none;animation:fu .35s ease;}
+.sec.on{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Section headers */
+.sn{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink4);margin-bottom:6px;}
+.st{font-family:'Playfair Display',serif;font-size:33px;font-weight:700;line-height:1.15;color:var(--ink);margin-bottom:5px;}
+.st em{font-style:italic;color:var(--rust);}
+.ss{font-size:15.5px;color:var(--ink3);font-weight:300;margin-bottom:34px;border-bottom:1px solid var(--c3);padding-bottom:20px;}
+
+/* Prose */
+.p{font-size:15px;line-height:1.82;color:var(--ink2);margin-bottom:20px;}
+.p strong{color:var(--ink);font-weight:600;}
+code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--c2);border:1px solid var(--c3);border-radius:4px;padding:1px 5px;color:var(--rust);}
+
+/* Pull quote */
+.pq{border-left:4px solid var(--rust);margin:22px 0;padding:13px 20px;background:var(--rust-bg);border-radius:0 8px 8px 0;}
+.pqt{font-family:'Playfair Display',serif;font-size:16.5px;font-style:italic;color:var(--ink);line-height:1.5;margin-bottom:3px;}
+.pqs{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink3);}
+
+/* Concept box */
+.cbox{background:var(--c2);border:1px solid var(--c3);border-radius:9px;padding:16px 20px;margin-bottom:20px;}
+.cbox h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:7px;}
+.cbox p{font-size:13.5px;color:var(--ink2);line-height:1.65;}
+
+/* Code blocks */
+.cb{background:var(--code);border-radius:9px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,.13);}
+.cbh{background:rgba(255,255,255,.05);padding:6px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.05);}
+.cbd{display:flex;gap:4px;}.cbd span{width:9px;height:9px;border-radius:50%;}
+.cbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.22);margin-left:auto;}
+.cbb{padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;color:#a8b4c8;white-space:pre;overflow-x:auto;}
+
+/* Anatomy */
+.anat{background:var(--code);border-radius:11px;padding:26px 24px 20px;margin-bottom:24px;box-shadow:0 4px 18px rgba(0,0,0,.13);}
+.anat-code{font-family:'JetBrains Mono',monospace;font-size:14px;line-height:2.4;color:#a8b4c8;white-space:pre;}
+.ap{display:inline;cursor:pointer;border-radius:3px;transition:background .12s;padding:1px 0;}
+.ap:hover{background:rgba(255,255,255,.09);}
+.ap.pm{color:var(--cpm)}.ap.fn{color:var(--cfn)}.ap.str{color:var(--cstr)}.ap.num{color:var(--cnum)}.ap.kw{color:var(--ckw)}.ap.ch{color:var(--cch)}
+.al{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);}
+.li{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;border:1.5px solid rgba(255,255,255,.07);font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.38);cursor:pointer;transition:all .13s;}
+.li:hover,.li.on{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.85);}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* Anatomy panel */
+.apanel{background:var(--cream);border-radius:9px;padding:16px 20px;margin-bottom:24px;border-left:4px solid var(--rust);min-height:68px;transition:border-color .2s;}
+.apl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
+.apt{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.apd{font-size:13.5px;color:var(--ink2);line-height:1.6;}
+.apc{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--c2);border:1px solid var(--c3);border-radius:4px;padding:3px 8px;color:var(--rust);margin-top:6px;display:inline-block;}
+
+/* Assert grid */
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.ac{background:white;border:1.5px solid var(--c3);border-radius:9px;overflow:hidden;cursor:pointer;transition:all .17s;}
+.ac:hover,.ac.on{border-color:var(--rust);box-shadow:0 3px 12px rgba(192,57,43,.1);transform:translateY(-2px);}
+.ach{padding:8px 12px;background:var(--c2);border-bottom:1px solid var(--c3);display:flex;align-items:center;gap:6px;}
+.aci{font-size:13px;}.acn{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--ink);}
+.acb{padding:9px 12px;font-size:12px;color:var(--ink3);line-height:1.5;}
+
+.ad{background:var(--cream);border:1.5px solid var(--c3);border-radius:9px;padding:20px 24px;margin-bottom:24px;display:none;}
+.ad.on{display:block;animation:fu .22s ease;}
+.adt{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:9px;}
+
+/* Labs */
+.lab{background:white;border:1.5px solid var(--c3);border-radius:11px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.lbar{background:var(--ink);padding:8px 13px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.lbt{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);flex:1;}
+.sbs{display:flex;gap:4px;flex-wrap:wrap;}
+.sb{padding:3px 9px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.4);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8.5px;cursor:pointer;transition:all .13s;}
+.sb:hover,.sb.on{border-color:rgba(255,255,255,.5);color:rgba(255,255,255,.88);background:rgba(255,255,255,.07);}
+.rbtn{padding:5px 13px;background:var(--rust);border:none;border-radius:5px;color:white;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;cursor:pointer;transition:background .13s;}
+.rbtn:hover{background:#a93226;}
+.lbody{display:grid;grid-template-columns:1fr 1fr;}
+.lp{padding:13px 16px;border-right:1px solid var(--c3);}
+.lp:last-child{border-right:none;}
+.ll{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:7px;}
+.lcode{font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.8;background:var(--code);border-radius:5px;padding:10px 12px;color:#a8b4c8;white-space:pre-wrap;}
+.rout{display:flex;flex-direction:column;gap:4px;min-height:50px;padding:3px 0;}
+.ri{display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;opacity:0;transform:translateX(5px);transition:all .25s;}
+.ri.on{opacity:1;transform:none;}
+.ri.pass{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
+.ri.fail{background:#fff1f1;border:1px solid #fecaca;color:#b91c1c;}
+.rb{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0;}
+.pass .rb{background:#15803d;color:white;}.fail .rb{background:#b91c1c;color:white;}
+.rempty{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink4);text-align:center;padding:16px 0;}
+
+/* Patterns */
+.ptabs{display:flex;gap:3px;background:var(--c2);border-radius:7px;padding:3px;margin-bottom:16px;}
+.ptb{flex:1;padding:6px 8px;border:none;background:transparent;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;cursor:pointer;color:var(--ink3);transition:all .13s;}
+.ptb.on{background:white;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.09);}
+.pc{display:none;}.pc.on{display:block;animation:fu .2s ease;}
+
+/* Checklist */
+.chk{list-style:none;margin-bottom:16px;}
+.chk li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--c3);font-size:13.5px;color:var(--ink2);line-height:1.5;}
+.chk li:last-child{border-bottom:none;}
+.ck{width:17px;height:17px;border-radius:50%;background:var(--teal-bg);border:1.5px solid var(--teal-l);color:var(--teal);font-size:9.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+
+/* Steps */
+.sr{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+.snum{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--cream);font-family:'Playfair Display',serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;}
+.sc h4{font-family:'Playfair Display',serif;font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.sc p{font-size:13.5px;color:var(--ink2);line-height:1.6;}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px;}
+.tbl th{background:var(--ink);color:var(--cream);padding:8px 11px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:400;}
+.tbl td{padding:8px 11px;border-bottom:1px solid var(--c3);vertical-align:top;}
+.tbl tr:nth-child(even) td{background:var(--c2);}
+.tbl code{font-family:'JetBrains Mono',monospace;font-size:10.5px;background:var(--c3);padding:1px 5px;border-radius:3px;color:var(--rust);}
+
+/* Nav */
+.snav{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:20px;border-top:1px solid var(--c3);}
+.nb2{display:flex;align-items:center;gap:6px;padding:8px 15px;border:1.5px solid var(--c3);border-radius:7px;background:transparent;color:var(--ink2);font-family:'Source Serif 4',serif;font-size:13px;cursor:pointer;transition:all .13s;}
+.nb2:hover{border-color:var(--rust);color:var(--rust);}
+.nb2.prim{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+.nb2.prim:hover{background:var(--rust);border-color:var(--rust);}
+
+/* Syntax */
+.kw{color:var(--ckw)}.fn{color:var(--cfn)}.str{color:var(--cstr)}.num{color:var(--cnum)}.cmt{color:var(--ccmt);font-style:italic}.pm{color:var(--cpm)}.prop{color:var(--cprop)}.ch{color:var(--cch)}
+
+h3.sh{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin:24px 0 10px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="nb">
+    <div class="nt">ISIS2603 · Desarrollo de Software</div>
+    <div class="ntitle">Tests en<br><em>Postman</em></div>
+  </div>
+  <button class="nl active" onclick="go(0)"><span class="nn">1</span>¿Qué es un test?</button>
+  <button class="nl" onclick="go(1)"><span class="nn">2</span>Anatomía de pm.test()</button>
+  <button class="nl" onclick="go(2)"><span class="nn">3</span>pm.expect() y Chai</button>
+  <button class="nl" onclick="go(3)"><span class="nn">4</span>Aserciones esenciales</button>
+  <button class="nl" onclick="go(4)"><span class="nn">5</span>Laboratorio interactivo</button>
+  <button class="nl" onclick="go(5)"><span class="nn">6</span>Patrones por operación</button>
+  <button class="nl" onclick="go(6)"><span class="nn">7</span>Tests encadenados</button>
+  <button class="nl" onclick="go(7)"><span class="nn">8</span>Referencia rápida</button>
+</nav>
+
+<main>
+
+<!-- ══ S0: QUÉ ES ══ -->
+<div class="sec on" id="s0">
+  <div class="sn">Sección 01</div>
+  <h1 class="st">¿Qué es un <em>test</em><br>en Postman?</h1>
+  <p class="ss">La idea central antes de escribir una sola línea de código</p>
+
+  <p class="p">Cuando envías una petición HTTP con Postman, obtienes una respuesta. Un <strong>test</strong> es un fragmento de JavaScript que Postman ejecuta automáticamente después de recibir esa respuesta, y que verifica que cumple con lo que esperabas.</p>
+
+  <div class="pq">
+    <div class="pqt">"Un test no <em>adivina</em> si algo funcionó — lo <em>afirma</em> formalmente."</div>
+    <div class="pqs">Diferencia entre mirar el resultado manualmente y verificarlo automáticamente</div>
+  </div>
+
+  <p class="p">Sin tests tienes que revisar visualmente el código de estado, el body y los headers. Con tests, Postman hace esa verificación por ti, de forma repetible y automática en toda la Collection.</p>
+
+  <div class="cbox">
+    <h4>¿Dónde se escriben?</h4>
+    <p>En la pestaña <strong>"Tests"</strong> (también llamada <strong>"Post-response"</strong>) de cada request en Postman. Son JavaScript puro que se ejecuta después de recibir la respuesta, con acceso al objeto <code>pm</code>.</p>
+  </div>
+
+  <div class="sr"><div class="snum">1</div><div class="sc"><h4>Envías la petición HTTP</h4><p>Postman ejecuta el request y recibe la respuesta del servidor.</p></div></div>
+  <div class="sr"><div class="snum">2</div><div class="sc"><h4>Postman ejecuta tu JavaScript</h4><p>El código en la pestaña Tests corre automáticamente, con acceso a la respuesta vía el objeto <code>pm</code>.</p></div></div>
+  <div class="sr"><div class="snum">3</div><div class="sc"><h4>Cada pm.test() produce PASS o FAIL</h4><p>Los resultados aparecen en "Test Results". Si algo falla, Postman te dice exactamente qué aserción no se cumplió.</p></div></div>
+
+  <div class="cb">
+    <div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Pestaña Tests · JavaScript</span></div>
+    <div class="cbb"><span class="cmt">// Se ejecuta automáticamente DESPUÉS de recibir la respuesta</span>
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"El servidor respondió correctamente"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>);
+});
+
+<span class="cmt">// Resultado en Test Results:</span>
+<span class="cmt">// ✓  El servidor respondió correctamente</span></div>
+  </div>
+
+  <div class="snav"><div></div><button class="nb2 prim" onclick="go(1)">Siguiente: Anatomía →</button></div>
+</div>
+
+<!-- ══ S1: ANATOMÍA ══ -->
+<div class="sec" id="s1">
+  <div class="sn">Sección 02</div>
+  <h1 class="st"><em>Anatomía</em> de pm.test()</h1>
+  <p class="ss">Diseccionando cada parte. Haz clic en cualquier elemento del código.</p>
+
+  <div class="anat">
+    <div class="anat-code"><span class="ap pm" onclick="sa('pm')">pm</span>.<span class="ap fn" onclick="sa('test')">test</span>(<span class="ap str" onclick="sa('name')">"El artista tiene id y nombre"</span>, <span class="ap kw" onclick="sa('cb')">function</span>() {
+  <span class="ap pm" onclick="sa('pm')">pm</span>.<span class="ap fn" onclick="sa('expect')">expect</span>(<span class="ap pm" onclick="sa('resp')">pm.response.code</span>)
+    .<span class="ap ch" onclick="sa('chain')">to.equal</span>(<span class="ap num" onclick="sa('val')">200</span>);
+});</div>
+    <div class="al">
+      <div class="li" id="li-pm"    onclick="sa('pm')">   <div class="ld" style="background:var(--cpm)"></div>pm</div>
+      <div class="li" id="li-test"  onclick="sa('test')"> <div class="ld" style="background:var(--cfn)"></div>pm.test()</div>
+      <div class="li" id="li-name"  onclick="sa('name')"> <div class="ld" style="background:var(--cstr)"></div>Nombre</div>
+      <div class="li" id="li-cb"    onclick="sa('cb')">   <div class="ld" style="background:var(--ckw)"></div>Callback</div>
+      <div class="li" id="li-expect"onclick="sa('expect')"><div class="ld" style="background:var(--cfn)"></div>pm.expect()</div>
+      <div class="li" id="li-resp"  onclick="sa('resp')"> <div class="ld" style="background:var(--cpm)"></div>pm.response</div>
+      <div class="li" id="li-chain" onclick="sa('chain')"><div class="ld" style="background:var(--cch)"></div>Aserción Chai</div>
+      <div class="li" id="li-val"   onclick="sa('val')">  <div class="ld" style="background:var(--cnum)"></div>Valor esperado</div>
+    </div>
+  </div>
+
+  <div class="apanel" id="apanel">
+    <div class="apl">Selecciona una parte del código</div>
+    <div class="apt" id="apt">Haz clic en cualquier elemento para ver su explicación</div>
+    <div class="apd" id="apd">Cada parte tiene un rol preciso en la estructura del test.</div>
+  </div>
+
+  <p class="p">Esta estructura es siempre la misma. Una vez que la entiendes, puedes escribir cualquier test combinando diferentes propiedades de <code>pm.response</code> con diferentes métodos de aserción Chai.</p>
+
+  <div class="snav"><button class="nb2" onclick="go(0)">← ¿Qué es un test?</button><button class="nb2 prim" onclick="go(2)">Siguiente: pm.expect() →</button></div>
+</div>
+
+<!-- ══ S2: PM.EXPECT ══ -->
+<div class="sec" id="s2">
+  <div class="sn">Sección 03</div>
+  <h1 class="st"><code style="font-size:29px">pm.expect()</code><br>y la biblioteca <em>Chai</em></h1>
+  <p class="ss">Cómo expresar lo que esperas en lenguaje casi natural</p>
+
+  <p class="p">Postman usa la biblioteca <strong>Chai</strong> para las aserciones. Chai permite escribir verificaciones que se leen como inglés. Toda aserción sigue este patrón:</p>
+
+  <div class="cb">
+    <div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Patrón general</span></div>
+    <div class="cbb"><span class="pm">pm</span>.<span class="fn">expect</span>( <span class="prop">valor_real</span> ) . <span class="ch">to.equal</span> / <span class="ch">to.be.a</span> / <span class="ch">to.have.property</span> ... ( <span class="num">valor_esperado</span> )
+<span class="cmt">             ↑                 ↑                                                   ↑</span>
+<span class="cmt">         lo que          método Chai                                         lo que</span>
+<span class="cmt">         obtuviste       (la aserción)                                       esperas</span></div>
+  </div>
+
+  <p class="p">Los métodos de Chai se <strong>encadenan</strong> con puntos. Palabras como <code>to</code>, <code>be</code>, <code>a</code>, <code>an</code> son solo conectores de legibilidad — no cambian el resultado:</p>
+
+  <div class="cb">
+    <div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Cadenas equivalentes</span></div>
+    <div class="cbb"><span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);  <span class="cmt">// más legible — "expect body to be an array"</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">be.an</span>(<span class="str">'array'</span>);     <span class="cmt">// sin "to" — idéntico</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">an</span>(<span class="str">'array'</span>);        <span class="cmt">// mínimo — idéntico</span></div>
+  </div>
+
+  <div class="pq">
+    <div class="pqt"><em>.to.have.property('nombre')</em> se lee: "espero que [objeto] tenga la propiedad 'nombre'"</div>
+    <div class="pqs">Chai está diseñado para que el código sea autodocumentado</div>
+  </div>
+
+  <p class="p">La <strong>negación</strong> se agrega poniendo <code>.not</code> antes del método:</p>
+
+  <div class="cb">
+    <div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Negación con .not</span></div>
+    <div class="cbb"><span class="cmt">// Afirmativo: body ES un objeto</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'object'</span>);
+
+<span class="cmt">// Negado: body NO ES un arreglo</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">not.to.be.an</span>(<span class="str">'array'</span>);
+
+<span class="cmt">// ⚠️  En JS: typeof [] === 'object'</span>
+<span class="cmt">// Para verificar un objeto puro (no arreglo) se necesitan ambas líneas.</span></div>
+  </div>
+
+  <div class="snav"><button class="nb2" onclick="go(1)">← Anatomía</button><button class="nb2 prim" onclick="go(3)">Siguiente: Aserciones →</button></div>
+</div>
+
+<!-- ══ S3: ASERCIONES ══ -->
+<div class="sec" id="s3">
+  <div class="sn">Sección 04</div>
+  <h1 class="st">Las <em>aserciones</em> esenciales</h1>
+  <p class="ss">Las 8 que más usarás en el curso. Haz clic en una tarjeta.</p>
+
+  <div class="ag">
+    <div class="ac" id="ac-eq"   onclick="showA('eq')">  <div class="ach"><span class="aci">🎯</span><span class="acn">.to.equal(v)</span></div>    <div class="acb">Igualdad estricta (===). Para código HTTP, id exacto.</div></div>
+    <div class="ac" id="ac-ty"   onclick="showA('ty')">  <div class="ach"><span class="aci">🏷️</span><span class="acn">.to.be.a('tipo')</span></div>  <div class="acb">Verifica tipo JS: 'string', 'number', 'boolean'…</div></div>
+    <div class="ac" id="ac-arr"  onclick="showA('arr')"> <div class="ach"><span class="aci">📦</span><span class="acn">.to.be.an('array')</span></div><div class="acb">Es un arreglo. Diferente de 'object' en JS.</div></div>
+    <div class="ac" id="ac-prop" onclick="showA('prop')"><div class="ach"><span class="aci">🔍</span><span class="acn">.to.have.property(k)</span></div><div class="acb">El objeto tiene la clave. Para verificar el contrato DTO.</div></div>
+    <div class="ac" id="ac-ab"   onclick="showA('ab')">  <div class="ach"><span class="aci">📏</span><span class="acn">.to.be.above(n)</span></div>  <div class="acb">Mayor que n. Para length&gt;0, id&gt;0.</div></div>
+    <div class="ac" id="ac-inc"  onclick="showA('inc')"> <div class="ach"><span class="aci">🔎</span><span class="acn">.to.include(s)</span></div>   <div class="acb">String contiene subcadena. Para Content-Type, Location.</div></div>
+    <div class="ac" id="ac-em"   onclick="showA('em')">  <div class="ach"><span class="aci">🈳</span><span class="acn">.to.be.empty</span></div>     <div class="acb">Longitud 0. Para albumes:[] recién creados.</div></div>
+    <div class="ac" id="ac-bl"   onclick="showA('bl')">  <div class="ach"><span class="aci">⏱️</span><span class="acn">.to.be.below(n)</span></div>  <div class="acb">Menor que n. Para tiempo de respuesta.</div></div>
+  </div>
+
+  <div class="ad" id="ad-eq"><div class="adt">🎯 .to.equal(v) — Igualdad estricta</div>
+    <p class="p">Verifica que el valor real es <strong>exactamente igual</strong> al esperado, en valor y tipo. Usa <code>===</code> internamente — <code>200 ≠ "200"</code>.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="cmt">// Código HTTP exacto</span>
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status es 200"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>);
+});
+
+<span class="cmt">// Id coincide con la URL /api/artistas/1</span>
+<span class="kw">const</span> artista = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"id es 1"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(artista.id).<span class="ch">to.equal</span>(<span class="num">1</span>));</div></div>
+  </div>
+
+  <div class="ad" id="ad-ty"><div class="adt">🏷️ .to.be.a('tipo') — Tipo JS</div>
+    <p class="p">Detecta errores de serialización: si <code>activo</code> llega como <code>"true"</code> (string) en vez de <code>true</code> (boolean), esta aserción lo atrapa.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="kw">const</span> a = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"nombre es string"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(a.nombre).<span class="ch">to.be.a</span>(<span class="str">'string'</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"id es number"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(a.id).<span class="ch">to.be.a</span>(<span class="str">'number'</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"activo es boolean"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(a.activo).<span class="ch">to.be.a</span>(<span class="str">'boolean'</span>));</div></div>
+  </div>
+
+  <div class="ad" id="ad-arr"><div class="adt">📦 .to.be.an('array') — Arreglo</div>
+    <p class="p">En JS, <code>typeof []</code> devuelve <code>'object'</code>. Por eso Chai tiene <code>.be.an('array')</code> que usa <code>Array.isArray()</code> internamente — el único modo correcto.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="kw">const</span> body = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="cmt">// GET /artistas → colección</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);
+
+<span class="cmt">// GET /artistas/1 → objeto puro (no arreglo)</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'object'</span>);
+<span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">not.to.be.an</span>(<span class="str">'array'</span>); <span class="cmt">// necesario en JS</span>
+
+<span class="cmt">// Campo albumes en DetailDTO</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(body.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);</div></div>
+  </div>
+
+  <div class="ad" id="ad-prop"><div class="adt">🔍 .to.have.property(k) — Verificar campo</div>
+    <p class="p">Si el campo existe, el backend está devolviendo el DTO correcto. Es la forma de verificar el <strong>contrato DetailDTO</strong>.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="kw">const</span> a = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="cmt">// Verifica contrato ArtistaDetailDTO</span>
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Tiene campos DetailDTO"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'id'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'nombre'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'albumes'</span>); <span class="cmt">// DetailDTO!</span>
+});
+<span class="cmt">// Con forEach en colecciones:</span>
+body.<span class="fn">forEach</span>(x => <span class="pm">pm</span>.<span class="fn">expect</span>(x).<span class="ch">to.have.property</span>(<span class="str">'albumes'</span>));</div></div>
+  </div>
+
+  <div class="ad" id="ad-ab"><div class="adt">📏 .to.be.above(n) — Mayor que n</div>
+    <p class="p">Para verificar que un arreglo no está vacío (<code>length &gt; 0</code>) o que un id fue asignado (<code>id &gt; 0</code>).</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="pm">pm</span>.<span class="fn">expect</span>(body.length).<span class="ch">to.be.above</span>(<span class="num">0</span>);  <span class="cmt">// arreglo no vacío</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.id).<span class="ch">to.be.above</span>(<span class="num">0</span>);     <span class="cmt">// id asignado por BD</span>
+<span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.nombre.length).<span class="ch">to.be.above</span>(<span class="num">0</span>); <span class="cmt">// nombre no vacío</span></div></div>
+  </div>
+
+  <div class="ad" id="ad-inc"><div class="adt">🔎 .to.include(s) — Contiene subcadena</div>
+    <p class="p">Más flexible que <code>.equal()</code>. El <code>Content-Type</code> puede venir como <code>"application/json"</code> o <code>"application/json;charset=UTF-8"</code> — <code>.include()</code> maneja ambos.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplos</span></div><div class="cbb"><span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Content-Type'</span>)).<span class="ch">to.include</span>(<span class="str">'application/json'</span>);
+<span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Location'</span>)).<span class="ch">to.include</span>(<span class="str">'/api/artistas/'</span>);
+<span class="pm">pm</span>.<span class="fn">expect</span>(err.message).<span class="ch">to.include</span>(<span class="str">'999'</span>); <span class="cmt">// mensaje menciona el id buscado</span></div></div>
+  </div>
+
+  <div class="ad" id="ad-em"><div class="adt">🈳 .to.be.empty — Colección vacía</div>
+    <p class="p">Verifica longitud 0. Un artista recién creado tiene <code>albumes:[]</code> — debe existir como arreglo y estar vacío.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplo</span></div><div class="cbb"><span class="kw">const</span> nuevo = <span class="pm">pm</span>.response.<span class="fn">json</span>(); <span class="cmt">// POST → recién creado</span>
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes inicia vacío"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>); <span class="cmt">// debe existir</span>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="ch">to.be.empty</span>;         <span class="cmt">// sin paréntesis</span>
+});</div></div>
+  </div>
+
+  <div class="ad" id="ad-bl"><div class="adt">⏱️ .to.be.below(n) — Menor que n</div>
+    <p class="p">Para tiempo de respuesta. Una API bien implementada no debería tardar más de 500ms en lecturas simples.</p>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Ejemplo</span></div><div class="cbb"><span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Respuesta rápida"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.responseTime).<span class="ch">to.be.below</span>(<span class="num">500</span>));</div></div>
+  </div>
+
+  <div class="snav"><button class="nb2" onclick="go(2)">← pm.expect()</button><button class="nb2 prim" onclick="go(4)">Siguiente: Laboratorio →</button></div>
+</div>
+
+<!-- ══ S4: LABORATORIO ══ -->
+<div class="sec" id="s4">
+  <div class="sn">Sección 05</div>
+  <h1 class="st"><em>Laboratorio</em> interactivo</h1>
+  <p class="ss">Cambia el escenario y observa cómo cambia el resultado de los tests</p>
+
+  <h3 class="sh">Lab 1 — Código de estado HTTP</h3>
+  <div class="lab">
+    <div class="lbar">
+      <span class="lbt">GET /api/artistas/1</span>
+      <div class="sbs">
+        <button class="sb on" id="l1-200"  onclick="setL1(200)">200 OK ✓</button>
+        <button class="sb"    id="l1-404"  onclick="setL1(404)">404 Not Found</button>
+        <button class="sb"    id="l1-500"  onclick="setL1(500)">500 Error</button>
+      </div>
+      <button class="rbtn" onclick="runL1()">▶ Ejecutar</button>
+    </div>
+    <div class="lbody">
+      <div class="lp"><div class="ll">Tests (pestaña Tests)</div>
+        <div class="lcode"><span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status es 200"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code)
+    .<span class="ch">to.equal</span>(<span class="num">200</span>);
+});
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Tiempo &lt; 500ms"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.responseTime)
+    .<span class="ch">to.be.below</span>(<span class="num">500</span>);
+});</div>
+      </div>
+      <div class="lp"><div class="ll">Test Results</div><div class="rout" id="r1"><div class="rempty">Presiona ▶ Ejecutar</div></div></div>
+    </div>
+  </div>
+  <p class="p" style="font-size:13px;color:var(--ink3);">💡 El test "Status es 200" solo pasa cuando el escenario es 200. Prueba los otros escenarios para ver los FAIL.</p>
+
+  <h3 class="sh">Lab 2 — Estructura del body (DetailDTO)</h3>
+  <div class="lab">
+    <div class="lbar">
+      <span class="lbt">GET /api/artistas</span>
+      <div class="sbs">
+        <button class="sb on" id="l2-ok"       onclick="setL2('ok')">DetailDTO ✓</button>
+        <button class="sb"    id="l2-empty"     onclick="setL2('empty')">Vacío []</button>
+        <button class="sb"    id="l2-noalb"     onclick="setL2('noalb')">Sin albumes</button>
+        <button class="sb"    id="l2-obj"       onclick="setL2('obj')">Objeto (bug)</button>
+      </div>
+      <button class="rbtn" onclick="runL2()">▶ Ejecutar</button>
+    </div>
+    <div class="lbody">
+      <div class="lp"><div class="ll">Tests</div>
+        <div class="lcode"><span class="kw">const</span> body = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es arreglo"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'array'</span>));
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Arreglo no vacío"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(body.length).<span class="ch">to.be.above</span>(<span class="num">0</span>));
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Es DetailDTO"</span>, <span class="kw">function</span>() {
+  body.<span class="fn">forEach</span>(a =>
+    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'albumes'</span>)
+  );
+});</div>
+      </div>
+      <div class="lp"><div class="ll">Test Results</div><div class="rout" id="r2"><div class="rempty">Selecciona escenario y ejecuta</div></div></div>
+    </div>
+  </div>
+  <p class="p" style="font-size:13px;color:var(--ink3);">💡 Prueba "Sin albumes": el test detecta que el backend devolvió DTO básico en vez de DetailDTO.</p>
+
+  <h3 class="sh">Lab 3 — POST: 201 vs 200 (error común)</h3>
+  <div class="lab">
+    <div class="lbar">
+      <span class="lbt">POST /api/artistas</span>
+      <div class="sbs">
+        <button class="sb on" id="l3-201"   onclick="setL3('201')">201 Created ✓</button>
+        <button class="sb"    id="l3-200"   onclick="setL3('200')">200 OK (bug)</button>
+        <button class="sb"    id="l3-noloc" onclick="setL3('noloc')">Sin Location</button>
+      </div>
+      <button class="rbtn" onclick="runL3()">▶ Ejecutar</button>
+    </div>
+    <div class="lbody">
+      <div class="lp"><div class="ll">Tests</div>
+        <div class="lcode"><span class="kw">const</span> n = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 201 Created"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">201</span>));
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Location presente"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(
+    <span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Location'</span>)
+  ).<span class="ch">to.include</span>(<span class="str">'/api/artistas/'</span>));
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes vacío"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(n.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(n.albumes).<span class="ch">to.be.empty</span>;
+});</div>
+      </div>
+      <div class="lp"><div class="ll">Test Results</div><div class="rout" id="r3"><div class="rempty">Selecciona escenario y ejecuta</div></div></div>
+    </div>
+  </div>
+  <p class="p" style="font-size:13px;color:var(--ink3);">💡 Devolver 200 en un POST es el error de implementación más frecuente. Los tests lo detectan inmediatamente.</p>
+
+  <div class="snav"><button class="nb2" onclick="go(3)">← Aserciones</button><button class="nb2 prim" onclick="go(5)">Siguiente: Patrones →</button></div>
+</div>
+
+<!-- ══ S5: PATRONES ══ -->
+<div class="sec" id="s5">
+  <div class="sn">Sección 06</div>
+  <h1 class="st"><em>Patrones</em> por operación</h1>
+  <p class="ss">Qué verificar en cada tipo de request HTTP</p>
+
+  <div class="ptabs">
+    <button class="ptb on" onclick="sp('get')">GET</button>
+    <button class="ptb"    onclick="sp('post')">POST</button>
+    <button class="ptb"    onclick="sp('put')">PUT</button>
+    <button class="ptb"    onclick="sp('del')">DELETE</button>
+    <button class="ptb"    onclick="sp('err')">Errores 4xx</button>
+  </div>
+
+  <div class="pc on" id="pc-get">
+    <ul class="chk">
+      <li><span class="ck">✓</span><div>Código HTTP es <code>200</code> — nunca 201 ni 204</div></li>
+      <li><span class="ck">✓</span><div>Body es <code>array</code> para colecciones, <code>object</code> para recurso individual</div></li>
+      <li><span class="ck">✓</span><div>Arreglo no está vacío si hay datos de prueba</div></li>
+      <li><span class="ck">✓</span><div>Cada elemento tiene campos del <code>DetailDTO</code> — incluyendo <code>albumes</code></div></li>
+      <li><span class="ck">✓</span><div>El <code>id</code> coincide con el id de la URL (GET individual)</div></li>
+      <li><span class="ck">✓</span><div>Content-Type incluye <code>'application/json'</code></div></li>
+    </ul>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">GET /api/artistas — Tests completos</span></div><div class="cbb"><span class="kw">const</span> body = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 200"</span>,       () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es arreglo"</span>,   () => <span class="pm">pm</span>.<span class="fn">expect</span>(body).<span class="ch">to.be.an</span>(<span class="str">'array'</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"No vacío"</span>,          () => <span class="pm">pm</span>.<span class="fn">expect</span>(body.length).<span class="ch">to.be.above</span>(<span class="num">0</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Content-Type JSON"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Content-Type'</span>)).<span class="ch">to.include</span>(<span class="str">'application/json'</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Es ArtistaDetailDTO"</span>, <span class="kw">function</span>() {
+  body.<span class="fn">forEach</span>(a => {
+    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'id'</span>);
+    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'nombre'</span>);
+    <span class="pm">pm</span>.<span class="fn">expect</span>(a).<span class="ch">to.have.property</span>(<span class="str">'albumes'</span>);
+    <span class="pm">pm</span>.<span class="fn">expect</span>(a.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);
+  });
+});</div></div>
+  </div>
+
+  <div class="pc" id="pc-post">
+    <ul class="chk">
+      <li><span class="ck">✓</span><div>Código HTTP es <code>201</code> — <strong>nunca 200</strong></div></li>
+      <li><span class="ck">✓</span><div>Header <code>Location</code> contiene la URL del recurso creado</div></li>
+      <li><span class="ck">✓</span><div>El <code>id</code> fue asignado por la BD — número mayor a 0</div></li>
+      <li><span class="ck">✓</span><div>Los campos enviados coinciden con los del body de respuesta</div></li>
+      <li><span class="ck">✓</span><div>Las colecciones (<code>albumes</code>) inician vacías</div></li>
+      <li><span class="ck">✓</span><div>Guardar el <code>id</code> con <code>pm.environment.set()</code></div></li>
+    </ul>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">POST /api/artistas — Tests completos</span></div><div class="cbb"><span class="kw">const</span> nuevo = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 201 Created"</span>,   () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">201</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Header Location"</span>,       () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.headers.<span class="fn">get</span>(<span class="str">'Location'</span>)).<span class="ch">to.include</span>(<span class="str">'/api/artistas/'</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Id asignado"</span>,           () => <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.id).<span class="ch">to.be.above</span>(<span class="num">0</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Nombre coincide"</span>,       () => <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.nombre).<span class="ch">to.equal</span>(<span class="str">"Maluma"</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes inicia vacío"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(nuevo.albumes).<span class="ch">to.be.empty</span>;
+});
+<span class="pm">pm</span>.environment.<span class="fn">set</span>(<span class="str">"artistaId"</span>, nuevo.id); <span class="cmt">// 💾 guardar</span></div></div>
+  </div>
+
+  <div class="pc" id="pc-put">
+    <ul class="chk">
+      <li><span class="ck">✓</span><div>Código HTTP es <code>200</code></div></li>
+      <li><span class="ck">✓</span><div>El <code>id</code> no cambió — PUT nunca cambia el id</div></li>
+      <li><span class="ck">✓</span><div>Los campos actualizados reflejan los valores enviados</div></li>
+      <li><span class="ck">✓</span><div>Las colecciones (<code>albumes</code>) se conservan</div></li>
+    </ul>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">PUT /api/artistas/3 — Tests</span></div><div class="cbb"><span class="kw">const</span> act = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 200"</span>,         () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Id no cambió"</span>,       () => <span class="pm">pm</span>.<span class="fn">expect</span>(act.id).<span class="ch">to.equal</span>(<span class="num">3</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Genero actualizado"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(act.genero).<span class="ch">to.equal</span>(<span class="str">"Rock / Latin / Pop"</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"albumes conservados"</span>,() => <span class="pm">pm</span>.<span class="fn">expect</span>(act.albumes).<span class="ch">to.be.an</span>(<span class="str">'array'</span>));</div></div>
+  </div>
+
+  <div class="pc" id="pc-del">
+    <ul class="chk">
+      <li><span class="ck">✓</span><div>Código HTTP es <code>200</code> (devuelve el recurso eliminado)</div></li>
+      <li><span class="ck">✓</span><div>Body contiene el <code>DetailDTO</code> del recurso eliminado</div></li>
+      <li><span class="ck">✓</span><div>El <code>id</code> del body coincide con el id de la URL</div></li>
+      <li><span class="ck">✓</span><div>Limpiar con <code>pm.environment.unset()</code></div></li>
+    </ul>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">DELETE /api/artistas/2 — Tests</span></div><div class="cbb"><span class="kw">const</span> del = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 200"</span>,          () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es DetailDTO"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(del).<span class="ch">to.have.property</span>(<span class="str">'id'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(del).<span class="ch">to.have.property</span>(<span class="str">'albumes'</span>);
+});
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Id eliminado es 2"</span>,  () => <span class="pm">pm</span>.<span class="fn">expect</span>(del.id).<span class="ch">to.equal</span>(<span class="num">2</span>));
+<span class="pm">pm</span>.environment.<span class="fn">unset</span>(<span class="str">"artistaId"</span>); <span class="cmt">// 🧹 limpiar</span></div></div>
+  </div>
+
+  <div class="pc" id="pc-err">
+    <ul class="chk">
+      <li><span class="ck">✓</span><div><code>404</code> para recurso no encontrado — nunca <code>200</code> con <code>null</code></div></li>
+      <li><span class="ck">✓</span><div><code>409</code> para recurso duplicado — nunca <code>400</code></div></li>
+      <li><span class="ck">✓</span><div>Body del error tiene <code>status</code>, <code>error</code> y <code>message</code></div></li>
+      <li><span class="ck">✓</span><div>El <code>message</code> cita el id o campo que causó el error</div></li>
+      <li><span class="ck">✓</span><div>Body NO tiene campos de un recurso válido (sin <code>nombre</code>, sin <code>albumes</code>)</div></li>
+    </ul>
+    <div class="cb"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">GET /api/artistas/999 → 404 — Tests</span></div><div class="cbb"><span class="kw">const</span> err = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 404"</span>,             () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">404</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Body es error, no artista"</span>, <span class="kw">function</span>() {
+  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="ch">to.have.property</span>(<span class="str">'error'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="ch">to.have.property</span>(<span class="str">'message'</span>);
+  <span class="pm">pm</span>.<span class="fn">expect</span>(err).<span class="ch">not.to.have.property</span>(<span class="str">'nombre'</span>); <span class="cmt">// no es artista</span>
+});
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"message menciona el id"</span>,   () => <span class="pm">pm</span>.<span class="fn">expect</span>(err.message).<span class="ch">to.include</span>(<span class="str">'999'</span>));</div></div>
+  </div>
+
+  <div class="snav"><button class="nb2" onclick="go(4)">← Laboratorio</button><button class="nb2 prim" onclick="go(6)">Siguiente: Encadenados →</button></div>
+</div>
+
+<!-- ══ S6: ENCADENADOS ══ -->
+<div class="sec" id="s6">
+  <div class="sn">Sección 07</div>
+  <h1 class="st">Tests <em>encadenados</em></h1>
+  <p class="ss">Cómo pasar el id entre requests usando variables de entorno</p>
+
+  <p class="p">En una Collection los requests se ejecutan en orden. Puedes guardar el <code>id</code> de un recurso creado con <code>pm.environment.set()</code> y usarlo en requests siguientes con la sintaxis <code>{{artistaId}}</code>.</p>
+
+  <div class="pq">
+    <div class="pqt">Patrón CRUD: <em>Crear → Consultar → Actualizar → Eliminar</em></div>
+    <div class="pqs">El id fluye de un request al siguiente vía variables de entorno</div>
+  </div>
+
+  <div class="sr"><div class="snum">1</div><div class="sc"><h4>POST — Crear y guardar el id</h4><p>Después del 201, guarda el id generado en una variable de entorno.</p></div></div>
+  <div class="cb" style="margin-left:40px;margin-bottom:16px;"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Request 1: POST</span></div><div class="cbb"><span class="kw">const</span> nuevo = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 201"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">201</span>));
+<span class="pm">pm</span>.environment.<span class="fn">set</span>(<span class="str">"artistaId"</span>, nuevo.id);
+<span class="cmt">// Ahora {{artistaId}} está disponible en toda la Collection</span></div></div>
+
+  <div class="sr"><div class="snum">2</div><div class="sc"><h4>GET — Consultar con <code>&#123;&#123;artistaId&#125;&#125;</code></h4><p>Usa la variable en la URL: <strong>GET /api/artistas/&#123;&#123;artistaId&#125;&#125;</strong></p></div></div>
+  <div class="cb" style="margin-left:40px;margin-bottom:16px;"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Request 2: GET /api/artistas/{{artistaId}}</span></div><div class="cbb"><span class="kw">const</span> a = <span class="pm">pm</span>.response.<span class="fn">json</span>();
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 200"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>));
+<span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Id coincide"</span>, () =>
+  <span class="pm">pm</span>.<span class="fn">expect</span>(a.id).<span class="ch">to.equal</span>(<span class="pm">pm</span>.environment.<span class="fn">get</span>(<span class="str">"artistaId"</span>)));</div></div>
+
+  <div class="sr"><div class="snum">3</div><div class="sc"><h4>DELETE — Eliminar y limpiar</h4><p>Al final, limpia la variable para poder repetir la Collection.</p></div></div>
+  <div class="cb" style="margin-left:40px;"><div class="cbh"><div class="cbd"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div><span class="cbl">Request 3: DELETE /api/artistas/{{artistaId}}</span></div><div class="cbb"><span class="pm">pm</span>.<span class="fn">test</span>(<span class="str">"Status 200"</span>, () => <span class="pm">pm</span>.<span class="fn">expect</span>(<span class="pm">pm</span>.response.code).<span class="ch">to.equal</span>(<span class="num">200</span>));
+<span class="pm">pm</span>.environment.<span class="fn">unset</span>(<span class="str">"artistaId"</span>); <span class="cmt">// 🧹 Collection queda limpia</span></div></div>
+
+  <div class="snav"><button class="nb2" onclick="go(5)">← Patrones</button><button class="nb2 prim" onclick="go(7)">Siguiente: Referencia →</button></div>
+</div>
+
+<!-- ══ S7: REFERENCIA ══ -->
+<div class="sec" id="s7">
+  <div class="sn">Sección 08</div>
+  <h1 class="st">Guía de <em>referencia</em></h1>
+  <p class="ss">Todo en una página para consultar mientras programas</p>
+
+  <h3 class="sh">pm.response — Propiedades</h3>
+  <table class="tbl">
+    <tr><th>Propiedad</th><th>Tipo</th><th>Descripción</th></tr>
+    <tr><td><code>pm.response.code</code></td><td>number</td><td>Código HTTP numérico (200, 201, 404…)</td></tr>
+    <tr><td><code>pm.response.status</code></td><td>string</td><td>Texto del estado ("OK", "Created"…)</td></tr>
+    <tr><td><code>pm.response.responseTime</code></td><td>number</td><td>Tiempo en milisegundos</td></tr>
+    <tr><td><code>pm.response.json()</code></td><td>object/array</td><td>Body parseado como JSON</td></tr>
+    <tr><td><code>pm.response.text()</code></td><td>string</td><td>Body como texto plano</td></tr>
+    <tr><td><code>pm.response.headers.get(k)</code></td><td>string</td><td>Leer un header HTTP por nombre</td></tr>
+  </table>
+
+  <h3 class="sh">Aserciones Chai — Referencia</h3>
+  <table class="tbl">
+    <tr><th>Aserción</th><th>Cuándo usarla</th></tr>
+    <tr><td><code>.to.equal(v)</code></td><td>Código HTTP, id exacto, nombre exacto</td></tr>
+    <tr><td><code>.to.be.a('string')</code></td><td>Verificar tipo de un campo</td></tr>
+    <tr><td><code>.to.be.an('array')</code></td><td>GET colecciones, campo albumes</td></tr>
+    <tr><td><code>.to.have.property(k)</code></td><td>Verificar contrato DetailDTO</td></tr>
+    <tr><td><code>.to.be.above(n)</code></td><td>length &gt; 0, id &gt; 0</td></tr>
+    <tr><td><code>.to.be.below(n)</code></td><td>Tiempo de respuesta</td></tr>
+    <tr><td><code>.to.include(s)</code></td><td>Content-Type, Location header</td></tr>
+    <tr><td><code>.to.be.empty</code></td><td>Colecciones en recursos recién creados</td></tr>
+    <tr><td><code>.not.to.X</code></td><td>Negar cualquier aserción</td></tr>
+  </table>
+
+  <h3 class="sh">Códigos HTTP — Reglas del curso</h3>
+  <table class="tbl">
+    <tr><th>Operación</th><th>Código esperado</th><th>Error común</th></tr>
+    <tr><td>GET exitoso</td><td><code>200 OK</code></td><td>Devolver 404 cuando existe</td></tr>
+    <tr><td>POST exitoso</td><td><code>201 Created</code></td><td>Devolver <code>200</code> — muy frecuente</td></tr>
+    <tr><td>PUT exitoso</td><td><code>200 OK</code></td><td>Devolver 201 al actualizar</td></tr>
+    <tr><td>DELETE exitoso</td><td><code>200 OK</code></td><td>No devolver el recurso eliminado</td></tr>
+    <tr><td>No encontrado</td><td><code>404 Not Found</code></td><td>Devolver 200 con null</td></tr>
+    <tr><td>Duplicado</td><td><code>409 Conflict</code></td><td>Devolver 400 en vez de 409</td></tr>
+    <tr><td>Datos inválidos</td><td><code>400 Bad Request</code></td><td>Dejar caer como 500</td></tr>
+  </table>
+
+  <h3 class="sh">Variables de entorno</h3>
+  <table class="tbl">
+    <tr><th>Acción</th><th>Código</th></tr>
+    <tr><td>Guardar</td><td><code>pm.environment.set("artistaId", value)</code></td></tr>
+    <tr><td>Leer</td><td><code>pm.environment.get("artistaId")</code></td></tr>
+    <tr><td>Eliminar</td><td><code>pm.environment.unset("artistaId")</code></td></tr>
+    <tr><td>Usar en URL</td><td><code>/api/artistas/&#123;&#123;artistaId&#125;&#125;</code></td></tr>
+  </table>
+
+  <div class="snav"><button class="nb2" onclick="go(6)">← Tests encadenados</button><button class="nb2 prim" onclick="go(0)">↩ Desde el principio</button></div>
+</div>
+
+</main>
+
+<script>
+// ── NAVIGATION ──
+function go(n){
+  document.querySelectorAll('.sec').forEach((s,i)=>s.classList.toggle('on',i===n));
+  document.querySelectorAll('.nl').forEach((b,i)=>b.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+}
+
+// ── ANATOMY ──
+const ANAT={
+  pm:    {c:'var(--cpm)', t:'El objeto pm',         d:'pm es el objeto global de Postman. Punto de entrada para acceder a la respuesta (pm.response), variables de entorno (pm.environment) y definir tests (pm.test).', cd:'pm.response.code · pm.environment.set() · pm.test()'},
+  test:  {c:'var(--cfn)', t:'pm.test(nombre, fn)',  d:'Define un caso de prueba. Recibe el nombre (aparece en Test Results) y una función callback con las aserciones. Si alguna aserción falla, el test marca FAIL.', cd:'pm.test("Status 200", function() { pm.expect(...); })'},
+  name:  {c:'var(--cstr)',t:'Nombre del test',       d:'String descriptivo que aparece en "Test Results". Usa nombres que expliquen QUÉ se verifica: "Status es 200", "Body tiene albumes". Te permite identificar qué falló de un vistazo.', cd:'"Status es 200" · "Body es ArtistaDetailDTO"'},
+  cb:    {c:'var(--ckw)', t:'Función callback',      d:'La función que contiene las aserciones. Puede ser function(){} o arrow ()=>{}. Dentro llamas a pm.expect() una o más veces. Si alguna lanza un error, el test falla.', cd:'function() { pm.expect(pm.response.code).to.equal(200); }'},
+  expect:{c:'var(--cfn)', t:'pm.expect(valorReal)',  d:'Recibe el valor REAL de la respuesta: código, campo del body, header. Devuelve un objeto Chai al que encadenas los métodos de aserción (to.equal, to.be.an, etc.).', cd:'pm.expect(pm.response.code) · pm.expect(body)'},
+  resp:  {c:'var(--cpm)', t:'pm.response',           d:'Objeto con toda la información de la respuesta HTTP. Propiedades más usadas: .code (número), .json() (body parseado), .responseTime (ms), .headers.get("X") (leer header).', cd:'.code · .json() · .responseTime · .headers.get(k)'},
+  chain: {c:'var(--cch)', t:'Cadena de aserción Chai',d:'Chai permite encadenar métodos con puntos. to, be, a, an son palabras de conexión para legibilidad. El método que realmente verifica es el último: equal(), be.an(), have.property()…', cd:'.to.equal() · .to.be.an() · .to.have.property() · .to.include()'},
+  val:   {c:'var(--cnum)',t:'Valor esperado',         d:'El valor que ESPERAS que tenga la respuesta. Postman compara el valor real (pm.expect) con el esperado (este argumento). Si no coinciden, el test falla con ambos valores en el mensaje.', cd:'200 · "Shakira" · true · "array"'}
+};
+function sa(k){
+  const d=ANAT[k]; if(!d) return;
+  document.getElementById('apt').textContent=d.t;
+  document.getElementById('apd').textContent=d.d;
+  const panel=document.getElementById('apanel');
+  panel.style.borderLeftColor=d.c;
+  let pill=panel.querySelector('.apc'); if(pill) pill.remove();
+  pill=document.createElement('div'); pill.className='apc'; pill.textContent=d.cd;
+  panel.appendChild(pill);
+  document.querySelectorAll('.li').forEach(l=>l.classList.remove('on'));
+  const li=document.getElementById('li-'+k); if(li) li.classList.add('on');
+}
+
+// ── ASSERT CARDS ──
+const ADS=['eq','ty','arr','prop','ab','inc','em','bl'];
+function showA(id){
+  ADS.forEach(k=>{
+    document.getElementById('ac-'+k)?.classList.toggle('on',k===id);
+    document.getElementById('ad-'+k)?.classList.toggle('on',k===id);
+  });
+  setTimeout(()=>document.getElementById('ad-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+// ── PATTERNS ──
+const PATS=['get','post','put','del','err'];
+function sp(id){
+  PATS.forEach(k=>{document.getElementById('pc-'+k)?.classList.toggle('on',k===id);});
+  document.querySelectorAll('.ptb').forEach((b,i)=>b.classList.toggle('on',PATS[i]===id));
+}
+
+// ── LABS ──
+function showR(elId,results){
+  const el=document.getElementById(elId); el.innerHTML='';
+  results.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='ri '+(r.pass?'pass':'fail');
+    d.style.transitionDelay=(i*55)+'ms';
+    d.innerHTML=`<span class="rb">${r.pass?'PASS':'FAIL'}</span><span style="flex:1">${r.name}</span><span style="font-size:9.5px;opacity:.7">${r.detail}</span>`;
+    el.appendChild(d);
+    requestAnimationFrame(()=>d.classList.add('on'));
+  });
+}
+function selBtn(btns,id){btns.forEach(b=>{const el=document.getElementById(b);if(el)el.classList.remove('on');});const t=document.getElementById(id);if(t)t.classList.add('on');}
+
+// Lab 1
+let l1c=200;
+function setL1(c){l1c=c;selBtn(['l1-200','l1-404','l1-500'],'l1-'+c);document.getElementById('r1').innerHTML='<div class="rempty">Presiona ▶ Ejecutar</div>';}
+function runL1(){showR('r1',[{name:'Status es 200',pass:l1c===200,detail:`Recibido: ${l1c}`},{name:'Tiempo < 500ms',pass:true,detail:'Recibido: 38ms'}]);}
+
+// Lab 2
+let l2m='ok';
+const L2={ok:[{id:1,nombre:"Shakira",activo:true,albumes:[{id:1}]},{id:2,nombre:"Carlos Vives",activo:true,albumes:[]}],empty:[],noalb:[{id:1,nombre:"Shakira",activo:true},{id:2,nombre:"Carlos Vives",activo:true}],obj:{id:1,nombre:"Shakira",activo:true,albumes:[]}};
+function setL2(m){l2m=m;selBtn(['l2-ok','l2-empty','l2-noalb','l2-obj'],'l2-'+m);document.getElementById('r2').innerHTML='<div class="rempty">Selecciona escenario y ejecuta</div>';}
+function runL2(){
+  const b=L2[l2m];
+  const isArr=Array.isArray(b);
+  showR('r2',[
+    {name:'Body es arreglo',    pass:isArr,                                             detail:isArr?'Es Array':'No es Array'},
+    {name:'Arreglo no vacío',   pass:isArr&&b.length>0,                                 detail:isArr?`length: ${b.length}`:'No aplica'},
+    {name:'Es ArtistaDetailDTO',pass:isArr&&b.length>0&&b.every(a=>a.albumes!==undefined),detail:isArr&&b.length>0?(b.every(a=>a.albumes!==undefined)?'Todos tienen albumes':'Falta campo albumes'):'No aplica'}
+  ]);
+}
+
+// Lab 3
+let l3m='201';
+const L3CODES={'201':201,'200':200,'noloc':201};
+const L3LOC={'201':'/api/artistas/4','200':null,'noloc':null};
+function setL3(m){l3m=m;selBtn(['l3-201','l3-200','l3-noloc'],'l3-'+m);document.getElementById('r3').innerHTML='<div class="rempty">Selecciona escenario y ejecuta</div>';}
+function runL3(){
+  const code=L3CODES[l3m], loc=L3LOC[l3m];
+  showR('r3',[
+    {name:'Status 201 Created', pass:code===201,                          detail:`Recibido: ${code}${code===200?' — debería ser 201':''}`},
+    {name:'Location presente',  pass:!!(loc&&loc.includes('/api/artistas/')), detail:`Location: ${loc||'ausente'}`},
+    {name:'albumes vacío',      pass:true,                                 detail:'albumes.length: 0'}
+  ]);
+}
+</script>
+</body>
+</html>
