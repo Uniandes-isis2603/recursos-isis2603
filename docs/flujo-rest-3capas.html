@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flujo REST – Arquitectura 3 Capas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #f2efe9;
+  --panel:   #faf8f4;
+  --panel2:  #ffffff;
+  --border:  #c9c2b8;
+  --border2: #d4cec4;
+
+  --client: #c2410c;   --client-bg: #ffedd5;  --client-bd: #fb923c;
+  --ctrl:   #1e40af;   --ctrl-bg:   #dbeafe;  --ctrl-bd:   #60a5fa;
+  --svc:    #065f46;   --svc-bg:    #d1fae5;  --svc-bd:    #34d399;
+  --repo:   #6b21a8;   --repo-bg:   #e9d5ff;  --repo-bd:   #a78bfa;
+  --db:     #c2410c;   --db-bg:     #ffedd5;  --db-bd:     #fb923c;
+
+  --ink:    #1c1814;
+  --ink2:   #3a3630;
+  --ink3:   #6b635a;
+
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(28,24,20,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 28px 40px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.hdr-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 6px;
+}
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(20px, 3vw, 30px);
+  color: var(--ink);
+  line-height: 1.1;
+}
+header h1 em { font-style: italic; color: var(--client); }
+
+/* ── SCENARIO PICKER ── */
+.scenario-bar {
+  padding: 14px 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--panel);
+}
+.sc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-right: 4px;
+}
+.sc-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sc-btn:hover { border-color: var(--ink3); color: var(--ink); }
+.sc-btn.active { border-color: var(--client); color: var(--client); background: var(--client-bg); }
+.method-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── MAIN LAYOUT ── */
+main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0;
+  min-height: calc(100vh - 140px);
+}
+
+/* ── FLOW STAGE ── */
+.stage {
+  padding: 30px 24px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Layer columns */
+.layers-header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.layer-label {
+  text-align: center;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  transition: all .3s;
+}
+.layer-label .emoji { font-size: 14px; display: block; margin-bottom: 3px; }
+.layer-label .sub { font-size: 8.5px; font-weight: 400; opacity: .7; display: block; margin-top: 2px; }
+
+.ll-client { color: var(--client); background: var(--client-bg); border-color: var(--client-bd); }
+.ll-ctrl   { color: var(--ctrl);   background: var(--ctrl-bg);   border-color: var(--ctrl-bd); }
+.ll-svc    { color: var(--svc);    background: var(--svc-bg);    border-color: var(--svc-bd); }
+.ll-repo   { color: var(--repo);   background: var(--repo-bg);   border-color: var(--repo-bd); }
+.ll-db     { color: var(--db);     background: var(--db-bg);     border-color: var(--db-bd); }
+
+.layer-label.active {
+  box-shadow: 0 0 0 2px currentColor, 0 0 20px rgba(255,255,255,.08);
+  transform: translateY(-2px);
+}
+
+/* ── FLOW CANVAS ── */
+.flow-canvas {
+  position: relative;
+  flex: 1;
+}
+
+/* Vertical lane lines */
+.lanes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.lane {
+  border-left: 1px dashed var(--border2);
+  margin-left: 50%;
+}
+.lane:first-child { border-left: none; }
+
+/* Steps list */
+.steps-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 480px;
+}
+
+/* Individual step row */
+.step-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  min-height: 68px;
+  align-items: center;
+  position: relative;
+  opacity: .22;
+  transition: opacity .4s;
+}
+.step-row.done  { opacity: .55; }
+.step-row.active { opacity: 1; }
+
+/* Arrow connector between steps */
+.step-row::after {
+  content: attr(data-arrow);
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* Step bubble */
+.step-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.step-bubble {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1.5px solid;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+.step-bubble .icon { font-size: 13px; flex-shrink: 0; }
+
+/* Arrow between two cells in same row */
+.step-arrow {
+  grid-column: span 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--ink3);
+  position: relative;
+}
+.step-arrow svg { width: 100%; height: 14px; overflow: visible; }
+
+/* ── CONNECTOR LINE spanning columns ── */
+.connector {
+  position: absolute;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  transition: all .4s;
+  z-index: 2;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--panel);
+}
+.ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 8px 16px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctrl-btn:hover { border-color: var(--ink2); }
+.ctrl-btn.primary {
+  background: var(--client);
+  border-color: var(--client);
+  color: #ffffff;
+  font-weight: 700;
+}
+.ctrl-btn.primary:hover { background: #d97706; border-color: #d97706; }
+.ctrl-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+.step-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink3);
+  margin-left: auto;
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--client);
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+
+/* ── SIDE PANEL ── */
+.side-panel {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.side-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.side-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.side-head .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.side-body { padding: 14px; }
+
+/* Step description */
+.step-desc-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.step-desc-text {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+
+/* Data payload box */
+.payload-box {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.7;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--ink2);
+}
+.j-key  { color: #1e40af; }
+.j-str  { color: #047857; }
+.j-num  { color: #c2410c; }
+.j-bool { color: #6b21a8; }
+.j-kw   { color: #c2410c; font-style: italic; }
+
+/* Layer badge */
+.layer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(194,65,12,.4); }
+  70%  { box-shadow: 0 0 0 10px rgba(194,65,12,0); }
+  100% { box-shadow: 0 0 0 0 rgba(194,65,12,0); }
+}
+.step-row.active .step-bubble { animation: pulse-ring .8s ease; }
+
+@keyframes travel {
+  from { transform: translateX(-6px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.step-row.active { animation: travel .35s ease; }
+
+/* ── FLOW DIAGRAM ── */
+.flow-diagram {
+  position: relative;
+  padding: 10px 0 20px;
+}
+
+/* Each step row in the flow */
+.flow-row {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  position: relative;
+  margin-bottom: 4px;
+  opacity: 0.2;
+  transition: opacity .4s, transform .3s;
+}
+.flow-row.done   { opacity: 0.5; }
+.flow-row.active { opacity: 1; transform: translateX(2px); }
+
+/* Direction label */
+.dir-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  color: var(--ink3);
+  text-transform: uppercase;
+  writing-mode: horizontal-tb;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+.dir-label.down { color: var(--svc); }
+.dir-label.up   { color: var(--client); }
+
+/* Timeline track */
+.track {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+/* Node in track */
+.track-node {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.t-bubble {
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1.5px solid;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  transition: all .3s;
+  cursor: default;
+  white-space: nowrap;
+}
+
+/* Connector line spanning the track */
+.track-line {
+  position: absolute;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  transition: width .5s, background .3s;
+  z-index: 0;
+}
+
+/* Step number badge */
+.step-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ink3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 6px;
+  transition: all .3s;
+}
+.flow-row.active .step-num {
+  background: var(--client);
+  border-color: var(--client);
+  color: #ffffff;
+}
+.flow-row.done .step-num {
+  background: var(--border);
+  border-color: var(--border);
+  color: var(--ink3);
+}
+
+.footer-bar {
+  text-align: center;
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink3);
+  letter-spacing: 1px;
+  border-top: 1px solid var(--border);
+}
+.footer-bar span { color: var(--client); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
+    <h1>Flujo de una petición <em>REST</em></h1>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);">
+    API de Música · Arquitectura 3 Capas
+  </div>
+</header>
+
+<!-- SCENARIO BAR -->
+<div class="scenario-bar" id="scenario-bar">
+  <span class="sc-label">Operación:</span>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- LEFT: FLOW STAGE -->
+  <div class="stage">
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="ctrl-btn" id="btn-reset" onclick="reset()">⟳ Reiniciar</button>
+      <button class="ctrl-btn primary" id="btn-play" onclick="togglePlay()">▶ Reproducir</button>
+      <button class="ctrl-btn" id="btn-prev" onclick="prevStep()" disabled>← Anterior</button>
+      <button class="ctrl-btn" id="btn-next" onclick="nextStep()">Siguiente →</button>
+      <span class="step-counter" id="step-counter">Paso 0 / 0</span>
+      <div style="width:100%;">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer column headers -->
+    <div class="layers-header">
+      <div class="layer-label ll-client" id="lh-client">
+        <span class="emoji">🌐</span>
+        Cliente
+        <span class="sub">Postman / Browser</span>
+      </div>
+      <div class="layer-label ll-ctrl" id="lh-ctrl">
+        <span class="emoji">🎛️</span>
+        Controlador
+        <span class="sub">Capa API REST</span>
+      </div>
+      <div class="layer-label ll-svc" id="lh-svc">
+        <span class="emoji">⚙️</span>
+        Servicio
+        <span class="sub">Capa Lógica</span>
+      </div>
+      <div class="layer-label ll-repo" id="lh-repo">
+        <span class="emoji">🗄️</span>
+        Repositorio
+        <span class="sub">Capa Persistencia</span>
+      </div>
+      <div class="layer-label ll-db" id="lh-db">
+        <span class="emoji">🐘</span>
+        Base de Datos
+        <span class="sub">PostgreSQL</span>
+      </div>
+    </div>
+
+    <!-- Flow diagram -->
+    <div class="flow-diagram" id="flow-diagram"></div>
+
+    <!-- Spacer -->
+    <div style="flex:1;"></div>
+  </div>
+
+  <!-- RIGHT: SIDE PANEL -->
+  <div class="side-panel">
+
+    <!-- Current step info -->
+    <div class="side-section" id="step-info-box">
+      <div class="side-head">
+        <div class="dot" style="background:var(--client);"></div>
+        Paso actual
+      </div>
+      <div class="side-body">
+        <div class="layer-badge" id="step-layer-badge"></div>
+        <div class="step-desc-title" id="step-title">Selecciona una operación y presiona Reproducir</div>
+        <div class="step-desc-text" id="step-desc">Escoge un escenario arriba para comenzar la animación del flujo completo.</div>
+      </div>
+    </div>
+
+    <!-- Data in transit -->
+    <div class="side-section" id="payload-box-wrap">
+      <div class="side-head">
+        <div class="dot" style="background:var(--svc);"></div>
+        Dato en tránsito
+      </div>
+      <div class="side-body">
+        <div class="payload-box" id="payload-box">// Aquí aparecerá el objeto
+// que viaja en este paso</div>
+      </div>
+    </div>
+
+    <!-- Layer explanation -->
+    <div class="side-section">
+      <div class="side-head">
+        <div class="dot" style="background:var(--repo);"></div>
+        Responsabilidades
+      </div>
+      <div class="side-body" style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ctrl);margin-bottom:4px;">Controlador</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.55;">Recibe HTTP, deserializa JSON→DTO, llama al servicio, serializa respuesta→JSON.</div>
+        </div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--svc);margin-bottom:4px;">Servicio</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.55;">Contiene la lógica de negocio: validaciones, reglas, transformación DTO↔Entidad.</div>
+        </div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--repo);margin-bottom:4px;">Repositorio</div>
+          <div style="font-size:12px;color:var(--ink2);line-height:1.55;">Abstracción de persistencia (JPA/Hibernate). Traduce llamadas a SQL y devuelve Entidades.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="footer-bar">ISIS2603 · Universidad de los Andes · <span>Flujo REST – 3 Capas</span></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// SCENARIOS
+// ─────────────────────────────────────────────────────────────
+const LAYERS = {
+  client: { id: 'client', label: 'Cliente',      color: 'var(--client)', bg: 'var(--client-bg)', bd: 'var(--client-bd)' },
+  ctrl:   { id: 'ctrl',   label: 'Controlador',  color: 'var(--ctrl)',   bg: 'var(--ctrl-bg)',   bd: 'var(--ctrl-bd)' },
+  svc:    { id: 'svc',    label: 'Servicio',      color: 'var(--svc)',    bg: 'var(--svc-bg)',    bd: 'var(--svc-bd)' },
+  repo:   { id: 'repo',   label: 'Repositorio',  color: 'var(--repo)',   bg: 'var(--repo-bg)',   bd: 'var(--repo-bd)' },
+  db:     { id: 'db',     label: 'Base de Datos', color: 'var(--db)',    bg: 'var(--db-bg)',     bd: 'var(--db-bd)' },
+};
+
+const scenarios = {
+
+  getOne: {
+    label: 'GET /artistas/1',
+    method: 'GET',
+    methodColor: 'var(--svc)',
+    steps: [
+      {
+        from: 'client', to: 'ctrl', dir: '→',
+        label: 'HTTP GET /api/artistas/1',
+        layer: 'client',
+        layerLabel: '🌐 Cliente',
+        title: '1. El cliente envía la petición HTTP',
+        desc: 'El cliente (Postman o el browser) envía una petición GET al endpoint /api/artistas/1. El mensaje viaja por HTTP al servidor Spring Boot.',
+        payload: `GET /api/artistas/1 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+Authorization: Bearer <token>`
+      },
+      {
+        from: 'ctrl', to: 'ctrl', dir: '·',
+        label: '@GetMapping("/{id}")',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '2. El controlador recibe la petición',
+        desc: 'El método anotado con @GetMapping recibe la petición. Spring extrae el {id}=1 del path. No hay body que deserializar porque es un GET.',
+        payload: `@GetMapping("/{id}")
+public ResponseEntity<ArtistaDetailDTO>
+  getArtista(@PathVariable Long id) {
+
+  ArtistaDetailDTO dto =
+    service.getArtista(id);
+
+  return ResponseEntity.ok(dto);
+}`
+      },
+      {
+        from: 'ctrl', to: 'svc', dir: '→',
+        label: 'service.getArtista(1L)',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '3. El controlador llama al servicio',
+        desc: 'El controlador delega la lógica al servicio pasando el id como Long. El controlador no accede directamente a la base de datos.',
+        payload: `// llamada al servicio
+Long id = 1L;
+service.getArtista(id);`
+      },
+      {
+        from: 'svc', to: 'svc', dir: '·',
+        label: 'Lógica de negocio',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '4. El servicio aplica lógica de negocio',
+        desc: 'El servicio valida el id y llama al repositorio para obtener la entidad. Aquí irían validaciones de negocio (permisos, reglas, etc.).',
+        payload: `public ArtistaDetailDTO getArtista(Long id){
+  // Valida que id no sea null
+  if (id == null)
+    throw new IllegalArgumentException();
+
+  // Delega al repositorio
+  Optional<Artista> opt =
+    repository.findById(id);
+
+  if (opt.isEmpty())
+    throw new EntityNotFoundException(id);
+
+  return modelMapper.map(
+    opt.get(), ArtistaDetailDTO.class);
+}`
+      },
+      {
+        from: 'svc', to: 'repo', dir: '→',
+        label: 'repository.findById(1L)',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '5. El servicio consulta el repositorio',
+        desc: 'El servicio llama a repository.findById(id). JpaRepository hereda este método — no hay que implementarlo.',
+        payload: `// JpaRepository<Artista, Long>
+Optional<Artista> opt =
+  repository.findById(1L);`
+      },
+      {
+        from: 'repo', to: 'db', dir: '→',
+        label: 'SELECT * FROM artistas WHERE id=1',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '6. JPA genera y ejecuta el SQL',
+        desc: 'Hibernate traduce findById(1L) a una consulta SQL. La consulta viaja a PostgreSQL.',
+        payload: `-- SQL generado por Hibernate
+SELECT a.id, a.nombre,
+       a.nacionalidad,
+       a.genero, a.activo
+FROM   artistas a
+WHERE  a.id = 1`
+      },
+      {
+        from: 'db', to: 'repo', dir: '←',
+        label: 'ResultSet → Entidad Artista',
+        layer: 'db',
+        layerLabel: '🐘 Base de Datos',
+        title: '7. La BD retorna el registro',
+        desc: 'PostgreSQL ejecuta la consulta y devuelve el ResultSet. Hibernate lo mapea automáticamente a un objeto Artista (entidad JPA).',
+        payload: `// Entidad JPA mapeada por Hibernate
+Artista {
+  id:           1L,
+  nombre:       "Shakira",
+  nacionalidad: "Colombia",
+  genero:       "Pop / Latin",
+  activo:       true,
+  albumes:      [Album#1, Album#2]
+}`
+      },
+      {
+        from: 'repo', to: 'svc', dir: '←',
+        label: 'Optional<Artista>',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '8. El repositorio retorna la entidad',
+        desc: 'El repositorio devuelve la entidad envuelta en Optional<Artista> al servicio. El repositorio no sabe nada de DTOs.',
+        payload: `Optional<Artista> {
+  present: true,
+  value: Artista {
+    id:     1L,
+    nombre: "Shakira",
+    ...
+    albumes: [Album#1, Album#2]
+  }
+}`
+      },
+      {
+        from: 'svc', to: 'ctrl', dir: '←',
+        label: 'Entidad → ArtistaDetailDTO',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '9. El servicio convierte Entidad → DetailDTO',
+        desc: 'El servicio usa ModelMapper para transformar la Entidad JPA al ArtistaDetailDTO. Esta conversión ocurre en la capa de lógica, no en el controlador ni en el repositorio.',
+        payload: `// ModelMapper convierte automáticamente
+ArtistaDetailDTO dto =
+  modelMapper.map(artista,
+    ArtistaDetailDTO.class);
+
+// resultado:
+ArtistaDetailDTO {
+  id:           1,
+  nombre:       "Shakira",
+  nacionalidad: "Colombia",
+  genero:       "Pop / Latin",
+  activo:       true,
+  albumes:      [AlbumDTO#1,
+                 AlbumDTO#2]
+}`
+      },
+      {
+        from: 'ctrl', to: 'client', dir: '←',
+        label: '200 OK · ArtistaDetailDTO → JSON',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '10. El controlador serializa y responde',
+        desc: 'El controlador recibe el ArtistaDetailDTO, Jackson lo serializa a JSON automáticamente, y devuelve la respuesta HTTP 200 OK al cliente.',
+        payload: `HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 1,
+  "nombre": "Shakira",
+  "nacionalidad": "Colombia",
+  "genero": "Pop / Latin",
+  "activo": true,
+  "albumes": [
+    { "id":1, "titulo":"Laundry Service",
+      "anio":2001, "genero":"Pop",
+      "artista": {...} },
+    { "id":2, "titulo":"She Wolf",
+      "anio":2009, ... }
+  ]
+}`
+      }
+    ]
+  },
+
+  postCreate: {
+    label: 'POST /artistas',
+    method: 'POST',
+    methodColor: 'var(--ctrl)',
+    steps: [
+      {
+        from: 'client', to: 'ctrl', dir: '→',
+        label: 'HTTP POST /api/artistas + JSON',
+        layer: 'client',
+        layerLabel: '🌐 Cliente',
+        title: '1. El cliente envía la petición POST con body',
+        desc: 'El cliente envía una petición POST con el body JSON que representa el ArtistaDTO a crear. A diferencia del GET, aquí viajan datos en el cuerpo de la petición.',
+        payload: `POST /api/artistas HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Maluma",
+  "nacionalidad": "Colombia",
+  "genero": "Reggaetón / Pop",
+  "activo": true
+}`
+      },
+      {
+        from: 'ctrl', to: 'ctrl', dir: '·',
+        label: 'JSON → ArtistaDTO',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '2. El controlador deserializa el JSON',
+        desc: 'Jackson deserializa automáticamente el body JSON a un objeto ArtistaDTO gracias a @RequestBody. El controlador NO recibe la entidad JPA directamente.',
+        payload: `@PostMapping
+public ResponseEntity<ArtistaDetailDTO>
+  create(@RequestBody @Valid
+         ArtistaDTO dto) {
+
+  // dto ya tiene los valores del JSON:
+  // dto.nombre = "Maluma"
+  // dto.activo = true ...
+
+  ArtistaDetailDTO result =
+    service.createArtista(dto);
+
+  URI location = URI.create(
+    "/api/artistas/" + result.getId());
+
+  return ResponseEntity
+    .created(location)
+    .body(result);
+}`
+      },
+      {
+        from: 'ctrl', to: 'svc', dir: '→',
+        label: 'service.createArtista(dto)',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '3. El controlador llama al servicio con el DTO',
+        desc: 'El controlador pasa el ArtistaDTO al servicio. La lógica de negocio vive en el servicio, no en el controlador.',
+        payload: `// ArtistaDTO enviado al servicio
+ArtistaDTO {
+  nombre:       "Maluma",
+  nacionalidad: "Colombia",
+  genero:       "Reggaetón / Pop",
+  activo:       true
+  // sin id (lo asigna la BD)
+}`
+      },
+      {
+        from: 'svc', to: 'svc', dir: '·',
+        label: 'Validar + DTO → Entidad',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '4. El servicio valida y convierte DTO → Entidad',
+        desc: 'El servicio verifica que no exista un artista con el mismo nombre (lógica de negocio). Luego convierte el ArtistaDTO a Entidad JPA usando ModelMapper.',
+        payload: `// Verifica duplicado
+boolean existe = repository
+  .existsByNombre(dto.getNombre());
+if (existe)
+  throw new EntityExistsException();
+
+// Convierte DTO → Entidad
+Artista entidad = modelMapper
+  .map(dto, Artista.class);
+// entidad.id = null (la BD lo asignará)`
+      },
+      {
+        from: 'svc', to: 'repo', dir: '→',
+        label: 'repository.save(entidad)',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '5. El servicio persiste la entidad',
+        desc: 'El servicio llama a repository.save(entidad). JPA detecta que el id es null y ejecuta un INSERT.',
+        payload: `Artista entidad = Artista {
+  id:           null,  // BD lo asigna
+  nombre:       "Maluma",
+  nacionalidad: "Colombia",
+  genero:       "Reggaetón / Pop",
+  activo:       true
+}
+
+repository.save(entidad);`
+      },
+      {
+        from: 'repo', to: 'db', dir: '→',
+        label: 'INSERT INTO artistas ...',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '6. JPA ejecuta el INSERT',
+        desc: 'Hibernate genera el INSERT SQL y lo envía a PostgreSQL. La base de datos asigna el id con SERIAL/SEQUENCE.',
+        payload: `-- SQL generado por Hibernate
+INSERT INTO artistas
+  (nombre, nacionalidad, genero, activo)
+VALUES
+  ('Maluma', 'Colombia',
+   'Reggaetón / Pop', true)
+RETURNING id;
+-- BD devuelve: id = 4`
+      },
+      {
+        from: 'db', to: 'repo', dir: '←',
+        label: 'Entidad con id=4 generado',
+        layer: 'db',
+        layerLabel: '🐘 Base de Datos',
+        title: '7. La BD retorna la entidad con id asignado',
+        desc: 'PostgreSQL ejecuta el INSERT y devuelve el registro creado con el id generado. Hibernate actualiza el objeto entidad con ese id.',
+        payload: `// Entidad JPA con id asignado
+Artista {
+  id:           4L,  // ← asignado por BD
+  nombre:       "Maluma",
+  nacionalidad: "Colombia",
+  genero:       "Reggaetón / Pop",
+  activo:       true
+}`
+      },
+      {
+        from: 'repo', to: 'svc', dir: '←',
+        label: 'Artista guardada (id=4)',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '8. El repositorio retorna la entidad persistida',
+        desc: 'repository.save() devuelve la entidad con el id ya asignado por la BD. El servicio la recibe para transformarla.',
+        payload: `Artista {
+  id:           4L,
+  nombre:       "Maluma",
+  nacionalidad: "Colombia",
+  genero:       "Reggaetón / Pop",
+  activo:       true,
+  albumes:      []   // recién creado
+}`
+      },
+      {
+        from: 'svc', to: 'ctrl', dir: '←',
+        label: 'Entidad → ArtistaDetailDTO',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '9. El servicio convierte Entidad → DetailDTO',
+        desc: 'El servicio convierte la entidad al ArtistaDetailDTO. Como es un artista recién creado, albumes:[] viene vacío.',
+        payload: `ArtistaDetailDTO {
+  id:           4,
+  nombre:       "Maluma",
+  nacionalidad: "Colombia",
+  genero:       "Reggaetón / Pop",
+  activo:       true,
+  albumes:      []
+}`
+      },
+      {
+        from: 'ctrl', to: 'client', dir: '←',
+        label: '201 Created + Location header',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '10. El controlador responde 201 Created',
+        desc: 'El controlador devuelve 201 Created (no 200 OK). Incluye el header Location con la URL del nuevo recurso. El body trae el ArtistaDetailDTO serializado a JSON.',
+        payload: `HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /api/artistas/4
+
+{
+  "id": 4,
+  "nombre": "Maluma",
+  "nacionalidad": "Colombia",
+  "genero": "Reggaetón / Pop",
+  "activo": true,
+  "albumes": []
+}`
+      }
+    ]
+  },
+
+  delete: {
+    label: 'DELETE /artistas/2',
+    method: 'DELETE',
+    methodColor: 'var(--client)',
+    steps: [
+      {
+        from: 'client', to: 'ctrl', dir: '→',
+        label: 'HTTP DELETE /api/artistas/2',
+        layer: 'client',
+        layerLabel: '🌐 Cliente',
+        title: '1. El cliente envía la petición DELETE',
+        desc: 'El cliente solicita eliminar el artista con id=2. DELETE no lleva body — el id va en la URL.',
+        payload: `DELETE /api/artistas/2 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+Authorization: Bearer <token>`
+      },
+      {
+        from: 'ctrl', to: 'ctrl', dir: '·',
+        label: '@DeleteMapping("/{id}")',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '2. El controlador recibe el DELETE',
+        desc: 'El método @DeleteMapping extrae el {id}=2 del path. No deserializa body porque DELETE no lo tiene.',
+        payload: `@DeleteMapping("/{id}")
+public ResponseEntity<ArtistaDetailDTO>
+  delete(@PathVariable Long id) {
+
+  ArtistaDetailDTO deleted =
+    service.deleteArtista(id);
+
+  return ResponseEntity.ok(deleted);
+}`
+      },
+      {
+        from: 'ctrl', to: 'svc', dir: '→',
+        label: 'service.deleteArtista(2L)',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '3. El controlador delega al servicio',
+        desc: 'El controlador llama al servicio con el id. El servicio es responsable de buscar, verificar existencia y eliminar.',
+        payload: `Long id = 2L;
+service.deleteArtista(id);`
+      },
+      {
+        from: 'svc', to: 'repo', dir: '→',
+        label: 'repository.findById(2L)',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '4. El servicio busca la entidad antes de eliminar',
+        desc: 'Primero el servicio verifica que el artista existe. Si no existe, lanza EntityNotFoundException → 404. Si existe, guarda la entidad para devolver en la respuesta.',
+        payload: `// Busca para verificar existencia
+Optional<Artista> opt =
+  repository.findById(2L);
+
+if (opt.isEmpty())
+  throw new EntityNotFoundException(2L);
+
+// Guarda referencia para retornar
+Artista artista = opt.get();`
+      },
+      {
+        from: 'repo', to: 'db', dir: '→',
+        label: 'SELECT ... WHERE id=2',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '5. JPA consulta la entidad',
+        desc: 'Hibernate genera el SELECT para verificar que el registro existe antes de eliminarlo.',
+        payload: `SELECT a.id, a.nombre,
+       a.nacionalidad,
+       a.genero, a.activo
+FROM   artistas a
+WHERE  a.id = 2`
+      },
+      {
+        from: 'db', to: 'repo', dir: '←',
+        label: 'ResultSet → Artista#2',
+        layer: 'db',
+        layerLabel: '🐘 Base de Datos',
+        title: '6. La BD devuelve el registro',
+        desc: 'PostgreSQL devuelve el registro de Carlos Vives. Hibernate lo mapea a la entidad Artista.',
+        payload: `Artista {
+  id:           2L,
+  nombre:       "Carlos Vives",
+  nacionalidad: "Colombia",
+  genero:       "Vallenato / Pop",
+  activo:       true
+}`
+      },
+      {
+        from: 'svc', to: 'repo', dir: '→',
+        label: 'repository.delete(artista)',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '7. El servicio llama a delete()',
+        desc: 'Con la entidad confirmada, el servicio llama a repository.delete(artista). JPA genera el DELETE SQL.',
+        payload: `repository.delete(artista);
+// Hibernate genera:
+// DELETE FROM artistas WHERE id = 2`
+      },
+      {
+        from: 'repo', to: 'db', dir: '→',
+        label: 'DELETE FROM artistas WHERE id=2',
+        layer: 'repo',
+        layerLabel: '🗄️ Repositorio',
+        title: '8. JPA ejecuta el DELETE',
+        desc: 'Hibernate envía el DELETE SQL a PostgreSQL. Si hay restricciones de clave foránea (álbumes del artista), la BD lanzará un error que Spring convierte en 500.',
+        payload: `DELETE FROM artistas
+WHERE  id = 2;
+-- Rows affected: 1`
+      },
+      {
+        from: 'svc', to: 'ctrl', dir: '←',
+        label: 'Entidad eliminada → ArtistaDetailDTO',
+        layer: 'svc',
+        layerLabel: '⚙️ Servicio',
+        title: '9. El servicio convierte la entidad eliminada → DTO',
+        desc: 'El servicio convierte la entidad que guardó antes de eliminar en ArtistaDetailDTO. Así el cliente recibe confirmación de qué fue eliminado.',
+        payload: `ArtistaDetailDTO {
+  id:           2,
+  nombre:       "Carlos Vives",
+  nacionalidad: "Colombia",
+  genero:       "Vallenato / Pop",
+  activo:       true,
+  albumes:      [AlbumDTO#3]
+}`
+      },
+      {
+        from: 'ctrl', to: 'client', dir: '←',
+        label: '200 OK · ArtistaDetailDTO eliminado',
+        layer: 'ctrl',
+        layerLabel: '🎛️ Controlador',
+        title: '10. El controlador responde 200 OK',
+        desc: 'El controlador responde 200 OK con el ArtistaDetailDTO del recurso eliminado. El cliente puede así confirmar qué fue borrado.',
+        payload: `HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 2,
+  "nombre": "Carlos Vives",
+  "nacionalidad": "Colombia",
+  "genero": "Vallenato / Pop",
+  "activo": true,
+  "albumes": [
+    { "id":3, "titulo":"La Bicicleta",
+      "anio":2016, "genero":"Vallenato",
+      "artista": {...} }
+  ]
+}`
+      }
+    ]
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let currentKey  = 'getOne';
+let currentStep = -1;
+let playing     = false;
+let playTimer   = null;
+
+const COL_IDX = { client: 0, ctrl: 1, svc: 2, repo: 3, db: 4 };
+const COL_COLORS = {
+  client: 'var(--client)', ctrl: 'var(--ctrl)',
+  svc:    'var(--svc)',    repo: 'var(--repo)', db: 'var(--db)'
+};
+const COL_BG = {
+  client: 'var(--client-bg)', ctrl: 'var(--ctrl-bg)',
+  svc:    'var(--svc-bg)',    repo: 'var(--repo-bg)', db: 'var(--db-bg)'
+};
+const COL_BD = {
+  client: 'var(--client-bd)', ctrl: 'var(--ctrl-bd)',
+  svc:    'var(--svc-bd)',    repo: 'var(--repo-bd)', db: 'var(--db-bd)'
+};
+
+// ─────────────────────────────────────────────────────────────
+// BUILD SCENARIO BAR
+// ─────────────────────────────────────────────────────────────
+function buildBar() {
+  const bar = document.getElementById('scenario-bar');
+  bar.innerHTML = '<span class="sc-label">Operación:</span>';
+  Object.entries(scenarios).forEach(([key, sc]) => {
+    const btn = document.createElement('button');
+    btn.className = 'sc-btn' + (key === currentKey ? ' active' : '');
+    btn.id = 'scbtn-' + key;
+    btn.innerHTML = `<span class="method-dot" style="background:${sc.methodColor};"></span>${sc.label}`;
+    btn.onclick = () => switchScenario(key);
+    bar.appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// BUILD FLOW DIAGRAM
+// ─────────────────────────────────────────────────────────────
+function buildDiagram() {
+  const container = document.getElementById('flow-diagram');
+  const sc = scenarios[currentKey];
+  container.innerHTML = '';
+
+  sc.steps.forEach((step, i) => {
+    const row = document.createElement('div');
+    row.className = 'flow-row';
+    row.id = 'row-' + i;
+
+    // Step number
+    const num = document.createElement('div');
+    num.className = 'step-num';
+    num.textContent = i + 1;
+
+    // Direction label
+    const dir = document.createElement('div');
+    dir.className = 'dir-label ' + (step.dir === '←' ? 'up' : 'down');
+    dir.textContent = step.dir === '←' ? '↑' : (step.dir === '·' ? '·' : '↓');
+
+    // Track
+    const track = document.createElement('div');
+    track.className = 'track';
+
+    // 5 cells
+    for (let c = 0; c < 5; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'track-node';
+
+      const fromIdx = COL_IDX[step.from];
+      const toIdx   = COL_IDX[step.to];
+
+      // Is this the active cell for this step?
+      const isActive = (step.dir === '·')
+        ? c === fromIdx
+        : (c === fromIdx || c === toIdx);
+
+      if (isActive) {
+        const bub = document.createElement('div');
+        bub.className = 't-bubble';
+
+        const isFrom = c === fromIdx;
+        const layerKey = isFrom ? step.from : step.to;
+        bub.style.color       = COL_COLORS[layerKey];
+        bub.style.background  = COL_BG[layerKey];
+        bub.style.borderColor = COL_BD[layerKey];
+
+        // For same-column steps, show label in that column only
+        if (step.dir === '·') {
+          bub.textContent = step.label.length > 18
+            ? step.label.slice(0, 17) + '…'
+            : step.label;
+        } else if (c === fromIdx) {
+          bub.textContent = step.dir === '←' ? '◀' : '▶';
+        } else {
+          bub.textContent = step.dir === '←' ? '◀' : '▶';
+        }
+
+        cell.appendChild(bub);
+      }
+      track.appendChild(cell);
+    }
+
+    // Connector line (only for cross-column steps)
+    if (step.dir !== '·') {
+      const fromIdx = COL_IDX[step.from];
+      const toIdx   = COL_IDX[step.to];
+      const minIdx  = Math.min(fromIdx, toIdx);
+      const maxIdx  = Math.max(fromIdx, toIdx);
+
+      // Calculate position: each col is 20% wide, center is at col*20+10%
+      const leftPct  = (minIdx * 20 + 10);
+      const rightPct = (maxIdx * 20 + 10);
+      const widthPct = rightPct - leftPct;
+
+      const line = document.createElement('div');
+      line.className = 'track-line';
+      line.style.left     = leftPct + '%';
+      line.style.width    = widthPct + '%';
+      line.style.background = step.dir === '←'
+        ? COL_COLORS[step.to]
+        : COL_COLORS[step.from];
+      line.style.opacity = '0.3';
+      track.style.position = 'relative';
+      track.appendChild(line);
+    }
+
+    row.appendChild(num);
+    row.appendChild(dir);
+    row.appendChild(track);
+    container.appendChild(row);
+
+    // Label underneath
+    const lbl = document.createElement('div');
+    lbl.style.cssText = `
+      font-family:'JetBrains Mono',monospace;
+      font-size:10px;color:var(--ink3);
+      padding:0 34px 8px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    `;
+    lbl.textContent = step.label;
+    container.appendChild(lbl);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// NAVIGATE
+// ─────────────────────────────────────────────────────────────
+function goToStep(idx) {
+  const sc = scenarios[currentKey];
+  currentStep = Math.max(-1, Math.min(idx, sc.steps.length - 1));
+
+  // Update rows
+  sc.steps.forEach((_, i) => {
+    const row = document.getElementById('row-' + i);
+    if (!row) return;
+    row.classList.remove('active', 'done');
+    if (i < currentStep)      row.classList.add('done');
+    else if (i === currentStep) row.classList.add('active');
+  });
+
+  // Update layer headers
+  const layerIds = ['client', 'ctrl', 'svc', 'repo', 'db'];
+  layerIds.forEach(id => {
+    document.getElementById('lh-' + id)?.classList.remove('active');
+  });
+  if (currentStep >= 0) {
+    const step = sc.steps[currentStep];
+    document.getElementById('lh-' + step.layer)?.classList.add('active');
+    // Side panel
+    updateSidePanel(step);
+  } else {
+    resetSidePanel();
+  }
+
+  // Controls
+  document.getElementById('btn-prev').disabled = currentStep <= 0;
+  document.getElementById('btn-next').disabled = currentStep >= sc.steps.length - 1;
+  document.getElementById('step-counter').textContent =
+    `Paso ${Math.max(0, currentStep + 1)} / ${sc.steps.length}`;
+  const pct = currentStep < 0 ? 0 : ((currentStep + 1) / sc.steps.length * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function nextStep() {
+  goToStep(currentStep + 1);
+}
+function prevStep() {
+  goToStep(currentStep - 1);
+}
+function reset() {
+  stopPlay();
+  goToStep(-1);
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('btn-next').disabled = false;
+}
+
+function togglePlay() {
+  if (playing) stopPlay();
+  else startPlay();
+}
+
+function startPlay() {
+  playing = true;
+  document.getElementById('btn-play').textContent = '⏸ Pausar';
+  playNext();
+}
+
+function stopPlay() {
+  playing = false;
+  clearTimeout(playTimer);
+  document.getElementById('btn-play').textContent = '▶ Reproducir';
+}
+
+function playNext() {
+  const sc = scenarios[currentKey];
+  if (currentStep >= sc.steps.length - 1) { stopPlay(); return; }
+  nextStep();
+  playTimer = setTimeout(playNext, 1800);
+}
+
+// ─────────────────────────────────────────────────────────────
+// SIDE PANEL
+// ─────────────────────────────────────────────────────────────
+const LAYER_COLORS = {
+  client: { color: 'var(--client)', bg: 'var(--client-bg)' },
+  ctrl:   { color: 'var(--ctrl)',   bg: 'var(--ctrl-bg)' },
+  svc:    { color: 'var(--svc)',    bg: 'var(--svc-bg)' },
+  repo:   { color: 'var(--repo)',   bg: 'var(--repo-bg)' },
+  db:     { color: 'var(--db)',     bg: 'var(--db-bg)' },
+};
+
+function updateSidePanel(step) {
+  const lc = LAYER_COLORS[step.layer] || {};
+  const badge = document.getElementById('step-layer-badge');
+  badge.textContent = step.layerLabel;
+  badge.style.color      = lc.color || '';
+  badge.style.background = lc.bg   || '';
+  badge.style.border     = `1px solid ${lc.color || 'transparent'}`;
+
+  document.getElementById('step-title').textContent = step.title;
+  document.getElementById('step-desc').textContent  = step.desc;
+  document.getElementById('payload-box').innerHTML  = syntaxHL(step.payload);
+}
+
+function resetSidePanel() {
+  document.getElementById('step-layer-badge').textContent = '';
+  document.getElementById('step-layer-badge').style = '';
+  document.getElementById('step-title').textContent = 'Selecciona una operación y presiona Reproducir';
+  document.getElementById('step-desc').textContent  = 'Escoge un escenario arriba para comenzar la animación del flujo completo.';
+  document.getElementById('payload-box').textContent = '// Aquí aparecerá el objeto\n// que viaja en este paso';
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCENARIO SWITCH
+// ─────────────────────────────────────────────────────────────
+function switchScenario(key) {
+  stopPlay();
+  currentKey = key;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('scbtn-' + key)?.classList.add('active');
+  buildDiagram();
+  goToStep(-1);
+}
+
+// ─────────────────────────────────────────────────────────────
+// SYNTAX HIGHLIGHT (dark theme)
+// ─────────────────────────────────────────────────────────────
+function syntaxHL(code) {
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(\/\/.*$)/gm, '<span style="color:var(--ink3);font-style:italic">$1</span>')
+    .replace(/(--.*$)/gm, '<span style="color:var(--ink3);font-style:italic">$1</span>')
+    .replace(/"([^"]*)"/g, '<span class="j-str">"$1"</span>')
+    .replace(/\b(true|false|null)\b/g, '<span class="j-bool">$1</span>')
+    .replace(/\b(\d+L?)\b/g, '<span class="j-num">$1</span>')
+    .replace(/\b(GET|POST|PUT|DELETE|HTTP\/[\d.]+)\b/g, '<span class="j-kw">$1</span>')
+    .replace(/\b(SELECT|INSERT|DELETE|FROM|WHERE|INTO|VALUES|RETURNING)\b/g, '<span class="j-kw">$1</span>')
+    .replace(/(@\w+)/g, '<span style="color:var(--svc);">$1</span>');
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+buildBar();
+buildDiagram();
+goToStep(-1);
+</script>
+</body>
+</html>
