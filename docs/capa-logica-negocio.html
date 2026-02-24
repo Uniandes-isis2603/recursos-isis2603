@@ -1151,6 +1151,56 @@
       </div>
     </div>
 
+    <!-- Rule 6 -->
+    <div class="rule-card" onclick="toggleRule(this)">
+      <div class="rule-header">
+        <span class="rule-num green">6</span> 
+        <span class="rule-title">La editorial debe existir al crear un libro</span>
+        <span class="rule-toggle">▾</span>
+      </div>
+      <div class="rule-body">
+        <div class="rule-body-inner">
+          <p>Al crear un libro, este debe estar asociado a una editorial válida. Verificamos que el ID de la editorial proporcionada exista realmente en la base de datos antes de guardar el libro.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <span>BookService.java — createBook()</span>
+            </div>
+            <div class="code-content">
+              <code><span class="ann">@Transactional</span>
+  <span class="kw">public</span> <span class="cls">BookEntity</span> <span class="mth">createBook</span>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cls">BookEntity</span> bookEntity)
+  &nbsp;&nbsp;<span class="kw">throws</span> <span class="exc">IllegalBusinessLogicException</span>
+  {
+  &nbsp;&nbsp;<span class="cmt">// 1. Verificar que venga la info de la editorial</span>
+  &nbsp;&nbsp;<span class="kw">if</span> (bookEntity.<span class="mth">getEditorial</span>() == <span class="kw">null</span>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalBusinessLogicException</span>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"La editorial no es válida"</span>);
+
+  &nbsp;&nbsp;<span class="cmt">// 2. Buscar la editorial en la BD</span>
+  &nbsp;&nbsp;<span class="cls">Optional</span>&lt;<span class="cls">EditorialEntity</span>&gt; editorial =
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;editorialRepository.<span class="mth">findById</span>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bookEntity.<span class="mth">getEditorial</span>().<span class="mth">getId</span>());
+
+  &nbsp;&nbsp;<span class="cmt">// 3. Validar existencia</span>
+  &nbsp;&nbsp;<span class="kw">if</span> (editorial.<span class="mth">isEmpty</span>()) {
+  &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">throw new</span> <span class="exc">IllegalBusinessLogicException</span>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"La editorial no existe"</span>);
+  &nbsp;&nbsp;}
+
+  &nbsp;&nbsp;<span class="cmt">// 4. Asignar y persistir</span>
+  &nbsp;&nbsp;bookEntity.<span class="mth">setEditorial</span>(editorial.<span class="mth">get</span>());
+  &nbsp;&nbsp;<span class="kw">return</span> bookRepository.<span class="mth">save</span>(bookEntity);
+  }
+</code></div>
+          </div>
+          <div class="callout warning">
+            <strong>Integridad Referencial:</strong> No podemos guardar un registro "hijo" (Libro) si el registro "padre" (Editorial) no existe.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="callout success" style="margin-top:24px;">
       <strong>Patrón general:</strong> Toda regla de negocio sigue el mismo flujo: <strong>consultar</strong> datos existentes → <strong>evaluar</strong> la condición → <strong>lanzar excepción</strong> si no se cumple → <strong>persistir</strong> si todo está correcto.
     </div>
@@ -1228,6 +1278,31 @@
       </div>
       <div class="quiz-feedback success" id="q5-ok">¡Correcto! Como las pruebas no se ejecutan en un orden específico, el setUp garantiza un estado limpio y predecible antes de cada test.</div>
       <div class="quiz-feedback error" id="q5-err">El setUp con <span class="hl">@BeforeEach</span> existe para que cada test parta de un estado limpio y conocido, eliminando dependencias entre pruebas.</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-container" id="q6">
+      <div class="quiz-question">6. ¿Qué ocurre si se lanza una RuntimeException dentro de un método anotado con @Transactional?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q6',false)">Se guardan los datos parcialmente hasta donde llegó el código.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q6',true)">Se hace un rollback automático de todos los cambios en la BD.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q6',false)">La aplicación se detiene y se cierra.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q6',false)">Se ignora la excepción y el método retorna null.</div>
+      </div>
+      <div class="quiz-feedback success" id="q6-ok">¡Correcto! La anotación <span class="hl">@Transactional</span> garantiza la atomicidad: si algo falla, todo se revierte (rollback).</div>
+      <div class="quiz-feedback error" id="q6-err">Incorrecto. La característica principal de las transacciones es la <span class="hl">atomicidad</span>. Si ocurre una excepción no controlada, Spring fuerza un <span class="hl">rollback</span> para no dejar datos inconsistentes.</div>
+    </div>
+
+    <div class="quiz-container" id="q7">
+      <div class="quiz-question">7. ¿Cómo debe acceder un Servicio a la base de datos?</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="checkAnswer(this,'q7',false)">Creando una conexión JDBC manualmente.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q7',false)">Instanciando la clase repositorio con 'new Repository()'.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'q7',true)">Inyectando una interfaz Repository con @Autowired.</div>
+        <div class="quiz-option" onclick="checkAnswer(this,'73',false)">Llamando directamente a la base de datos desde el Controlador.</div>
+      </div>
+      <div class="quiz-feedback success" id="q7-ok">¡Exacto! Usamos <span class="hl">Inyección de Dependencias</span> para delegar la persistencia a los Repositorios definidos en Spring Data.</div>
+      <div class="quiz-feedback error" id="q7-err">No es correcto. En Spring, los componentes (Beans) se gestionan por el contenedor. Debes inyectar el repositorio (usando constructor o <span class="hl">@Autowired</span>), nunca usar 'new' ni conexiones manuales en esta capa.</div>
     </div>
 
     <!-- Score -->
@@ -1308,7 +1383,7 @@
   // ─── Quiz ───
   let score = 0;
   let answered = 0;
-  const totalQuestions = 5;
+  const totalQuestions = 7;
 
   function checkAnswer(option, qId, correct) {
     const container = document.getElementById(qId);
