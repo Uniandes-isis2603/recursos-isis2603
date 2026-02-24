@@ -234,10 +234,13 @@ main {
   border: 2px solid var(--border);
   background: var(--bg);
   color: var(--ink);
-  cursor: pointer;
   outline: none;
   transition: all .2s;
   min-width: 105px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .url-input {
   flex: 1;
@@ -754,13 +757,7 @@ main {
       </div>
       <div class="panel-body">
         <div class="request-row">
-          <select class="method-select method-GET" id="method-sel" onchange="onMethodChange()">
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-            <option value="PATCH">PATCH</option>
-          </select>
+          <div class="method-select method-GET" id="method-sel">GET</div>
           <input class="url-input" id="url-input" type="text" value="http://localhost:8080/api/artistas">
         </div>
 
@@ -1291,12 +1288,12 @@ function loadScenario(key) {
   const btn = document.getElementById('scen-' + key);
   if (btn) btn.classList.add('active');
 
-  document.getElementById('method-sel').value = s.method;
+  document.getElementById('method-sel').textContent = s.method;
   document.getElementById('url-input').value  = s.url;
   document.getElementById('req-body').value   = s.body;
   document.getElementById('req-info-text').textContent = s.info;
 
-  onMethodChange();
+  onMethodChange(s.method);
   updateReqHeaders(s.method);
 
   document.getElementById('res-content').innerHTML = `
@@ -1323,9 +1320,9 @@ function updateReqHeaders(method) {
   bodyEl.placeholder = hasBody ? '{\n  "campo": "valor"\n}' : 'GET y DELETE no envían body al servidor.';
 }
 
-function onMethodChange() {
-  const method = document.getElementById('method-sel').value;
-  const sel    = document.getElementById('method-sel');
+function onMethodChange(method) {
+  const sel = document.getElementById('method-sel');
+  if (!method) method = sel.textContent;
   sel.className = `method-select method-${method}`;
   const pill = document.getElementById('method-pill');
   const colors = {
