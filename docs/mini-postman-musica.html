@@ -898,9 +898,13 @@ main {
 // ─────────────────────────────────────────────────────────────
 // DTO PATTERN REFERENCE (shown in info tabs)
 // ArtistaDTO      → atributos propios (sin colecciones)
-// ArtistaDetailDTO→ ArtistaDTO + albumes:[AlbumDTO]
+// ArtistaDetailDTO→ ArtistaDTO + albumes:[AlbumDTO sin artista]
+//                   IMPORTANTE: Los álbumes en la colección NO incluyen
+//                   la referencia al artista para evitar redundancia circular
 // AlbumDTO        → atributos + artista:ArtistaDTO  (many-to-1)
-// AlbumDetailDTO  → AlbumDTO  + canciones:[CancionDTO]
+// AlbumDetailDTO  → AlbumDTO  + canciones:[CancionDTO sin album]
+//                   IMPORTANTE: Las canciones en la colección NO incluyen
+//                   la referencia al álbum para evitar redundancia circular
 // CancionDTO      → atributos + album:AlbumDTO       (many-to-1)
 //                   (sin DetailDTO: Canción no tiene colecciones salientes)
 // ─────────────────────────────────────────────────────────────
@@ -920,16 +924,31 @@ const A1 = artistaDTO(1, 'Shakira',      'Colombia', 'Pop / Latin',      true);
 const A2 = artistaDTO(2, 'Carlos Vives', 'Colombia', 'Vallenato / Pop',  true);
 const A3 = artistaDTO(3, 'Juanes',       'Colombia', 'Rock / Latin',     true);
 
+// Albums WITH artist reference (for use in many-to-one relationships)
 const AL1 = albumDTO(1, 'Laundry Service',  2001, 'Pop',              A1);
 const AL2 = albumDTO(2, 'She Wolf',         2009, 'Pop / Electrónico', A1);
 const AL3 = albumDTO(3, 'La Bicicleta',     2016, 'Vallenato',        A2);
 const AL4 = albumDTO(4, 'Loco de Amor',     2014, 'Rock / Latin',     A3);
 
+// Albums WITHOUT artist (for use in ArtistaDetailDTO collections - avoids circular reference)
+const AL1_simple = { id: 1, titulo: 'Laundry Service',  anio: 2001, genero: 'Pop' };
+const AL2_simple = { id: 2, titulo: 'She Wolf',         anio: 2009, genero: 'Pop / Electrónico' };
+const AL3_simple = { id: 3, titulo: 'La Bicicleta',     anio: 2016, genero: 'Vallenato' };
+const AL4_simple = { id: 4, titulo: 'Loco de Amor',     anio: 2014, genero: 'Rock / Latin' };
+
+// Songs WITH album reference (for use in many-to-one relationships)
 const C1 = cancionDTO(1, "Hips Don't Lie",  218, 3,  AL2);
 const C2 = cancionDTO(2, 'La Tortura',       243, 7,  AL1);
 const C3 = cancionDTO(3, 'La Bicicleta',     237, 1,  AL3);
 const C4 = cancionDTO(4, 'A Dios le Pido',   258, 1,  AL4);
 const C5 = cancionDTO(5, 'Es Por Ti',         221, 2,  AL4);
+
+// Songs WITHOUT album (for use in AlbumDetailDTO collections - avoids circular reference)
+const C1_simple = { id: 1, titulo: "Hips Don't Lie", duracionSeg: 218, pista: 3 };
+const C2_simple = { id: 2, titulo: 'La Tortura',      duracionSeg: 243, pista: 7 };
+const C3_simple = { id: 3, titulo: 'La Bicicleta',    duracionSeg: 237, pista: 1 };
+const C4_simple = { id: 4, titulo: 'A Dios le Pido',  duracionSeg: 258, pista: 1 };
+const C5_simple = { id: 5, titulo: 'Es Por Ti',        duracionSeg: 221, pista: 2 };
 
 const resources = {
 
@@ -940,23 +959,23 @@ const resources = {
         label: 'GET todos (ArtistaDetailDTO)', method: 'GET',
         url: 'http://localhost:8080/api/artistas',
         body: '',
-        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas retorna un array de ArtistaDetailDTO. La regla del curso es: todos los GET devuelven la representación detallada, tanto para colecciones como para un único recurso.\n\nCada elemento incluye los atributos propios del artista más albumes:[AlbumDTO].',
+        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas retorna un array de ArtistaDetailDTO. La regla del curso es: todos los GET devuelven la representación detallada, tanto para colecciones como para un único recurso.\n\nCada elemento incluye los atributos propios del artista más albumes:[AlbumDTO]. Los álbumes en la colección NO incluyen la referencia al artista para evitar redundancia circular.',
         resStatus: 200, resText: 'OK', resTime: 43,
         resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '3' },
         resBody: [
-          { ...A1, albumes: [ AL1, AL2 ] },
-          { ...A2, albumes: [ AL3 ] },
-          { ...A3, albumes: [ AL4 ] }
+          { ...A1, albumes: [ AL1_simple, AL2_simple ] },
+          { ...A2, albumes: [ AL3_simple ] },
+          { ...A3, albumes: [ AL4_simple ] }
         ]
       },
       getOne: {
         label: 'GET uno (ArtistaDetailDTO)', method: 'GET',
         url: 'http://localhost:8080/api/artistas/1',
         body: '',
-        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas/{id} retorna ArtistaDetailDTO: atributos propios más albumes:[AlbumDTO].\n\nRegla consistente: tanto el GET de colección como el GET individual devuelven DetailDTO. Cada AlbumDTO incluye artista:ArtistaDTO (relación many-to-1 embebida).',
+        info: '📦 Representación DETALLADA (ArtistaDetailDTO)\n\nGET /api/artistas/{id} retorna ArtistaDetailDTO: atributos propios más albumes:[AlbumDTO].\n\nRegla consistente: tanto el GET de colección como el GET individual devuelven DetailDTO. Los álbumes en la colección NO incluyen la referencia al artista para evitar redundancia circular.',
         resStatus: 200, resText: 'OK', resTime: 21,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...A1, albumes: [ AL1, AL2 ] }
+        resBody: { ...A1, albumes: [ AL1_simple, AL2_simple ] }
       },
       create: {
         label: 'POST crear (body: ArtistaDTO)', method: 'POST',
@@ -983,7 +1002,7 @@ const resources = {
         info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO\n\nPUT recibe solo los atributos propios (sin colecciones). La respuesta devuelve ArtistaDetailDTO: el artista actualizado junto con sus álbumes existentes.',
         resStatus: 200, resText: 'OK', resTime: 58,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...artistaDTO(3, 'Juanes', 'Colombia', 'Rock / Latin / Pop', true), albumes: [ AL4 ] }
+        resBody: { ...artistaDTO(3, 'Juanes', 'Colombia', 'Rock / Latin / Pop', true), albumes: [ AL4_simple ] }
       },
       notFound: {
         label: 'GET no encontrado (404)', method: 'GET',
@@ -1001,7 +1020,7 @@ const resources = {
         info: '📦 Response: ArtistaDetailDTO\n\nDELETE retorna ArtistaDetailDTO del recurso eliminado como confirmación. El cliente recibe el artista con sus álbumes tal como estaba antes de ser eliminado.',
         resStatus: 200, resText: 'OK', resTime: 44,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...A2, albumes: [ AL3 ] }
+        resBody: { ...A2, albumes: [ AL3_simple ] }
       },
       badRequest: {
         label: 'POST inválido (400)', method: 'POST',
@@ -1022,35 +1041,35 @@ const resources = {
         label: 'GET todos (AlbumDetailDTO)', method: 'GET',
         url: 'http://localhost:8080/api/albumes',
         body: '',
-        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes retorna un array de AlbumDetailDTO. Regla del curso: todos los GET devuelven DetailDTO.\n\nCada elemento incluye: atributos propios + artista:ArtistaDTO (many-to-1) + canciones:[CancionDTO].',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes retorna un array de AlbumDetailDTO. Regla del curso: todos los GET devuelven DetailDTO.\n\nCada elemento incluye: atributos propios + artista:ArtistaDTO (many-to-1) + canciones:[CancionDTO]. Las canciones en la colección NO incluyen la referencia al álbum para evitar redundancia circular.',
         resStatus: 200, resText: 'OK', resTime: 51,
         resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '4' },
         resBody: [
-          { ...AL1, canciones: [ C2 ] },
-          { ...AL2, canciones: [ C1 ] },
-          { ...AL3, canciones: [ C3 ] },
-          { ...AL4, canciones: [ C4, C5 ] }
+          { ...AL1, canciones: [ C2_simple ] },
+          { ...AL2, canciones: [ C1_simple ] },
+          { ...AL3, canciones: [ C3_simple ] },
+          { ...AL4, canciones: [ C4_simple, C5_simple ] }
         ]
       },
       getOne: {
         label: 'GET uno (AlbumDetailDTO)', method: 'GET',
         url: 'http://localhost:8080/api/albumes/4',
         body: '',
-        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes/{id} retorna AlbumDetailDTO: los campos de AlbumDTO (incluyendo artista:ArtistaDTO) más la colección canciones:[CancionDTO].\n\nCada CancionDTO es la representación básica de la canción. Canción no tiene DetailDTO porque no tiene asociaciones de cardinalidad múltiple salientes.',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO)\n\nGET /api/albumes/{id} retorna AlbumDetailDTO: los campos de AlbumDTO (incluyendo artista:ArtistaDTO) más la colección canciones:[CancionDTO].\n\nLas canciones en la colección NO incluyen la referencia al álbum para evitar redundancia circular. Canción no tiene DetailDTO porque no tiene asociaciones de cardinalidad múltiple salientes.',
         resStatus: 200, resText: 'OK', resTime: 38,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...AL4, canciones: [ C4, C5 ] }
+        resBody: { ...AL4, canciones: [ C4_simple, C5_simple ] }
       },
       getByArtista: {
         label: 'GET subrecurso /artistas/1/albumes', method: 'GET',
         url: 'http://localhost:8080/api/artistas/1/albumes',
         body: '',
-        info: '📦 Representación DETALLADA (AlbumDetailDTO) — Subrecurso\n\nGET /api/artistas/{id}/albumes devuelve [AlbumDetailDTO]: la misma regla aplica a los subrecursos. Cada álbum trae sus canciones embebidas.',
+        info: '📦 Representación DETALLADA (AlbumDetailDTO) — Subrecurso\n\nGET /api/artistas/{id}/albumes devuelve [AlbumDetailDTO]: la misma regla aplica a los subrecursos. Cada álbum trae artista:ArtistaDTO (many-to-1) y sus canciones embebidas (sin referencia al álbum).',
         resStatus: 200, resText: 'OK', resTime: 38,
         resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '2' },
         resBody: [
-          { ...AL1, canciones: [ C2 ] },
-          { ...AL2, canciones: [ C1 ] }
+          { ...AL1, canciones: [ C2_simple ] },
+          { ...AL2, canciones: [ C1_simple ] }
         ]
       },
       create: {
@@ -1078,7 +1097,7 @@ const resources = {
         info: '📦 Request: AlbumDTO (básico) → Response: AlbumDetailDTO\n\nPUT recibe atributos propios más artistaId. La respuesta devuelve AlbumDetailDTO: álbum actualizado con artista:ArtistaDTO + canciones:[CancionDTO].',
         resStatus: 200, resText: 'OK', resTime: 62,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...albumDTO(3, 'La Bicicleta (Edición Especial)', 2016, 'Vallenato / Pop', A2), canciones: [ C3 ] }
+        resBody: { ...albumDTO(3, 'La Bicicleta (Edición Especial)', 2016, 'Vallenato / Pop', A2), canciones: [ C3_simple ] }
       },
       notFound: {
         label: 'GET no encontrado (404)', method: 'GET',
@@ -1096,7 +1115,7 @@ const resources = {
         info: '📦 Response: AlbumDetailDTO\n\nDELETE retorna AlbumDetailDTO del recurso eliminado: el álbum con artista:ArtistaDTO y las canciones que tenía antes de ser eliminado.',
         resStatus: 200, resText: 'OK', resTime: 53,
         resHeaders: { 'Content-Type': 'application/json' },
-        resBody: { ...AL4, canciones: [ C4, C5 ] }
+        resBody: { ...AL4, canciones: [ C4_simple, C5_simple ] }
       },
       badRequest: {
         label: 'POST inválido (400)', method: 'POST',
@@ -1135,7 +1154,7 @@ const resources = {
         label: 'GET subrecurso /albumes/4/canciones', method: 'GET',
         url: 'http://localhost:8080/api/albumes/4/canciones',
         body: '',
-        info: '📦 Representación BÁSICA (CancionDTO) — Subrecurso\n\nGET /api/albumes/{id}/canciones es el subrecurso de canciones de un álbum. Canciones es un subrecurso porque tiene un composite (rombo negro) en el modelo conceptual con Álbum.\n\nEste endpoint es equivalente a la colección canciones del AlbumDetailDTO.',
+        info: '📦 Representación BÁSICA (CancionDTO) — Subrecurso\n\nGET /api/albumes/{id}/canciones es el subrecurso de canciones de un álbum. Canciones es un subrecurso porque tiene un composite (rombo negro) en el modelo conceptual con Álbum.\n\nA diferencia del AlbumDetailDTO donde las canciones no tienen la referencia al álbum, en este subrecurso las canciones SÍ incluyen album:AlbumDTO porque es su representación independiente.',
         resStatus: 200, resText: 'OK', resTime: 34,
         resHeaders: { 'Content-Type': 'application/json', 'X-Total-Count': '2' },
         resBody: [ C4, C5 ]
