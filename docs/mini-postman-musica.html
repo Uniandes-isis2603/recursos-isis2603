@@ -779,7 +779,7 @@ main {
         </div>
 
         <div class="tab-content" id="tab-info">
-          <div id="req-info-text" style="font-size:13px;color:var(--ink-mid);line-height:1.7;">
+          <div id="req-info-text" style="font-size:13px;color:var(--ink-mid);line-height:1.7;white-space:pre-line;">
             Selecciona un escenario para ver la descripción.
           </div>
         </div>
@@ -978,10 +978,7 @@ const resources = {
         label: 'POST crear (body: ArtistaDTO)', method: 'POST',
         url: 'http://localhost:8080/api/artistas',
         body: '{\n  "nombre": "Maluma",\n  "nacionalidad": "Colombia",\n  "genero": "Reggaetón / Pop",\n  "activo": true\n}',
-        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO
-          \n\nRegla del curso: el body del POST contiene solo los atributos propios del recurso (representación básica, sin colecciones). 
-          La respuesta 201 devuelve ArtistaDetailDTO con el id asignado.
-          \n\nComo el artista recién creado no tiene álbumes aún, albumes:[] llega vacío.',
+        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO\n\nRegla del curso: el body del POST contiene solo los atributos propios del recurso (representación básica, sin colecciones). La respuesta 201 devuelve ArtistaDetailDTO con el id asignado.\n\nComo el artista recién creado no tiene álbumes aún, albumes:[] llega vacío.',
         resStatus: 201, resText: 'Created', resTime: 72,
         resHeaders: { 'Content-Type': 'application/json', 'Location': '/api/artistas/4' },
         resBody: { ...artistaDTO(4, 'Maluma', 'Colombia', 'Reggaetón / Pop', true), albumes: [] }
@@ -999,9 +996,7 @@ const resources = {
         label: 'PUT actualizar (body: ArtistaDTO)', method: 'PUT',
         url: 'http://localhost:8080/api/artistas/3',
         body: '{\n  "nombre": "Juanes",\n  "nacionalidad": "Colombia",\n  "genero": "Rock / Latin / Pop",\n  "activo": true\n}',
-        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO
-          \n\nPUT recibe solo los atributos propios (sin colecciones). 
-          La respuesta devuelve ArtistaDetailDTO: el artista actualizado junto con sus álbumes existentes.',
+        info: '📦 Request: ArtistaDTO (básico) → Response: ArtistaDetailDTO\n\nPUT recibe solo los atributos propios (sin colecciones). La respuesta devuelve ArtistaDetailDTO: el artista actualizado junto con sus álbumes existentes.',
         resStatus: 200, resText: 'OK', resTime: 58,
         resHeaders: { 'Content-Type': 'application/json' },
         resBody: { ...artistaDTO(3, 'Juanes', 'Colombia', 'Rock / Latin / Pop', true), albumes: [ AL4_simple ] }
@@ -1028,9 +1023,7 @@ const resources = {
         label: 'POST inválido (400)', method: 'POST',
         url: 'http://localhost:8080/api/artistas',
         body: '{\n  "nacionalidad": "Colombia"\n}',
-        info: '⚠️ Error 400 Bad Request
-          \n\nEl body omite "nombre", campo obligatorio. 
-          La Validation se realiza y retorna 400 con el campo específico que falla.',
+        info: '⚠️ Error 400 Bad Request\n\nEl body omite "nombre", campo obligatorio. La Validation se realiza y retorna 400 con el campo específico que falla.',
         resStatus: 400, resText: 'Bad Request', resTime: 14,
         resHeaders: { 'Content-Type': 'application/json' },
         resBody: { status: 400, error: 'Bad Request', message: 'El campo "nombre" es obligatorio', field: 'nombre', timestamp: '2024-08-15T10:40:11' }
