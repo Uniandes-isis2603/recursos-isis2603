@@ -438,8 +438,7 @@
           <div class="code-dots"><span></span><span></span><span></span></div>
           <span>CompanyServiceTest.java — anotaciones</span>
         </div>
-        <div class="code-content"><code><span class="ann">@ExtendWith</span>(<span class="cls">SpringExtension</span>.<span class="kw">class</span>)
-<span class="ann">@DataJpaTest</span>
+        <div class="code-content"><code><span class="ann">@DataJpaTest</span>
 <span class="ann">@Transactional</span>
 <span class="ann">@Import</span>(<span class="cls">CompanyService</span>.<span class="kw">class</span>)
 <span class="kw">public class</span> <span class="cls">CompanyServiceTest</span>
@@ -460,7 +459,6 @@
       <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: 10px; font-size: 0.9rem; line-height: 1.7;">
         <p style="margin-bottom: 12px;"><strong>¿Qué hace cada anotación?</strong></p>
         <ul style="list-style: none; padding: 0;">
-          <li style="margin-bottom: 10px;"><span class="hl">@ExtendWith(SpringExtension.class)</span> — Integra JUnit 5 con Spring para que el contexto de Spring esté disponible durante las pruebas.</li>
           <li style="margin-bottom: 10px;"><span class="hl">@DataJpaTest</span> — Carga solo la configuración necesaria para pruebas de JPA. Desactiva el servidor web y carga solo las capas de BD.</li>
           <li style="margin-bottom: 10px;"><span class="hl">@Transactional</span> — Cada prueba se ejecuta en una transacción que se revierte al terminar, dejando la BD limpia.</li>
           <li style="margin-bottom: 10px;"><span class="hl">@Import(CompanyService.class)</span> — Importa el servicio bajo prueba al contexto de Spring para que pueda ser inyectado.</li>
