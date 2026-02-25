@@ -104,7 +104,7 @@ header h1 em { font-style: italic; color: #f6c87a; }
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 8px;
   padding: 8px 14px;
-  color: rgba(255,255,255,.5);
+  color: rgba(255,255,255,.75);
   white-space: nowrap;
   position: relative;
 }
@@ -366,8 +366,9 @@ main {
   padding: 20px 24px; background: var(--bg); border-top: 1px solid var(--border);
 }
 @media (max-width: 700px) { .codes-row { grid-template-columns: repeat(3,1fr); } }
-.code-card { border-radius: 9px; padding: 12px 14px; cursor: pointer; border: 1.5px solid transparent; transition: transform .15s, box-shadow .15s; }
+.code-card { border-radius: 9px; padding: 12px 14px; cursor: pointer; border: 1.5px solid transparent; transition: transform .15s, box-shadow .15s; background: none; }
 .code-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.code-card:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
 .code-num { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .code-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: .75; margin-bottom: 6px; }
 .code-desc { font-size: 12px; line-height: 1.45; }
@@ -857,31 +858,31 @@ main {
       <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:12px;">Códigos de estado más comunes en APIs REST</div>
     </div>
     <div class="codes-row">
-      <div class="code-card code-200" onclick="loadScenario('getAll')">
+      <button class="code-card code-200" onclick="loadScenario('getAll')">
         <div class="code-num">200</div>
         <div class="code-name">OK</div>
         <div class="code-desc">Éxito en GET o PUT. Devuelve el recurso.</div>
-      </div>
-      <div class="code-card code-201" onclick="loadScenario('create')">
+      </button>
+      <button class="code-card code-201" onclick="loadScenario('create')">
         <div class="code-num">201</div>
         <div class="code-name">Created</div>
         <div class="code-desc">Recurso creado exitosamente (POST).</div>
-      </div>
-      <div class="code-card code-400" onclick="loadScenario('badRequest')">
+      </button>
+      <button class="code-card code-400" onclick="loadScenario('badRequest')">
         <div class="code-num">400</div>
         <div class="code-name">Bad Request</div>
         <div class="code-desc">Datos de la petición inválidos o incompletos.</div>
-      </div>
-      <div class="code-card code-404" onclick="loadScenario('notFound')">
+      </button>
+      <button class="code-card code-404" onclick="loadScenario('notFound')">
         <div class="code-num">404</div>
         <div class="code-name">Not Found</div>
         <div class="code-desc">El recurso solicitado no existe.</div>
-      </div>
-      <div class="code-card code-409" onclick="loadScenario('duplicate')">
+      </button>
+      <button class="code-card code-409" onclick="loadScenario('duplicate')">
         <div class="code-num">409</div>
         <div class="code-name">Conflict</div>
         <div class="code-desc">El recurso ya existe (duplicado).</div>
-      </div>
+      </button>
     </div>
   </div>
 
@@ -1390,15 +1391,30 @@ function renderResponse(s) {
 }
 
 function syntaxHighlight(json) {
-  return json
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
-      let cls = 'j-num';
-      if (/^"/.test(match))        cls = /:$/.test(match) ? 'j-key' : 'j-str';
-      else if (/true|false/.test(match)) cls = 'j-bool';
-      else if (/null/.test(match)) cls = 'j-null';
-      return `<span class="${cls}">${match}</span>`;
-    });
+  // Escape HTML
+  let html = json.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  
+  // Procesar en un solo paso para evitar conflictos
+  html = html.replace(/"[^"]*"\s*:|"[^"]*"|\b(true|false|null)\b|-?\d+\.?\d*(?:[eE][+-]?\d+)?/g, match => {
+    if (/"[^"]*"\s*:/.test(match)) {
+      // Es una clave JSON (termina en :)
+      return `<span class="j-key">${match.slice(0, -1)}</span>:`;
+    } else if (/^"/.test(match)) {
+      // Es un string valor
+      return `<span class="j-str">${match}</span>`;
+    } else if (/true|false/.test(match)) {
+      // Es un boolean
+      return `<span class="j-bool">${match}</span>`;
+    } else if (/null/.test(match)) {
+      // Es null
+      return `<span class="j-null">${match}</span>`;
+    } else {
+      // Es un número
+      return `<span class="j-num">${match}</span>`;
+    }
+  });
+  
+  return html;
 }
 
 function getStatusExplanation(code) {
