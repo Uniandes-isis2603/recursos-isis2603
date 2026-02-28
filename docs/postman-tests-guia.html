@@ -154,6 +154,16 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 .kw{color:var(--ckw)}.fn{color:var(--cfn)}.str{color:var(--cstr)}.num{color:var(--cnum)}.cmt{color:var(--ccmt);font-style:italic}.pm{color:var(--cpm)}.prop{color:var(--cprop)}.ch{color:var(--cch)}
 
 h3.sh{font-family:'DM Serif Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin:24px 0 10px;}
+
+/* Content column wrapper */
+.content-col{display:flex;flex-direction:column;overflow-y:auto;}
+
+/* Canonical page header */
+.page-hdr{background:#1c1814;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 24px);padding:44px 56px 40px;flex-shrink:0;position:relative;text-align:center;}
+.ph-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px;}
+.ph-h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);color:#f2efe9;line-height:1.15;margin-bottom:10px;}
+.ph-h1 em{font-style:italic;opacity:.8;}
+.ph-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -174,6 +184,13 @@ h3.sh{font-family:'DM Serif Display',serif;font-size:19px;font-weight:700;color:
   <button class="nl" onclick="go(6)"><span class="nn">7</span>Tests encadenados</button>
   <button class="nl" onclick="go(7)"><span class="nn">8</span>Referencia rápida</button>
 </nav>
+
+<div class="content-col">
+<header class="page-hdr">
+  <div class="ph-tag">ISIS2603 · Pruebas de API</div>
+  <div class="ph-h1">Tests en <em>Postman</em></div>
+  <div class="ph-sub">pm.test · pm.expect · Chai · Aserciones esenciales</div>
+</header>
 
 <main>
 
@@ -697,6 +714,7 @@ body.<span class="fn">forEach</span>(x => <span class="pm">pm</span>.<span class
 </div>
 
 </main>
+</div><!-- /.content-col -->
 
 <script>
 // ── NAVIGATION ──
