@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc -l /c/2026/recursos-isis2603/docs/*.html)"
+      "Bash(wc -l /c/2026/recursos-isis2603/docs/*.html)",
+      "Bash(ls -lah *.html)"
     ]
   }
 }

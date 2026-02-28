@@ -18,6 +18,9 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans">
+<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
+  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
+</nav>
 
     <header class="bg-indigo-900 text-white p-6 shadow-md">
         <div class="max-w-6xl mx-auto">
@@ -26,7 +29,7 @@
         </div>
     </header>
 
-    <nav class="bg-white shadow sticky top-0 z-50">
+    <nav aria-label="Contenido de la página" class="bg-white shadow sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex overflow-x-auto">
             <button onclick="setStep(1)" id="btn-1" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-indigo-600 text-indigo-900 transition hover:bg-slate-50">
                 Paso 1: La Entidad
