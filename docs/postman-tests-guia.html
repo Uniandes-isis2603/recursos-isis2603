@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tests en Postman – ISIS2603</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --cream:#f7f4ee;--c2:#ede6da;--c3:#dfd6c8;--c4:#ccc0ae;
@@ -17,15 +17,15 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{background:var(--cream);color:var(--ink);font-family:'Source Serif 4',Georgia,serif;font-weight:300;line-height:1.7;display:grid;grid-template-columns:210px 1fr;min-height:100vh;}
+body{background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;display:grid;grid-template-columns:210px 1fr;min-height:100vh;}
 
 /* SIDEBAR */
 nav{background:var(--ink);position:sticky;top:0;height:100vh;overflow-y:auto;padding:28px 0;}
 .nb{padding:0 18px 22px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:12px;}
 .nt{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:5px;}
-.ntitle{font-family:'Playfair Display',serif;font-size:15px;color:#f7f4ee;line-height:1.3;}
+.ntitle{font-family:'DM Serif Display',serif;font-size:15px;color:#f7f4ee;line-height:1.3;}
 .ntitle em{font-style:italic;color:#f0a060;}
-.nl{display:flex;align-items:center;gap:7px;padding:5px 10px;margin:0 10px;border-radius:5px;color:rgba(255,255,255,.42);font-family:'Source Serif 4',serif;font-size:12px;font-weight:300;cursor:pointer;border:none;background:none;width:calc(100% - 20px);text-align:left;transition:all .14s;}
+.nl{display:flex;align-items:center;gap:7px;padding:5px 10px;margin:0 10px;border-radius:5px;color:rgba(255,255,255,.42);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;cursor:pointer;border:none;background:none;width:calc(100% - 20px);text-align:left;transition:all .14s;}
 .nl:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.05);}
 .nl.active{color:#f0a060;background:rgba(240,160,96,.1);}
 .nn{font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.18);width:14px;flex-shrink:0;}
@@ -39,7 +39,7 @@ main{max-width:860px;padding:52px 56px;}
 
 /* Section headers */
 .sn{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink4);margin-bottom:6px;}
-.st{font-family:'Playfair Display',serif;font-size:33px;font-weight:700;line-height:1.15;color:var(--ink);margin-bottom:5px;}
+.st{font-family:'DM Serif Display',serif;font-size:33px;font-weight:700;line-height:1.15;color:var(--ink);margin-bottom:5px;}
 .st em{font-style:italic;color:var(--rust);}
 .ss{font-size:15.5px;color:var(--ink3);font-weight:300;margin-bottom:34px;border-bottom:1px solid var(--c3);padding-bottom:20px;}
 
@@ -50,12 +50,12 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 
 /* Pull quote */
 .pq{border-left:4px solid var(--rust);margin:22px 0;padding:13px 20px;background:var(--rust-bg);border-radius:0 8px 8px 0;}
-.pqt{font-family:'Playfair Display',serif;font-size:16.5px;font-style:italic;color:var(--ink);line-height:1.5;margin-bottom:3px;}
+.pqt{font-family:'DM Serif Display',serif;font-size:16.5px;font-style:italic;color:var(--ink);line-height:1.5;margin-bottom:3px;}
 .pqs{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink3);}
 
 /* Concept box */
 .cbox{background:var(--c2);border:1px solid var(--c3);border-radius:9px;padding:16px 20px;margin-bottom:20px;}
-.cbox h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:7px;}
+.cbox h4{font-family:'DM Serif Display',serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:7px;}
 .cbox p{font-size:13.5px;color:var(--ink2);line-height:1.65;}
 
 /* Code blocks */
@@ -79,7 +79,7 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 /* Anatomy panel */
 .apanel{background:var(--cream);border-radius:9px;padding:16px 20px;margin-bottom:24px;border-left:4px solid var(--rust);min-height:68px;transition:border-color .2s;}
 .apl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:4px;}
-.apt{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.apt{font-family:'DM Serif Display',serif;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
 .apd{font-size:13.5px;color:var(--ink2);line-height:1.6;}
 .apc{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--c2);border:1px solid var(--c3);border-radius:4px;padding:3px 8px;color:var(--rust);margin-top:6px;display:inline-block;}
 
@@ -93,7 +93,7 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 
 .ad{background:var(--cream);border:1.5px solid var(--c3);border-radius:9px;padding:20px 24px;margin-bottom:24px;display:none;}
 .ad.on{display:block;animation:fu .22s ease;}
-.adt{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:9px;}
+.adt{font-family:'DM Serif Display',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:9px;}
 
 /* Labs */
 .lab{background:white;border:1.5px solid var(--c3);border-radius:11px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
@@ -132,8 +132,8 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 
 /* Steps */
 .sr{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
-.snum{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--cream);font-family:'Playfair Display',serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;}
-.sc h4{font-family:'Playfair Display',serif;font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.snum{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--cream);font-family:'DM Serif Display',serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px;}
+.sc h4{font-family:'DM Serif Display',serif;font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:4px;}
 .sc p{font-size:13.5px;color:var(--ink2);line-height:1.6;}
 
 /* Table */
@@ -153,7 +153,7 @@ code,.ic{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--
 /* Syntax */
 .kw{color:var(--ckw)}.fn{color:var(--cfn)}.str{color:var(--cstr)}.num{color:var(--cnum)}.cmt{color:var(--ccmt);font-style:italic}.pm{color:var(--cpm)}.prop{color:var(--cprop)}.ch{color:var(--cch)}
 
-h3.sh{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin:24px 0 10px;}
+h3.sh{font-family:'DM Serif Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin:24px 0 10px;}
 </style>
 </head>
 <body>
