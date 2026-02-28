@@ -93,6 +93,35 @@
     .img-wrapper:hover .zoom-btn {
       opacity: 1;
     }
+
+    /* ── MOBILE SIDEBAR ── */
+    .sidebar {
+      transition: transform .25s ease;
+    }
+    .nav-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 150;
+      background: rgba(0,0,0,.45);
+    }
+    .hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: #f2efe9; font-size: 22px; padding: 4px 8px;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed; top: 0; left: 0; height: 100vh;
+        z-index: 200; transform: translateX(-100%);
+        box-shadow: none;
+      }
+      .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,.4);
+      }
+      .nav-overlay.open { display: block; }
+      .hamburger { display: block; }
+      main { padding: 1.5rem 1rem !important; }
+    }
   </style>
 </head>
 
@@ -101,8 +130,11 @@
     <nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;">
       <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
     </nav>
+    <div class="nav-overlay" :class="{open: sidebarOpen}" @click="sidebarOpen=false"></div>
+
     <header style="background:#1c1814;" class="text-white p-4 shadow-md flex justify-between items-center shrink-0">
       <div class="flex items-center gap-3">
+        <button class="hamburger" @click="sidebarOpen=!sidebarOpen" aria-label="Abrir menú">☰</button>
         <div>
           <h1 class="text-xl font-bold">Guía de Code Review Efectivo</h1>
           <p class="text-xs text-gray-300">ISIS2603 · Arquitectura de Software · Spring Boot &amp; GitHub Flow</p>
@@ -112,12 +144,12 @@
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-      <nav class="w-64 bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col">
+      <nav class="w-64 bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col sidebar" :class="{'sidebar-open': sidebarOpen}">
         <div class="p-4 uppercase text-xs font-bold text-gray-400 tracking-wider">
           Flujo de Trabajo
         </div>
         <ul>
-          <li v-for="(step, index) in steps" :key="index" @click="currentStep = index"
+          <li v-for="(step, index) in steps" :key="index" @click="currentStep = index; sidebarOpen = false"
             :class="['nav-item p-4 border-b border-gray-100 flex items-center gap-3', currentStep === index ? 'step-active text-amber-600' : 'text-gray-600']">
             <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs border"
               :class="currentStep === index ? 'border-amber-500 bg-amber-100' : 'border-gray-300 bg-gray-50'">
@@ -224,6 +256,7 @@
       data() {
         return {
           currentStep: 0,
+          sidebarOpen: false,
           steps: [
             {
               title: "1. Acceso a PRs",
