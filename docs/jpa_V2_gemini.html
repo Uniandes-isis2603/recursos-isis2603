@@ -305,10 +305,10 @@
     </header>
 
     <div class="tabs-bar">
-        <button class="tab-button active" onclick="setStep(1)" id="btn-1">Paso 1: La Entidad</button>
-        <button class="tab-button" onclick="setStep(2)" id="btn-2">Paso 2: Asociaciones y Tablas</button>
-        <button class="tab-button" onclick="setStep(3)" id="btn-3">Paso 3: Repositorio</button>
-        <button class="tab-button reto" onclick="setStep(4)" id="btn-4">🏆 El Reto (Doble)</button>
+        <button class="tab-button active" onclick="setStep(1)" id="btn-1">La Entidad</button>
+        <button class="tab-button" onclick="setStep(2)" id="btn-2">Asociaciones y Tablas</button>
+        <button class="tab-button" onclick="setStep(3)" id="btn-3">El Repositorio</button>
+        <button class="tab-button reto" onclick="setStep(4)" id="btn-4">El Reto</button>
     </div>
 
     <div class="container">
@@ -317,7 +317,7 @@
         <!-- ══ PASO 1 ══ -->
         <div id="step-1" class="step-content active">
             <div class="card">
-                <h2>1. Del Objeto a la Tabla</h2>
+                <h2>Del Objeto a la Tabla</h2>
                 <p>Usamos <strong>Lombok (@Data)</strong> y <strong>JPA (@Entity)</strong>. Observa cómo una clase simple se convierte en una estructura de base de datos.</p>
 
                 <div class="grid-2">
@@ -355,7 +355,7 @@
         <div id="step-2" class="step-content">
             <div class="card">
                 <div class="row between mb-6">
-                    <h2 style="margin-bottom:0;border:none;padding:0;font-size:22px;border-left:4px solid var(--persist);padding-left:16px;">2. Mapeo Objeto vs. Base de Datos</h2>
+                    <h2>Mapeo Objeto vs. Base de Datos</h2>
                     <button onclick="toggleVisualMatch()" class="verify-btn" style="margin:0;padding:8px 16px;font-size:13px;">
                         👁️ Ver correspondencia mappedBy
                     </button>
@@ -428,7 +428,7 @@
         <!-- ══ PASO 3 ══ -->
         <div id="step-3" class="step-content">
             <div class="card">
-                <h2>3. El Repositorio (JpaRepository)</h2>
+                <h2>El Repositorio (JpaRepository)</h2>
                 <p>Spring Data JPA implementa el acceso a datos por nosotros.</p>
 
                 <div class="grid-2">
@@ -468,7 +468,7 @@
                 <div class="row mb-6">
                     <span style="font-size:2.5rem;">🏆</span>
                     <div>
-                        <h2 style="margin-bottom:4px;border:none;padding:0;">Gran Reto de Asociaciones</h2>
+                        <h2>Gran Reto de Asociaciones</h2>
                         <p style="margin:0;">Completa el código para dos escenarios distintos.</p>
                     </div>
                 </div>
