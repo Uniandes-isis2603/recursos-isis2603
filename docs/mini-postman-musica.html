@@ -58,56 +58,51 @@ body {
 /* ── HEADER ── */
 header {
   background: var(--ink);
-  padding: 32px 48px 28px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  position: relative;
-  overflow: hidden;
-}
-header::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent, transparent 60px,
-    rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 10px,
+    rgba(255,255,255,.015) 0 11px
   );
+  color: #fff;
+  text-align: center;
+  padding: 64px 24px 56px;
+  position: relative;
 }
-.hdr-left { position: relative; }
+.hdr-content { position: relative; }
 .hdr-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: rgba(255,255,255,.35);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 header h1 {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(26px, 3.5vw, 40px);
-  color: #faf8f4;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
   line-height: 1.1;
+  color: #faf8f4;
+  margin: 0 0 16px;
 }
 header h1 em { font-style: italic; color: #f6c87a; }
 .hdr-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: rgba(255,255,255,.4);
-  margin-top: 6px;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,.55);
 }
-.hdr-badge {
+.back-link {
+  position: absolute;
+  top: 16px; left: 24px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 8px;
-  padding: 8px 14px;
-  color: rgba(255,255,255,.75);
-  white-space: nowrap;
-  position: relative;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  text-decoration: none;
 }
+.back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
 
 /* ── MAIN ── */
 main {
@@ -366,6 +361,7 @@ main {
   padding: 20px 24px; background: var(--bg); border-top: 1px solid var(--border);
 }
 @media (max-width: 700px) { .codes-row { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 600px) { #dto-grid { grid-template-columns: 1fr !important; } }
 .code-card { border-radius: 9px; padding: 12px 14px; cursor: pointer; border: 1.5px solid transparent; transition: transform .15s, box-shadow .15s; background: none; }
 .code-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .code-card:focus { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -391,12 +387,12 @@ main {
 <body>
 
 <header>
-  <div class="hdr-left">
-    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
-    <h1>Mini-<em>Postman</em></h1>
-    <div class="hdr-sub">Simulador de peticiones HTTP · API de Música</div>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · API de Música</div>
+    <h1>Mini<em>-Postman</em></h1>
+    <div class="hdr-sub">Simulador de peticiones HTTP · GET / POST / PUT / DELETE</div>
   </div>
-  <div class="hdr-badge">localhost:8080 / api</div>
 </header>
 
 <main>

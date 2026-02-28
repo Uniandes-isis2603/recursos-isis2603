@@ -7,8 +7,7 @@
   <title>Guía de Code Review y CI/CD - ISIS2603</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <script>
     mermaid.initialize({ startOnLoad: false, theme: 'default' });
@@ -16,7 +15,7 @@
 
   <style>
     body {
-      font-family: "Roboto", sans-serif;
+      font-family: 'DM Sans', sans-serif;
     }
 
     .code-block {
@@ -94,31 +93,63 @@
     .img-wrapper:hover .zoom-btn {
       opacity: 1;
     }
+
+    /* ── MOBILE SIDEBAR ── */
+    .sidebar {
+      transition: transform .25s ease;
+    }
+    .nav-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 150;
+      background: rgba(0,0,0,.45);
+    }
+    .hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: #f2efe9; font-size: 22px; padding: 4px 8px;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed; top: 0; left: 0; height: 100vh;
+        z-index: 200; transform: translateX(-100%);
+        box-shadow: none;
+      }
+      .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,.4);
+      }
+      .nav-overlay.open { display: block; }
+      .hamburger { display: block; }
+      main { padding: 1.5rem 1rem !important; }
+    }
   </style>
 </head>
 
 <body class="bg-gray-50 text-gray-800 h-screen flex flex-col overflow-hidden">
   <div id="app" class="flex flex-col h-full">
-    <header class="bg-slate-800 text-white p-4 shadow-md flex justify-between items-center shrink-0">
+    <nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;">
+      <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
+    </nav>
+    <div class="nav-overlay" :class="{open: sidebarOpen}" @click="sidebarOpen=false"></div>
+
+    <header style="background:#1c1814;" class="text-white p-4 shadow-md flex justify-between items-center shrink-0">
       <div class="flex items-center gap-3">
-        <i class="fa-brands fa-git-alt text-3xl text-orange-400"></i>
+        <button class="hamburger" @click="sidebarOpen=!sidebarOpen" aria-label="Abrir menú">☰</button>
         <div>
           <h1 class="text-xl font-bold">Guía de Code Review Efectivo</h1>
-          <p class="text-xs text-gray-300">
-            Arquitectura de Software - Spring Boot & GitHub Flow
-          </p>
+          <p class="text-xs text-gray-300">ISIS2603 · Arquitectura de Software · Spring Boot &amp; GitHub Flow</p>
         </div>
       </div>
-      <div class="text-sm bg-slate-700 px-3 py-1 rounded">isis2603</div>
+      <div class="text-sm px-3 py-1 rounded" style="background:rgba(255,255,255,.08);">isis2603</div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-      <nav class="w-64 bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col">
+      <nav class="w-64 bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col sidebar" :class="{'sidebar-open': sidebarOpen}">
         <div class="p-4 uppercase text-xs font-bold text-gray-400 tracking-wider">
           Flujo de Trabajo
         </div>
         <ul>
-          <li v-for="(step, index) in steps" :key="index" @click="currentStep = index"
+          <li v-for="(step, index) in steps" :key="index" @click="currentStep = index; sidebarOpen = false"
             :class="['nav-item p-4 border-b border-gray-100 flex items-center gap-3', currentStep === index ? 'step-active text-amber-600' : 'text-gray-600']">
             <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs border"
               :class="currentStep === index ? 'border-amber-500 bg-amber-100' : 'border-gray-300 bg-gray-50'">
@@ -145,7 +176,7 @@
 
             <div v-if="currentStep === 1" class="mt-8 bg-blue-50 p-6 rounded-lg border border-blue-100">
               <h3 class="font-bold text-blue-800 mb-3">
-                <i class="fa-solid fa-list-check mr-2"></i>Checklist de
+                <span class="mr-2">☑</span>Checklist de
                 Arquitectura
               </h3>
               <div class="space-y-2">
@@ -168,7 +199,7 @@
 
             <div v-if="currentStep === 1"
               class="mt-8 bg-red-50 p-4 rounded-lg border border-red-200 flex gap-4 items-start">
-              <i class="fa-solid fa-robot text-red-500 text-2xl mt-1"></i>
+              <span class="text-red-500 text-2xl mt-1">🤖</span>
               <div>
                 <h4 class="font-bold text-red-800">Detección de IA</h4>
                 <p class="text-sm text-red-700">
@@ -185,17 +216,17 @@
             <div class="flex justify-between mt-12 pt-6 border-t">
               <button v-if="currentStep > 0" @click="currentStep--"
                 class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium transition">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+                ← Anterior
               </button>
               <div v-else></div>
 
               <button v-if="currentStep < steps.length - 1" @click="currentStep++"
                 class="px-4 py-2 bg-slate-800 hover:bg-slate-900 rounded text-white font-medium transition">
-                Siguiente <i class="fa-solid fa-arrow-right ml-2"></i>
+                Siguiente →
               </button>
               <button v-else @click="currentStep = 0"
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white font-medium transition">
-                <i class="fa-solid fa-check mr-2"></i> Finalizar Guía
+                ✓ Finalizar Guía
               </button>
             </div>
           </div>
@@ -211,7 +242,7 @@
           <img :src="zoomSrc" class="max-w-full max-h-screen object-contain rounded shadow-2xl" @click.stop>
           <button @click="closeZoom"
             class="absolute -top-4 -right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow hover:bg-gray-200">
-            <i class="fa-solid fa-xmark"></i>
+            ✕
           </button>
         </div>
       </div>
@@ -225,6 +256,7 @@
       data() {
         return {
           currentStep: 0,
+          sidebarOpen: false,
           steps: [
             {
               title: "1. Acceso a PRs",
@@ -242,7 +274,7 @@
                                     <div>
                                         <div class="flex items-start gap-3 mb-3">
                                             <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</span>
-                                            <p class="mt-0.5">Ve a la pestaña <span class="font-bold text-slate-700"><i class="fa-solid fa-code-pull-request"></i> Pull Requests</span> del repositorio.</p>
+                                            <p class="mt-0.5">Ve a la pestaña <span class="font-bold text-slate-700">Pull Requests</span> del repositorio.</p>
                                         </div>
                                         
                                         <div class="ml-9">
@@ -290,21 +322,21 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                     <div class="border p-3 rounded bg-green-50 border-green-200">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <i class="fa-solid fa-file-circle-plus text-green-600 text-xl"></i>
+                                            <span class="text-green-600 text-xl font-bold">+</span>
                                             <span class="font-bold text-green-800">Added</span>
                                         </div>
                                         <p class="text-xs text-green-700">Archivos nuevos. Revisa que sigan la estructura del paquete.</p>
                                     </div>
                                     <div class="border p-3 rounded bg-amber-50 border-amber-200">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <i class="fa-solid fa-file-pen text-amber-600 text-xl"></i>
+                                            <span class="text-amber-600 text-xl">✎</span>
                                             <span class="font-bold text-amber-800">Modified</span>
                                         </div>
                                         <p class="text-xs text-amber-700">Cambios en lógica existente. ¿Rompe algo anterior?</p>
                                     </div>
                                     <div class="border p-3 rounded bg-red-50 border-red-200">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <i class="fa-solid fa-file-circle-minus text-red-600 text-xl"></i>
+                                            <span class="text-red-600 text-xl font-bold">−</span>
                                             <span class="font-bold text-red-800">Deleted</span>
                                         </div>
                                         <p class="text-xs text-red-700">Código eliminado. ¿Era código muerto o es un error?</p>
@@ -335,7 +367,7 @@
                                 <div class="mb-6">
                                     <p class="mb-2">Para ver ejemplos reales de PRs y código, consulta el repositorio de referencia:</p>
                                     <a href="https://github.com/Uniandes-isis2603/EffectiveCodeReview" target="_blank" class="text-blue-600 hover:text-blue-800 underline flex items-center gap-2">
-                                        <i class="fa-brands fa-github"></i> Uniandes-isis2603/EffectiveCodeReview
+                                        Uniandes-isis2603/EffectiveCodeReview
                                     </a>
                                 </div>
 
@@ -346,7 +378,7 @@
                                     <!-- Error 1: Logic in Controller -->
                                     <div class="border border-red-200 rounded-lg overflow-hidden bg-white">
                                         <div class="bg-red-50 p-2 border-b border-red-100 flex items-center justify-between">
-                                            <span class="font-bold text-red-800 text-sm"><i class="fa-solid fa-bug mr-2"></i> Lógica de Negocio en Controlador</span>
+                                            <span class="font-bold text-red-800 text-sm"><span class="mr-2">🐛</span> Lógica de Negocio en Controlador</span>
                                             <span class="bg-red-200 text-red-800 text-xs px-2 py-1 rounded">Crucial</span>
                                         </div>
                                         <div class="p-4">
@@ -370,7 +402,7 @@ public BookEntity getBook(@PathVariable Long id) {
                                     <!-- Error 2: Entities in Controller -->
                                     <div class="border border-amber-200 rounded-lg overflow-hidden bg-white">
                                         <div class="bg-amber-50 p-2 border-b border-amber-100 flex items-center justify-between">
-                                            <span class="font-bold text-amber-800 text-sm"><i class="fa-solid fa-layer-group mr-2"></i> Exponer Entidades (JPA)</span>
+                                            <span class="font-bold text-amber-800 text-sm"><span class="mr-2">≡</span> Exponer Entidades (JPA)</span>
                                             <span class="bg-amber-200 text-amber-800 text-xs px-2 py-1 rounded">Importante</span>
                                         </div>
                                         <div class="p-4">
@@ -389,7 +421,7 @@ public <span class="text-amber-400">BookEntity</span> create(@RequestBody <span 
                                     <!-- Error 3: Variable Naming / Comments -->
                                     <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
                                         <div class="bg-slate-50 p-2 border-b border-slate-100 flex items-center justify-between">
-                                            <span class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-font mr-2"></i> Nambramiento y Comentarios</span>
+                                            <span class="font-bold text-slate-800 text-sm"><span class="mr-2">Aa</span> Nambramiento y Comentarios</span>
                                         </div>
                                         <div class="p-4">
                                             <div class="code-block text-xs mb-2">
@@ -441,12 +473,12 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                 
                                 <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r">
                                     <div class="flex items-start gap-3">
-                                        <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                                        <span class="text-blue-500 mt-1">ℹ</span>
                                         <div>
                                             <p class="font-bold text-blue-800 text-sm">¿Cuál es el nombre de la rama?</p>
                                             <p class="text-sm text-blue-700 mb-2">
                                                 En GitHub, busca el recuadro gris con el nombre de la rama.
-                                                Haz clic en el ícono de <strong>copiar</strong> <i class="fa-regular fa-copy"></i> para obtener el nombre exacto.
+                                                Haz clic en el ícono de <strong>copiar</strong> ⎘ para obtener el nombre exacto.
                                             </p>
                                             <img src="capturas/pr-branch-name.png" class="tutorial-img w-full border border-blue-200 rounded shadow-sm" alt="Ubicación del nombre de la rama en el PR">
                                         </div>
@@ -457,7 +489,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                     <!-- Columna 1: Consola -->
                                     <div class="bg-slate-900 rounded-lg p-4 text-white">
                                         <div class="flex items-center gap-2 mb-3 border-b border-slate-700 pb-2">
-                                            <i class="fa-solid fa-terminal text-green-400"></i>
+                                            <span class="text-green-400">$</span>
                                             <span class="font-mono font-bold">Consola Git</span>
                                         </div>
                                         <div class="font-mono text-sm space-y-4">
@@ -479,7 +511,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                     <!-- Columna 2: VS Code Extension -->
                                     <div class="bg-white border rounded-lg p-4 shadow-sm">
                                         <div class="flex items-center gap-2 mb-3 border-b pb-2">
-                                            <i class="fa-solid fa-code-branch text-blue-600"></i>
+                                            <span class="text-blue-600">⑂</span>
                                             <span class="font-bold text-slate-800">VS Code Git Extension</span>
                                         </div>
                                         <div class="space-y-4 text-sm text-slate-700">
@@ -506,13 +538,13 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                         Ejecuta el proyecto (Play Botton) y verifica que las tablas se creen correctamente en la consola H2.
                                     </p>
                                     <div class="flex items-center gap-2 mb-4 bg-white p-2 rounded border border-blue-100">
-                                        <i class="fa-solid fa-link text-blue-500"></i>
+                                        <span class="text-blue-500">🔗</span>
                                         <a href="http://localhost:8080/api/h2-console" target="_blank" class="text-blue-600 underline font-mono text-sm">
                                             http://localhost:8080/api/h2-console
                                         </a>
                                     </div>
                                     
-                                    <h5 class="font-bold text-blue-800 text-sm mb-2"><i class="fa-solid fa-clipboard-check"></i> Checklist de Validación H2:</h5>
+                                    <h5 class="font-bold text-blue-800 text-sm mb-2">☑ Checklist de Validación H2:</h5>
                                     <ul class="space-y-2">
                                         <li class="flex items-start gap-2">
                                             <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
@@ -531,7 +563,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                             <span class="text-sm">
                                                 Las columnas tienen los tipos correctos.
                                                 <a href="https://uniandes-isis2603.github.io/recursos-isis2603/jpa_V2_gemini.html" target="_blank" class="text-blue-600 underline ml-1 text-xs">
-                                                    (Ver Referencia JPA <i class="fa-solid fa-arrow-up-right-from-square"></i>)
+                                                    (Ver Referencia JPA ↗)
                                                 </a>
                                             </span>
                                         </li>
@@ -556,7 +588,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                                     <div class="border border-green-200 rounded-lg overflow-hidden bg-white">
                                         <div class="bg-green-50 p-2 border-b border-green-100 font-bold text-green-800 text-sm flex items-center gap-2">
-                                            <i class="fa-solid fa-circle-check"></i> Todo Correcto
+                                            ✓ Todo Correcto
                                         </div>
                                         <div class="p-2">
                                             <img src="capturas/tests-passed.png" class="tutorial-img w-full h-auto mb-2" alt="Tests Pasando Correctamente">
@@ -566,7 +598,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
 
                                     <div class="border border-red-200 rounded-lg overflow-hidden bg-white">
                                         <div class="bg-red-50 p-2 border-b border-red-100 font-bold text-red-800 text-sm flex items-center gap-2">
-                                            <i class="fa-solid fa-circle-xmark"></i> Tests Fallidos
+                                            ✕ Tests Fallidos
                                         </div>
                                         <div class="p-2">
                                             <img src="capturas/tests-failed.png" class="tutorial-img w-full h-auto mb-2" alt="Tests Fallando">
@@ -580,7 +612,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
               title: "5. Caso 1 - Identificando errores y dejando feedback",
               description: "Identificando errores y dejando feedback.",
               content: `
-                                <h4 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-comment-dots"></i> Caso Práctico: Violación de Nombres</h4>
+                                <h4 class="font-bold text-slate-800 mb-4">💬 Caso Práctico: Violación de Nombres</h4>
                                 <p class="mb-4">
                                     Vamos a corregir juntos una violación de convención de nombres (Snake Case en lugar de Camel Case).
                                 </p>
@@ -630,7 +662,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
 
                                 <!-- Finalizar Review -->
                                 <div class="mt-12 border-t pt-8">
-                                    <h4 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-paper-plane"></i> Finalizando la Revisión</h4>
+                                    <h4 class="font-bold text-slate-800 mb-4">✉ Finalizando la Revisión</h4>
                                     <p class="mb-4 text-sm">
                                         Cuando hayas revisado todos los archivos, debes enviar tu feedback.
                                     </p>
@@ -684,7 +716,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                                         <div class="flex">
                                             <div class="flex-shrink-0">
-                                                <i class="fa-solid fa-triangle-exclamation text-yellow-600"></i>
+                                                <span class="text-yellow-600">⚠</span>
                                             </div>
                                             <div class="ml-3">
                                                 <p class="text-sm text-yellow-800">
@@ -742,7 +774,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                     <!-- Paso 5 (Para el Revisor) -->
                                     <div class="border-t-2 border-dashed border-gray-300 pt-6 mt-6">
                                         <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                                            <h5 class="font-bold text-green-800 mb-2"><i class="fa-solid fa-check-double"></i> Turno del Revisor: Verificar y Aprobar</h5>
+                                            <h5 class="font-bold text-green-800 mb-2">✓✓ Turno del Revisor: Verificar y Aprobar</h5>
                                             <p class="text-sm mb-4 text-green-900">
                                                 Cuando el autor haya subido los cambios, tú (el revisor) debes volver a entrar.
                                             </p>
@@ -781,19 +813,19 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
                                 <div class="space-y-6">
                                     <!-- Checklist Pre-Merge -->
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <h4 class="font-bold text-slate-800 mb-3"><i class="fa-solid fa-list-check"></i> Antes de hacer Merge</h4>
+                                        <h4 class="font-bold text-slate-800 mb-3">☑ Antes de hacer Merge</h4>
                                         <p class="text-sm mb-3">Solo puedes hacer merge si cumples TODAS estas condiciones:</p>
                                         <ul class="space-y-2 text-sm">
                                             <li class="flex items-center gap-2">
-                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span class="text-green-500">✓</span>
                                                 <span>Aprobación de al menos 1 compañero (Approved).</span>
                                             </li>
                                             <li class="flex items-center gap-2">
-                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span class="text-green-500">✓</span>
                                                 <span>Todas las conversaciones resueltas (sin hilos pendientes).</span>
                                             </li>
                                             <li class="flex items-center gap-2">
-                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span class="text-green-500">✓</span>
                                                 <span>Tests de GitHub Actions en verde (sin <span class="text-red-500 font-bold">X</span> rojas).</span>
                                             </li>
                                         </ul>
@@ -845,7 +877,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
 
                                     <!-- Verificar en Main -->
                                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                        <h4 class="font-bold text-blue-800 mb-2"><i class="fa-solid fa-magnifying-glass"></i> Verificar en Main</h4>
+                                        <h4 class="font-bold text-blue-800 mb-2">🔍 Verificar en Main</h4>
                                         <p class="text-sm text-blue-900">
                                             Una vez fusionado, ve a la página principal del repositorio, asegúrate de estar en la rama <strong>main</strong> y revisa el historial de commits. Deberías ver tu cambio ahí como un único commit limpio.
                                         </p>
@@ -898,7 +930,7 @@ public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span c
               // Create Button
               const btn = document.createElement('button');
               // Using Font Awesome zoom icon
-              btn.innerHTML = '<i class="fa-solid fa-magnifying-glass-plus"></i>';
+              btn.innerHTML = '🔍';
               btn.className = 'zoom-btn absolute bottom-3 right-3 bg-white text-slate-800 p-2 rounded-full shadow-lg hover:bg-slate-100 hover:text-blue-600 transition cursor-pointer z-10 w-10 h-10 flex items-center justify-center';
               btn.title = 'Ampliar imagen';
 

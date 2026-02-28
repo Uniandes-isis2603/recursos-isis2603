@@ -56,8 +56,8 @@ header {
   margin-bottom: 6px;
 }
 header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(20px, 3vw, 30px);
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(18px, 2vw, 22px);
   color: var(--ink);
   line-height: 1.1;
 }
@@ -515,17 +515,60 @@ main {
   border-top: 1px solid var(--border);
 }
 .footer-bar span { color: var(--client); }
+
+/* ── MOBILE NOTICE ── */
+@media (max-width: 768px) { .mobile-notice { display: flex !important; } }
+.mobile-notice {
+  display: none;
+  position: fixed; inset: 0; z-index: 99999;
+  background: #1c1814;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; padding: 40px 32px; text-align: center;
+}
+.mobile-notice-icon { font-size: 48px; }
+.mobile-notice-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 700;
+  color: #faf8f4; letter-spacing: 1px;
+}
+.mobile-notice-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: rgba(255,255,255,.55);
+  line-height: 1.6; max-width: 280px;
+}
+.mobile-notice-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.35); text-decoration: none;
+}
+.mobile-notice-link:hover { color: rgba(255,255,255,.7); }
 </style>
 </head>
 <body>
 
+<div class="mobile-notice" role="alert">
+  <div class="mobile-notice-icon">🖥️</div>
+  <div class="mobile-notice-title">Mejor en escritorio</div>
+  <div class="mobile-notice-text">
+    Esta animación del flujo REST en 3 capas está diseñada para pantallas grandes.
+    Ábrela desde un computador para una mejor experiencia.
+  </div>
+  <a href="index.html" class="mobile-notice-link">← Volver a artefactos</a>
+</div>
+
+<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
+  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
+</nav>
+
 <header>
   <div>
-    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
-    <h1>Flujo de una petición <em>REST</em></h1>
+    <div class="hdr-tag">Universidad de los Andes</div>
+    <div class="hdr-tag">ISIS2603 Desarrollo de SW en equipos</div>
+    <h1>Ingeniería de Sistemas y Computación</h1>
   </div>
   <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);">
-    API de Música · Arquitectura 3 Capas
+    Recursos para ayuda al aprendizaje
   </div>
 </header>
 

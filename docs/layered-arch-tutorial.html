@@ -1,597 +1,683 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arquitectura por Capas</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        h1 {
-            color: #2d3748;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #718096;
-            margin-bottom: 40px;
-            font-size: 1.1em;
-        }
-        
-        .layers-diagram {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 40px 0;
-            padding: 20px;
-            background: #f7fafc;
-            border-radius: 10px;
-        }
-        
-        .layer {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            border-left: 5px solid;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .layer:hover {
-            transform: translateX(10px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        
-        .layer.active {
-            transform: translateX(10px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-        
-        .layer-api {
-            border-color: #4299e1;
-        }
-        
-        .layer-business {
-            border-color: #48bb78;
-        }
-        
-        .layer-persistence {
-            border-color: #ed8936;
-        }
-        
-        .layer-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #2d3748;
-        }
-        
-        .layer-description {
-            color: #4a5568;
-            line-height: 1.6;
-            display: none;
-        }
-        
-        .layer.active .layer-description {
-            display: block;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px dashed #e2e8f0;
-        }
-        
-        .responsibilities {
-            margin-top: 10px;
-            padding-left: 20px;
-        }
-        
-        .responsibilities li {
-            margin: 8px 0;
-            color: #2d3748;
-        }
-        
-        .arrow {
-            text-align: center;
-            color: #a0aec0;
-            font-size: 2em;
-            margin: -10px 0;
-        }
-        
-        .section {
-            margin: 40px 0;
-        }
-        
-        .section-title {
-            font-size: 1.8em;
-            color: #2d3748;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
-        
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            border: 2px solid #e2e8f0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .card:hover {
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-            transform: translateY(-5px);
-        }
-        
-        .card-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-icon {
-            font-size: 1.5em;
-        }
-        
-        .advantage {
-            border-left: 4px solid #48bb78;
-        }
-        
-        .advantage .card-icon {
-            color: #48bb78;
-        }
-        
-        .disadvantage {
-            border-left: 4px solid #f56565;
-        }
-        
-        .disadvantage .card-icon {
-            color: #f56565;
-        }
-        
-        .card-content {
-            color: #4a5568;
-            line-height: 1.6;
-        }
-        
-        .concept-box {
-            background: #edf2f7;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #667eea;
-        }
-        
-        .concept-title {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 15px;
-        }
-        
-        .concept-description {
-            color: #4a5568;
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-        
-        .example-flow {
-            background: #f7fafc;
-            padding: 30px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .flow-step {
-            background: white;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-left: 4px solid;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .flow-step-1 { border-color: #4299e1; }
-        .flow-step-2 { border-color: #48bb78; }
-        .flow-step-3 { border-color: #ed8936; }
-        .flow-step-4 { border-color: #ed8936; }
-        .flow-step-5 { border-color: #48bb78; }
-        .flow-step-6 { border-color: #4299e1; }
-        
-        .flow-number {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .highlight {
-            background: #fef5e7;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-        
-        .note {
-            background: #fff5f5;
-            border-left: 4px solid #fc8181;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            color: #742a2a;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-        
-        .tab {
-            padding: 15px 30px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 600;
-            color: #718096;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .tab:hover {
-            color: #667eea;
-        }
-        
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitectura por Capas – ISIS2603</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #f2efe9;
+  --surface:     #faf8f4;
+  --surface2:    #ffffff;
+  --border:      #ddd8d0;
+  --border2:     #ece8e0;
+  --ink:         #1c1814;
+  --ink-mid:     #4a4440;
+  --ink-soft:    #8c847c;
+  --api:         #0e7a5a;
+  --api-bg:      #e6f5f0;
+  --api-bdr:     #9dd9c5;
+  --logic:       #1d4ed8;
+  --logic-bg:    #e8eefb;
+  --logic-bdr:   #93aef0;
+  --persist:     #b45309;
+  --persist-bg:  #fef4e6;
+  --persist-bdr: #f6c87a;
+  --shadow-sm:   0 1px 4px rgba(28,24,20,.06);
+  --shadow:      0 4px 20px rgba(28,24,20,.09);
+  --shadow-lg:   0 8px 40px rgba(28,24,20,.12);
+  --radius:      12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 48px 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 60px,
+    rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+  );
+}
+.hdr-content { position: relative; text-align: center; max-width: 900px; }
+.hdr-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-bottom: 12px;
+}
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 3.5vw, 42px);
+  color: #faf8f4;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+header h1 em { font-style: italic; color: var(--persist-bdr); }
+.hdr-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.back-link {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,.38);
+  text-decoration: none;
+  letter-spacing: 1.5px;
+  transition: color .2s;
+}
+.back-link:hover { color: rgba(255,255,255,.85); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 32px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--logic-bdr);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-desc {
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+/* ── LAYER DIAGRAM ── */
+.layers-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 8px;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid var(--border2);
+}
+
+.layer {
+  background: var(--surface2);
+  padding: 20px 24px;
+  border-radius: 8px;
+  border-left: 5px solid;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.layer + .arrow { margin: 10px 0; }
+
+.layer:hover,
+.layer:focus-within,
+.layer.active {
+  transform: translateX(8px);
+  box-shadow: var(--shadow);
+}
+
+.layer-api      { border-color: var(--api-bdr); }
+.layer-business { border-color: var(--logic-bdr); }
+.layer-persistence { border-color: var(--persist-bdr); }
+
+/* native button trigger inside each layer */
+.layer-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  display: block;
+}
+.layer-btn:focus { outline: 2px solid var(--logic-bdr); outline-offset: 2px; border-radius: 4px; }
+
+.layer-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.layer-api .layer-title      { color: var(--api); }
+.layer-business .layer-title { color: var(--logic); }
+.layer-persistence .layer-title { color: var(--persist); }
+
+.layer-description {
+  color: var(--ink-mid);
+  line-height: 1.6;
+  font-size: 14px;
+  display: none;
+}
+
+.layer.active .layer-description {
+  display: block;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px dashed var(--border2);
+}
+
+.responsibilities {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.responsibilities li {
+  margin: 6px 0;
+  color: var(--ink-mid);
+  font-size: 13px;
+}
+
+.responsibilities li strong { color: var(--ink); }
+
+.arrow {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 24px;
+  margin: 6px 0;
+}
+
+/* ── CONCEPTS ── */
+.concept-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.concept-box {
+  background: var(--surface);
+  padding: 20px 24px;
+  border-radius: 10px;
+  border-left: 5px solid var(--logic);
+}
+
+.concept-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.concept-description {
+  color: var(--ink-mid);
+  line-height: 1.8;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* ── FLOW EXAMPLE ── */
+.example-flow {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: 10px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow-step {
+  background: var(--surface2);
+  padding: 16px 20px;
+  margin: 0;
+  border-radius: 8px;
+  border-left: 4px solid;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.flow-step-1 { border-color: var(--api); }
+.flow-step-2 { border-color: var(--logic); }
+.flow-step-3 { border-color: var(--persist); }
+.flow-step-4 { border-color: var(--persist); }
+.flow-step-5 { border-color: var(--logic); }
+.flow-step-6 { border-color: var(--api); }
+
+.flow-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--logic);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.flow-content { flex: 1; }
+.flow-content strong { color: var(--ink); font-size: 14px; }
+.flow-content span { color: var(--ink-mid); font-size: 13px; }
+
+.highlight {
+  background: var(--persist-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--persist);
+}
+
+.note {
+  background: var(--persist-bg);
+  border-left: 4px solid var(--persist-bdr);
+  padding: 16px 20px;
+  margin-top: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+
+/* ── PROS / CONS TABS ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border2);
+}
+
+.tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab:hover { color: var(--ink); }
+
+.tab.active {
+  color: var(--logic);
+  border-bottom-color: var(--logic);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.benefit-card, .drawback-card {
+  background: var(--surface);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  transition: all 0.2s;
+}
+
+.benefit-card:hover, .drawback-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.benefit-card { border-left: 4px solid var(--api); }
+.drawback-card { border-left: 4px solid #e57373; }
+
+.card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-content {
+  color: var(--ink-mid);
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  margin-top: 64px;
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  letter-spacing: 1px;
+}
+.footer span { color: var(--logic); }
+
+@media (max-width: 768px) {
+  .main { padding: 0 16px; }
+  header { padding: 32px 24px 28px; }
+  .card { padding: 20px; }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Arquitectura por Capas</h1>
-        <p class="subtitle">Backend con API REST, Business Logic y Persistencia</p>
-        
-        <div class="section">
-            <h2 class="section-title">Estructura de las Capas</h2>
-            <p style="color: #4a5568; margin-bottom: 20px;">Haz clic en cada capa para ver sus responsabilidades:</p>
-            
-            <div class="layers-diagram">
-                <div class="layer layer-api" onclick="toggleLayer(this)">
-                    <div class="layer-title">📡 Capa API REST (Presentación)</div>
-                    <div class="layer-description">
-                        <strong>Responsabilidad:</strong> Punto de entrada del sistema. Expone endpoints HTTP y maneja la comunicación con clientes externos.
-                        <ul class="responsibilities">
-                            <li>Recibir peticiones HTTP (GET, POST, PUT, DELETE)</li>
-                            <li>Validar formato de datos de entrada</li>
-                            <li>Serializar/deserializar JSON</li>
-                            <li>Manejar códigos de respuesta HTTP</li>
-                            <li>Gestionar autenticación y autorización</li>
-                            <li><strong>NO</strong> contiene lógica de negocio</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="arrow">↓</div>
-                
-                <div class="layer layer-business" onclick="toggleLayer(this)">
-                    <div class="layer-title">⚙️ Capa Business Logic (Lógica de Negocio)</div>
-                    <div class="layer-description">
-                        <strong>Responsabilidad:</strong> Núcleo del sistema. Implementa reglas de negocio y coordina operaciones.
-                        <ul class="responsibilities">
-                            <li>Implementar reglas de negocio y validaciones</li>
-                            <li>Coordinar operaciones entre diferentes entidades</li>
-                            <li>Gestionar transacciones</li>
-                            <li>Aplicar cálculos y transformaciones</li>
-                            <li>Orquestar flujos de trabajo complejos</li>
-                            <li><strong>NO</strong> conoce detalles de HTTP o base de datos</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="arrow">↓</div>
-                
-                <div class="layer layer-persistence" onclick="toggleLayer(this)">
-                    <div class="layer-title">💾 Capa de Persistencia (Datos)</div>
-                    <div class="layer-description">
-                        <strong>Responsabilidad:</strong> Gestiona el acceso y almacenamiento de datos.
-                        <ul class="responsibilities">
-                            <li>Ejecutar consultas SQL o queries ORM</li>
-                            <li>Mapear objetos a tablas (ORM)</li>
-                            <li>Gestionar conexiones a base de datos</li>
-                            <li>Implementar operaciones CRUD</li>
-                            <li>Optimizar acceso a datos (índices, caching)</li>
-                            <li><strong>NO</strong> contiene lógica de negocio</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+
+<header>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Arquitectura de Software</div>
+    <h1>Arquitectura por <em>Capas</em></h1>
+    <div class="hdr-sub">Backend con API REST, Business Logic y Persistencia</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Estructura de las Capas -->
+  <div class="card">
+    <div class="section-title">🏗️ Estructura de las Capas</div>
+    <p class="section-desc">Haz clic en cada capa para ver sus responsabilidades:</p>
+
+    <div class="layers-diagram">
+      <div class="layer layer-api">
+        <button class="layer-btn" onclick="toggleLayer(this.closest('.layer'))">
+          <div class="layer-title">📡 Capa API REST (Presentación)</div>
+        </button>
+        <div class="layer-description">
+          <strong>Responsabilidad:</strong> Punto de entrada del sistema. Expone endpoints HTTP y maneja la comunicación con clientes externos.
+          <ul class="responsibilities">
+            <li>Recibir peticiones HTTP (GET, POST, PUT, DELETE)</li>
+            <li>Validar formato de datos de entrada</li>
+            <li>Serializar/deserializar JSON</li>
+            <li>Manejar códigos de respuesta HTTP</li>
+            <li>Gestionar autenticación y autorización</li>
+            <li><strong>NO</strong> contiene lógica de negocio</li>
+          </ul>
         </div>
-        
-        <div class="section">
-            <h2 class="section-title">Conceptos Fundamentales</h2>
-            
-            <div class="concept-box">
-                <div class="concept-title">🎯 Separación de Responsabilidades</div>
-                <div class="concept-description">
-                    Cada capa tiene una responsabilidad única y bien definida. La API maneja comunicación HTTP, Business Logic implementa reglas de negocio, y Persistencia gestiona datos.
-                </div>
-                <div class="concept-description">
-                    <strong>Beneficio:</strong> Los cambios en una responsabilidad no afectan a las demás. Por ejemplo, cambiar de MySQL a PostgreSQL solo requiere modificar la capa de Persistencia.
-                </div>
-            </div>
-            
-            <div class="concept-box">
-                <div class="concept-title">🔗 Cohesión</div>
-                <div class="concept-description">
-                    Mide qué tan relacionadas están las responsabilidades dentro de una capa. En esta arquitectura, cada capa tiene <strong>alta cohesión</strong> porque todos sus elementos están enfocados en una única tarea.
-                </div>
-                <div class="concept-description">
-                    <strong>Ejemplo:</strong> La capa de Business Logic solo contiene lógica de negocio. No mezcla validaciones de HTTP ni queries SQL, manteniendo alta cohesión.
-                </div>
-            </div>
-            
-            <div class="concept-box">
-                <div class="concept-title">🔌 Acoplamiento</div>
-                <div class="concept-description">
-                    Mide el grado de dependencia entre capas. Esta arquitectura busca <strong>bajo acoplamiento</strong> mediante interfaces y abstracciones.
-                </div>
-                <div class="concept-description">
-                    <strong>Ejemplo:</strong> La Business Logic no conoce si usa MySQL o MongoDB. Solo conoce una interfaz (Repository) que la Persistencia implementa.
-                </div>
-            </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer layer-business">
+        <button class="layer-btn" onclick="toggleLayer(this.closest('.layer'))">
+          <div class="layer-title">⚙️ Capa Business Logic (Lógica de Negocio)</div>
+        </button>
+        <div class="layer-description">
+          <strong>Responsabilidad:</strong> Núcleo del sistema. Implementa reglas de negocio y coordina operaciones.
+          <ul class="responsibilities">
+            <li>Implementar reglas de negocio y validaciones</li>
+            <li>Coordinar operaciones entre diferentes entidades</li>
+            <li>Gestionar transacciones</li>
+            <li>Aplicar cálculos y transformaciones</li>
+            <li>Orquestar flujos de trabajo complejos</li>
+            <li><strong>NO</strong> conoce detalles de HTTP o base de datos</li>
+          </ul>
         </div>
-        
-        <div class="section">
-            <h2 class="section-title">Ejemplo: Flujo de una Petición</h2>
-            <p style="color: #4a5568; margin-bottom: 20px;">Caso: Un cliente quiere crear un nuevo pedido</p>
-            
-            <div class="example-flow">
-                <div class="flow-step flow-step-1">
-                    <span class="flow-number">1</span>
-                    <strong>API REST:</strong> Recibe <span class="highlight">POST /orders</span> con JSON del pedido. Valida formato y autenticación.
-                </div>
-                
-                <div class="flow-step flow-step-2">
-                    <span class="flow-number">2</span>
-                    <strong>Business Logic:</strong> Verifica reglas de negocio (stock disponible, límite de crédito del cliente, precios válidos).
-                </div>
-                
-                <div class="flow-step flow-step-3">
-                    <span class="flow-number">3</span>
-                    <strong>Persistencia:</strong> Guarda el pedido en la base de datos y actualiza el inventario.
-                </div>
-                
-                <div class="flow-step flow-step-4">
-                    <span class="flow-number">4</span>
-                    <strong>Persistencia:</strong> Retorna el ID del pedido creado a Business Logic.
-                </div>
-                
-                <div class="flow-step flow-step-5">
-                    <span class="flow-number">5</span>
-                    <strong>Business Logic:</strong> Puede ejecutar lógica adicional (enviar email, generar factura) y retorna el resultado.
-                </div>
-                
-                <div class="flow-step flow-step-6">
-                    <span class="flow-number">6</span>
-                    <strong>API REST:</strong> Retorna <span class="highlight">HTTP 201 Created</span> con el pedido creado en JSON.
-                </div>
-            </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer layer-persistence">
+        <button class="layer-btn" onclick="toggleLayer(this.closest('.layer'))">
+          <div class="layer-title">💾 Capa de Persistencia (Datos)</div>
+        </button>
+        <div class="layer-description">
+          <strong>Responsabilidad:</strong> Gestiona el acceso y almacenamiento de datos.
+          <ul class="responsibilities">
+            <li>Ejecutar consultas SQL o queries ORM</li>
+            <li>Mapear objetos a tablas (ORM)</li>
+            <li>Gestionar conexiones a base de datos</li>
+            <li>Implementar operaciones CRUD</li>
+            <li>Optimizar acceso a datos (índices, caching)</li>
+            <li><strong>NO</strong> contiene lógica de negocio</li>
+          </ul>
         </div>
-        
-        <div class="section">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab(0)">✅ Ventajas</button>
-                <button class="tab" onclick="switchTab(1)">⚠️ Desventajas</button>
-            </div>
-            
-            <div class="tab-content active">
-                <div class="cards-container">
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">🎯</span>
-                            Separación Clara
-                        </div>
-                        <div class="card-content">
-                            Cada capa tiene responsabilidades bien definidas, lo que facilita entender qué hace cada parte del sistema. Un desarrollador nuevo puede enfocarse en una capa a la vez.
-                        </div>
-                    </div>
-                    
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">🔧</span>
-                            Mantenibilidad
-                        </div>
-                        <div class="card-content">
-                            Los cambios están contenidos en una capa. Cambiar la base de datos de MySQL a PostgreSQL solo afecta la capa de Persistencia, sin tocar Business Logic ni API.
-                        </div>
-                    </div>
-                    
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">🧪</span>
-                            Facilidad de Testing
-                        </div>
-                        <div class="card-content">
-                            Cada capa puede probarse independientemente. Puedes testear Business Logic sin necesitar una base de datos real, usando mocks de la capa de Persistencia.
-                        </div>
-                    </div>
-                    
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">♻️</span>
-                            Reutilización
-                        </div>
-                        <div class="card-content">
-                            La misma Business Logic puede usarse desde diferentes APIs (REST, GraphQL, gRPC) o desde una interfaz web, móvil o consola sin duplicar código.
-                        </div>
-                    </div>
-                    
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">👥</span>
-                            Trabajo en Equipo
-                        </div>
-                        <div class="card-content">
-                            Equipos diferentes pueden trabajar en paralelo en distintas capas sin pisarse. Un equipo en API, otro en Business Logic y otro en Persistencia.
-                        </div>
-                    </div>
-                    
-                    <div class="card advantage">
-                        <div class="card-title">
-                            <span class="card-icon">🔒</span>
-                            Seguridad
-                        </div>
-                        <div class="card-content">
-                            La Business Logic está protegida. No es posible acceder directamente a la base de datos sin pasar por las validaciones de negocio, previniendo operaciones inválidas.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content">
-                <div class="cards-container">
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">📦</span>
-                            Complejidad Adicional
-                        </div>
-                        <div class="card-content">
-                            Para operaciones simples (CRUD básico), atravesar tres capas puede parecer excesivo. Requiere crear múltiples clases e interfaces incluso para funcionalidad trivial.
-                        </div>
-                    </div>
-                    
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">⏱️</span>
-                            Overhead de Performance
-                        </div>
-                        <div class="card-content">
-                            Cada capa agrega llamadas a métodos y posible serialización de datos. Para sistemas de alta performance, este overhead puede ser significativo.
-                        </div>
-                    </div>
-                    
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">🔀</span>
-                            Rigidez
-                        </div>
-                        <div class="card-content">
-                            Los cambios que afectan múltiples capas requieren modificaciones en cascada. Un cambio en el modelo de datos puede requerir actualizar Persistencia, Business Logic y API.
-                        </div>
-                    </div>
-                    
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">📝</span>
-                            Código Repetitivo
-                        </div>
-                        <div class="card-content">
-                            Los DTOs (Data Transfer Objects) deben definirse en cada capa. Esto genera clases similares que mapean datos entre capas, aumentando el código a mantener.
-                        </div>
-                    </div>
-                    
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">🎓</span>
-                            Curva de Aprendizaje
-                        </div>
-                        <div class="card-content">
-                            Desarrolladores junior pueden tardar en comprender dónde va cada cosa. Requiere disciplina para no romper la arquitectura (ej: poner SQL en Business Logic).
-                        </div>
-                    </div>
-                    
-                    <div class="card disadvantage">
-                        <div class="card-title">
-                            <span class="card-icon">🔍</span>
-                            Debugging Complejo
-                        </div>
-                        <div class="card-content">
-                            Rastrear un bug puede requerir seguir el flujo a través de múltiples capas. El stack trace es más profundo y puede ser difícil identificar dónde ocurrió el problema.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="note">
-            <strong>💡 Conclusión:</strong> La arquitectura por capas es excelente para sistemas complejos donde la mantenibilidad y testing son prioritarios. Sin embargo, para aplicaciones simples o prototipos, puede ser sobre-ingeniería. La clave es evaluar las necesidades del proyecto antes de decidir la arquitectura.
-        </div>
+      </div>
     </div>
-    
-    <script>
-        function toggleLayer(element) {
-            const allLayers = document.querySelectorAll('.layer');
-            allLayers.forEach(layer => {
-                if (layer !== element) {
-                    layer.classList.remove('active');
-                }
-            });
-            element.classList.toggle('active');
-        }
-        
-        function switchTab(index) {
-            const tabs = document.querySelectorAll('.tab');
-            const contents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(tab => tab.classList.remove('active'));
-            contents.forEach(content => content.classList.remove('active'));
-            
-            tabs[index].classList.add('active');
-            contents[index].classList.add('active');
-        }
-    </script>
+  </div>
+
+  <!-- Conceptos Fundamentales -->
+  <div class="card">
+    <div class="section-title">🎯 Conceptos Fundamentales</div>
+    <div class="concept-boxes">
+      <div class="concept-box">
+        <div class="concept-title">🎯 Separación de Responsabilidades</div>
+        <p class="concept-description">
+          Cada capa tiene una responsabilidad única y bien definida. La API maneja comunicación HTTP, Business Logic implementa reglas de negocio, y Persistencia gestiona datos.
+        </p>
+        <p class="concept-description">
+          <strong>Beneficio:</strong> Los cambios en una responsabilidad no afectan a las demás. Por ejemplo, cambiar de MySQL a PostgreSQL solo requiere modificar la capa de Persistencia.
+        </p>
+      </div>
+
+      <div class="concept-box" style="border-left-color: var(--api);">
+        <div class="concept-title">🔗 Cohesión</div>
+        <p class="concept-description">
+          Mide qué tan relacionadas están las responsabilidades dentro de una capa. En esta arquitectura, cada capa tiene <strong>alta cohesión</strong> porque todos sus elementos están enfocados en una única tarea.
+        </p>
+        <p class="concept-description">
+          <strong>Ejemplo:</strong> La capa de Business Logic solo contiene lógica de negocio. No mezcla validaciones de HTTP ni queries SQL, manteniendo alta cohesión.
+        </p>
+      </div>
+
+      <div class="concept-box" style="border-left-color: var(--persist);">
+        <div class="concept-title">🔌 Acoplamiento</div>
+        <p class="concept-description">
+          Mide el grado de dependencia entre capas. Esta arquitectura busca <strong>bajo acoplamiento</strong> mediante interfaces y abstracciones.
+        </p>
+        <p class="concept-description">
+          <strong>Ejemplo:</strong> La Business Logic no conoce si usa MySQL o MongoDB. Solo conoce una interfaz (Repository) que la Persistencia implementa.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flujo de una Petición -->
+  <div class="card">
+    <div class="section-title">🔄 Ejemplo: Flujo de una Petición</div>
+    <p class="section-desc">Caso: Un cliente quiere crear un nuevo pedido</p>
+
+    <div class="example-flow">
+      <div class="flow-step flow-step-1">
+        <div class="flow-number">1</div>
+        <div class="flow-content">
+          <strong>API REST:</strong> <span>Recibe <span class="highlight">POST /orders</span> con JSON del pedido. Valida formato y autenticación.</span>
+        </div>
+      </div>
+
+      <div class="flow-step flow-step-2">
+        <div class="flow-number">2</div>
+        <div class="flow-content">
+          <strong>Business Logic:</strong> <span>Verifica reglas de negocio (stock disponible, límite de crédito del cliente, precios válidos).</span>
+        </div>
+      </div>
+
+      <div class="flow-step flow-step-3">
+        <div class="flow-number">3</div>
+        <div class="flow-content">
+          <strong>Persistencia:</strong> <span>Guarda el pedido en la base de datos y actualiza el inventario.</span>
+        </div>
+      </div>
+
+      <div class="flow-step flow-step-4">
+        <div class="flow-number">4</div>
+        <div class="flow-content">
+          <strong>Persistencia:</strong> <span>Retorna el ID del pedido creado a Business Logic.</span>
+        </div>
+      </div>
+
+      <div class="flow-step flow-step-5">
+        <div class="flow-number">5</div>
+        <div class="flow-content">
+          <strong>Business Logic:</strong> <span>Puede ejecutar lógica adicional (enviar email, generar factura) y retorna el resultado.</span>
+        </div>
+      </div>
+
+      <div class="flow-step flow-step-6">
+        <div class="flow-number">6</div>
+        <div class="flow-content">
+          <strong>API REST:</strong> <span>Retorna <span class="highlight">HTTP 201 Created</span> con el pedido creado en JSON.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ventajas y Desventajas -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(0)">✅ Ventajas</button>
+      <button class="tab" onclick="switchTab(1)">⚠️ Desventajas</button>
+    </div>
+
+    <div class="tab-content active">
+      <div class="cards-container">
+        <div class="benefit-card">
+          <div class="card-title">🎯 Separación Clara</div>
+          <div class="card-content">Cada capa tiene responsabilidades bien definidas, lo que facilita entender qué hace cada parte del sistema. Un desarrollador nuevo puede enfocarse en una capa a la vez.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="card-title">🔧 Mantenibilidad</div>
+          <div class="card-content">Los cambios están contenidos en una capa. Cambiar la base de datos de MySQL a PostgreSQL solo afecta la capa de Persistencia, sin tocar Business Logic ni API.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="card-title">🧪 Facilidad de Testing</div>
+          <div class="card-content">Cada capa puede probarse independientemente. Puedes testear Business Logic sin necesitar una base de datos real, usando mocks de la capa de Persistencia.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="card-title">♻️ Reutilización</div>
+          <div class="card-content">La misma Business Logic puede usarse desde diferentes APIs (REST, GraphQL, gRPC) o desde una interfaz web, móvil o consola sin duplicar código.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="card-title">👥 Trabajo en Equipo</div>
+          <div class="card-content">Equipos diferentes pueden trabajar en paralelo en distintas capas sin pisarse. Un equipo en API, otro en Business Logic y otro en Persistencia.</div>
+        </div>
+        <div class="benefit-card">
+          <div class="card-title">🔒 Seguridad</div>
+          <div class="card-content">La Business Logic está protegida. No es posible acceder directamente a la base de datos sin pasar por las validaciones de negocio, previniendo operaciones inválidas.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content">
+      <div class="cards-container">
+        <div class="drawback-card">
+          <div class="card-title">📦 Complejidad Adicional</div>
+          <div class="card-content">Para operaciones simples (CRUD básico), atravesar tres capas puede parecer excesivo. Requiere crear múltiples clases e interfaces incluso para funcionalidad trivial.</div>
+        </div>
+        <div class="drawback-card">
+          <div class="card-title">⏱️ Overhead de Performance</div>
+          <div class="card-content">Cada capa agrega llamadas a métodos y posible serialización de datos. Para sistemas de alta performance, este overhead puede ser significativo.</div>
+        </div>
+        <div class="drawback-card">
+          <div class="card-title">🔀 Rigidez</div>
+          <div class="card-content">Los cambios que afectan múltiples capas requieren modificaciones en cascada. Un cambio en el modelo de datos puede requerir actualizar Persistencia, Business Logic y API.</div>
+        </div>
+        <div class="drawback-card">
+          <div class="card-title">📝 Código Repetitivo</div>
+          <div class="card-content">Los DTOs (Data Transfer Objects) deben definirse en cada capa. Esto genera clases similares que mapean datos entre capas, aumentando el código a mantener.</div>
+        </div>
+        <div class="drawback-card">
+          <div class="card-title">🎓 Curva de Aprendizaje</div>
+          <div class="card-content">Desarrolladores junior pueden tardar en comprender dónde va cada cosa. Requiere disciplina para no romper la arquitectura (ej: poner SQL en Business Logic).</div>
+        </div>
+        <div class="drawback-card">
+          <div class="card-title">🔍 Debugging Complejo</div>
+          <div class="card-content">Rastrear un bug puede requerir seguir el flujo a través de múltiples capas. El stack trace es más profundo y puede ser difícil identificar dónde ocurrió el problema.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top: 24px;">
+      <strong>💡 Conclusión:</strong> La arquitectura por capas es excelente para sistemas complejos donde la mantenibilidad y testing son prioritarios. Sin embargo, para aplicaciones simples o prototipos, puede ser sobre-ingeniería. La clave es evaluar las necesidades del proyecto antes de decidir la arquitectura.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  ISIS2603 · Universidad de los Andes · <span>Artefactos de Desarrollo de Software</span>
+</div>
+
+<script>
+function toggleLayer(element) {
+  const allLayers = document.querySelectorAll('.layer');
+  allLayers.forEach(layer => {
+    if (layer !== element) {
+      layer.classList.remove('active');
+    }
+  });
+  element.classList.toggle('active');
+}
+
+function switchTab(index) {
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => tab.classList.remove('active'));
+  contents.forEach(content => content.classList.remove('active'));
+
+  tabs[index].classList.add('active');
+  contents[index].classList.add('active');
+}
+</script>
 </body>
 </html>
