@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artefactos – Desarrollo de Software</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:        #f2efe9;
@@ -14,7 +14,7 @@
   --border2:   #ece8e0;
   --ink:       #1c1814;
   --ink-mid:   #4a4440;
-  --ink-soft:  #8c847c;
+  --ink-soft:  #6b6360;
 
   --api:       #0e7a5a;
   --api-bg:    #e6f5f0;
@@ -70,12 +70,12 @@ header::before {
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,.60);
   margin-bottom: 12px;
 }
 header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(32px, 4vw, 48px);
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(18px, 2vw, 22px);
   color: #faf8f4;
   line-height: 1.1;
   margin-bottom: 12px;
@@ -84,7 +84,7 @@ header h1 em { font-style: italic; color: #f6c87a; }
 .hdr-sub {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: rgba(255,255,255,.5);
+  color: rgba(255,255,255,.72);
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
@@ -117,6 +117,8 @@ header h1 em { font-style: italic; color: #f6c87a; }
   overflow: hidden;
   border: 2px solid var(--border);
   transition: all .2s;
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
 }
 .layer:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
@@ -307,12 +309,9 @@ header h1 em { font-style: italic; color: #f6c87a; }
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.layer {
-  animation: fadeInUp 0.5s ease forwards;
-}
-.layer:nth-child(1) { animation-delay: 0.1s; opacity: 0; }
-.layer:nth-child(2) { animation-delay: 0.2s; opacity: 0; }
-.layer:nth-child(3) { animation-delay: 0.3s; opacity: 0; }
+.layer:nth-child(1) { animation-delay: 0.1s; }
+.layer:nth-child(2) { animation-delay: 0.2s; }
+.layer:nth-child(3) { animation-delay: 0.3s; }
 
 /* ── INTERACTIVE LAYERS ── */
 .layers-interactive {
@@ -338,10 +337,15 @@ header h1 em { font-style: italic; color: #f6c87a; }
   box-shadow: var(--shadow);
 }
 .interactive-layer-header {
+  width: 100%;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
 }
 .interactive-layer-icon {
   font-size: 24px;
@@ -563,9 +567,10 @@ header h1 em { font-style: italic; color: #f6c87a; }
 
 <header>
   <div class="hdr-content">
-    <div class="hdr-tag">ISIS2603 · Desarrollo de Software</div>
-    <h1>Artefactos de <em>Aprendizaje</em></h1>
-    <div class="hdr-sub">Recursos interactivos organizados por capas de arquitectura</div>
+    <div class="hdr-tag">Universidad de los Andes</div>
+    <div class="hdr-tag">ISIS2603 Desarrollo de SW en equipos</div>
+    <h1>Ingeniería de Sistemas y Computación</h1>
+    <div class="hdr-sub">Recursos para ayuda al aprendizaje</div>
   </div>
 </header>
 
@@ -617,6 +622,14 @@ header h1 em { font-style: italic; color: #f6c87a; }
           </div>
           <span class="artifact-arrow">→</span>
         </a>
+        <a href="postman-tests.html" class="artifact-link">
+          <div class="artifact-icon">🧩</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Postman Tests</span>
+            <span class="artifact-subtitle">Explorador de pruebas Postman</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
       </div>
     </div>
 
@@ -649,6 +662,14 @@ header h1 em { font-style: italic; color: #f6c87a; }
           </div>
           <span class="artifact-arrow">→</span>
         </a>
+        <a href="quiz-logica-pruebas.html" class="artifact-link">
+          <div class="artifact-icon">🎯</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Quiz – Lógica y Pruebas</span>
+            <span class="artifact-subtitle">10 preguntas de comprensión</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
       </div>
     </div>
 
@@ -678,6 +699,14 @@ header h1 em { font-style: italic; color: #f6c87a; }
           <div class="artifact-text">
             <span class="artifact-name">Explorador JPA Interactivo</span>
             <span class="artifact-subtitle">Asociaciones y relaciones</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+        <a href="explorador-jpa-interactivo.html" class="artifact-link">
+          <div class="artifact-icon">🗄️</div>
+          <div class="artifact-text">
+            <span class="artifact-name">Mapeador JPA</span>
+            <span class="artifact-subtitle">Entity ↔ Base de Datos</span>
           </div>
           <span class="artifact-arrow">→</span>
         </a>
@@ -739,12 +768,15 @@ header h1 em { font-style: italic; color: #f6c87a; }
     </p>
 
     <div class="layers-interactive">
-      <div class="interactive-layer interactive-api" onclick="toggleLayer(this)">
-        <div class="interactive-layer-header">
+      <div class="interactive-layer interactive-api">
+        <button type="button" class="interactive-layer-header"
+                aria-expanded="false"
+                aria-controls="layer-api-content"
+                onclick="toggleLayer(this)">
           <span class="interactive-layer-icon">🌐</span>
           <span class="interactive-layer-title">Capa API REST (Presentación)</span>
-        </div>
-        <div class="interactive-layer-content">
+        </button>
+        <div class="interactive-layer-content" id="layer-api-content">
           <p style="margin-bottom:12px;"><strong>Responsabilidad:</strong> Punto de entrada del sistema. Expone endpoints HTTP y maneja la comunicación con clientes externos.</p>
           <ul class="resp-list">
             <li>Recibir peticiones HTTP (GET, POST, PUT, DELETE)</li>
@@ -759,12 +791,15 @@ header h1 em { font-style: italic; color: #f6c87a; }
 
       <div class="layer-arrow">↓</div>
 
-      <div class="interactive-layer interactive-logic" onclick="toggleLayer(this)">
-        <div class="interactive-layer-header">
+      <div class="interactive-layer interactive-logic">
+        <button type="button" class="interactive-layer-header"
+                aria-expanded="false"
+                aria-controls="layer-logic-content"
+                onclick="toggleLayer(this)">
           <span class="interactive-layer-icon">⚙️</span>
           <span class="interactive-layer-title">Capa Business Logic (Lógica de Negocio)</span>
-        </div>
-        <div class="interactive-layer-content">
+        </button>
+        <div class="interactive-layer-content" id="layer-logic-content">
           <p style="margin-bottom:12px;"><strong>Responsabilidad:</strong> Núcleo del sistema. Implementa reglas de negocio y coordina operaciones.</p>
           <ul class="resp-list">
             <li>Implementar reglas de negocio y validaciones</li>
@@ -779,12 +814,15 @@ header h1 em { font-style: italic; color: #f6c87a; }
 
       <div class="layer-arrow">↓</div>
 
-      <div class="interactive-layer interactive-persist" onclick="toggleLayer(this)">
-        <div class="interactive-layer-header">
+      <div class="interactive-layer interactive-persist">
+        <button type="button" class="interactive-layer-header"
+                aria-expanded="false"
+                aria-controls="layer-persist-content"
+                onclick="toggleLayer(this)">
           <span class="interactive-layer-icon">💾</span>
           <span class="interactive-layer-title">Capa de Persistencia (Datos)</span>
-        </div>
-        <div class="interactive-layer-content">
+        </button>
+        <div class="interactive-layer-content" id="layer-persist-content">
           <p style="margin-bottom:12px;"><strong>Responsabilidad:</strong> Gestiona el acceso y almacenamiento de datos.</p>
           <ul class="resp-list">
             <li>Ejecutar consultas SQL o queries ORM</li>
@@ -908,9 +946,9 @@ header h1 em { font-style: italic; color: #f6c87a; }
 <!-- ════════════ PROS & CONS ════════════ -->
 <div class="info-section">
   <div class="info-card">
-    <div class="pros-cons-tabs">
-      <button class="pros-cons-tab active" onclick="switchProsCons(0)">✅ Ventajas</button>
-      <button class="pros-cons-tab" onclick="switchProsCons(1)">⚠️ Desventajas</button>
+    <div class="pros-cons-tabs" role="tablist">
+      <button type="button" role="tab" class="pros-cons-tab active" aria-selected="true" onclick="switchProsCons(0)">✅ Ventajas</button>
+      <button type="button" role="tab" class="pros-cons-tab" aria-selected="false" onclick="switchProsCons(1)">⚠️ Desventajas</button>
     </div>
 
     <div class="pros-cons-content active">
@@ -1017,14 +1055,18 @@ header h1 em { font-style: italic; color: #f6c87a; }
 
 <script>
 // Toggle interactive layer visibility
-function toggleLayer(element) {
-  const allLayers = document.querySelectorAll('.interactive-layer');
-  allLayers.forEach(layer => {
-    if (layer !== element) {
-      layer.classList.remove('active');
+// `btn` is the <button class="interactive-layer-header"> element
+function toggleLayer(btn) {
+  const layer = btn.closest('.interactive-layer');
+  const allBtns = document.querySelectorAll('.interactive-layer-header');
+  allBtns.forEach(b => {
+    if (b !== btn) {
+      b.setAttribute('aria-expanded', 'false');
+      b.closest('.interactive-layer').classList.remove('active');
     }
   });
-  element.classList.toggle('active');
+  const isNowActive = layer.classList.toggle('active');
+  btn.setAttribute('aria-expanded', isNowActive ? 'true' : 'false');
 }
 
 // Switch between pros and cons tabs
@@ -1032,10 +1074,14 @@ function switchProsCons(index) {
   const tabs = document.querySelectorAll('.pros-cons-tab');
   const contents = document.querySelectorAll('.pros-cons-content');
 
-  tabs.forEach(tab => tab.classList.remove('active'));
+  tabs.forEach(tab => {
+    tab.classList.remove('active');
+    tab.setAttribute('aria-selected', 'false');
+  });
   contents.forEach(content => content.classList.remove('active'));
 
   tabs[index].classList.add('active');
+  tabs[index].setAttribute('aria-selected', 'true');
   contents[index].classList.add('active');
 }
 </script>
