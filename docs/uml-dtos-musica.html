@@ -18,25 +18,56 @@
     padding: 40px 24px 64px;
   }
 
+  /* ── HEADER ── */
   header {
+    background: #1a1714;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      rgba(255,255,255,.015) 0 11px
+    );
+    color: #fff;
     text-align: center;
+    padding: 64px 24px 56px;
+    position: relative;
     margin-bottom: 36px;
+    width: 100%;
   }
+  .hdr-content { position: relative; }
   .hdr-tag {
-    font-size: 10px;
-    letter-spacing: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    color: rgba(255,255,255,.3);
-    margin-bottom: 10px;
+    color: rgba(255,255,255,.35);
+    margin-bottom: 16px;
   }
   header h1 {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 20px;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.1;
     color: #faf8f4;
-    margin-bottom: 6px;
+    margin: 0 0 16px;
   }
   header h1 em { font-style: italic; color: #f6c87a; }
-  header p { font-size: 11px; color: rgba(255,255,255,.35); letter-spacing: 1px; }
+  .hdr-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,.55);
+  }
+  .back-link {
+    position: absolute;
+    top: 16px; left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    text-decoration: none;
+  }
+  .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
 
   .canvas-wrap {
     background: #ffffff;
@@ -109,15 +140,13 @@
 </style>
 </head>
 <body>
-<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
-  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
-</nav>
-
 <header>
-  <div class="hdr-tag">Universidad de los Andes</div>
-  <div class="hdr-tag">ISIS2603 Desarrollo de SW en equipos</div>
-  <h1>Ingeniería de Sistemas y Computación</h1>
-  <p>Recursos para ayuda al aprendizaje</p>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · DTOs</div>
+    <h1>Diagrama de <em>DTOs</em></h1>
+    <div class="hdr-sub">API de Música · Artistas, Álbumes y Canciones</div>
+  </div>
 </header>
 
 <div class="canvas-wrap">

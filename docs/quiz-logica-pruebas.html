@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz — Lógica de Negocio y Pruebas</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-primary: #0a0e17;
@@ -42,46 +42,54 @@
   ::-webkit-scrollbar-track { background: var(--bg-primary); }
   ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
 
-  .hero {
-    position: relative;
-    padding: 60px 40px 40px;
+  /* ─── Header ─── */
+  header {
+    background: #1c1814;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      rgba(255,255,255,.015) 0 11px
+    );
+    color: #fff;
     text-align: center;
-    overflow: hidden;
+    padding: 64px 24px 56px;
+    position: relative;
   }
-
-  .hero::before {
-    content: '';
+  .hdr-content { position: relative; }
+  .hdr-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin: 0 0 16px;
+    color: #faf8f4;
+  }
+  header h1 em { font-style: italic; color: #f6c87a; }
+  .hdr-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,.55);
+  }
+  .back-link {
     position: absolute;
-    inset: -40% -20%;
-    width: 140%;
-    height: 180%;
-    background: radial-gradient(ellipse at 25% 30%, var(--glow-green) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 60%, var(--glow-blue) 0%, transparent 55%);
-    pointer-events: none;
-    animation: pulse 7s ease-in-out infinite alternate;
+    top: 16px; left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    text-decoration: none;
   }
-
-  @keyframes pulse { 0%{opacity:.5} 100%{opacity:.9} }
-
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.1rem, 2vw, 1.3rem);
-    font-weight: 800;
-    position: relative;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-  }
-
-  .hero p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    position: relative;
-    max-width: 560px;
-    margin: 0 auto;
-  }
+  .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
 
   /* ─── Progress bar ─── */
   .progress-wrap {
@@ -403,15 +411,14 @@
 </style>
 </head>
 <body>
-<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
-  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
-</nav>
-
-<div class="hero">
-  <h1>Universidad de los Andes</h1>
-  <p>ISIS2603 Desarrollo de SW en equipos</p>
-  <p>Ingeniería de Sistemas y Computación · Recursos para ayuda al aprendizaje</p>
-</div>
+<header>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Evaluación</div>
+    <h1>Quiz: Lógica y <em>Pruebas</em></h1>
+    <div class="hdr-sub">10 preguntas sobre capa de servicios y testing</div>
+  </div>
+</header>
 
 <div class="progress-wrap">
   <div class="progress-info">

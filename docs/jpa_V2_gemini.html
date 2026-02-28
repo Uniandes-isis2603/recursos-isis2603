@@ -4,8 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clase JPA: Mapeo y Persistencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      /* ── CANONICAL HEADER ── */
+      body > nav + header, body > nav ~ header, .jpa-header {
+        background: #1c1814;
+        background-image: repeating-linear-gradient(135deg,transparent 0 10px,rgba(255,255,255,.015) 0 11px);
+        color: #fff;
+        text-align: center;
+        padding: 64px 24px 56px;
+        position: relative;
+      }
+      .jpa-header .hdr-content { position: relative; }
+      .jpa-header .hdr-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,.35);
+        margin-bottom: 16px;
+      }
+      .jpa-header h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 400;
+        line-height: 1.1;
+        margin: 0 0 16px;
+        color: #faf8f4;
+      }
+      .jpa-header h1 em { font-style: italic; color: #f6c87a; }
+      .jpa-header .hdr-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        color: rgba(255,255,255,.55);
+      }
+      .back-link {
+        position: absolute;
+        top: 16px; left: 24px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,.45);
+        text-decoration: none;
+      }
+      .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
         .code-font { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -18,16 +63,13 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans">
-<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
-  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
-</nav>
-
-    <header class="bg-indigo-900 text-white p-6 shadow-md">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-xl font-bold">Universidad de los Andes</h1>
-            <p class="text-indigo-200 mt-1 text-sm">ISIS2603 Desarrollo de SW en equipos</p>
-            <p class="text-indigo-200 mt-2">Ingeniería de Sistemas y Computación · Recursos para ayuda al aprendizaje</p>
-        </div>
+    <header class="jpa-header">
+      <a href="index.html" class="back-link">← Artefactos</a>
+      <div class="hdr-content">
+        <div class="hdr-tag">ISIS2603 · Persistencia</div>
+        <h1>Persistencia con <em>JPA</em></h1>
+        <div class="hdr-sub">Mapeo ORM · Relaciones bidireccionales · Tablas resultantes</div>
+      </div>
     </header>
 
     <nav aria-label="Contenido de la página" class="bg-white shadow sticky top-0 z-50">

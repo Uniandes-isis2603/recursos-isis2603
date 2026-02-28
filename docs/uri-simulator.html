@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulador de URIs – Conceptos REST</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream: #faf7f2;
@@ -39,50 +39,52 @@
   /* HEADER */
   header {
     background: var(--ink);
-    color: var(--cream);
-    padding: 40px 48px 36px;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      rgba(255,255,255,.015) 0 11px
+    );
+    color: #faf7f2;
+    text-align: center;
+    padding: 64px 24px 56px;
     position: relative;
-    overflow: hidden;
   }
-  header::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.15;
-  }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: 30%;
-    width: 300px; height: 150px;
-    border-radius: 50%;
-    background: var(--teal);
-    opacity: 0.12;
-  }
-  .header-tag {
-    font-family: 'Space Mono', monospace;
+  .hdr-content { position: relative; }
+  .hdr-tag {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
+    color: rgba(250,247,242,.35);
+    margin-bottom: 16px;
   }
   header h1 {
-    font-size: clamp(18px, 2vw, 22px);
-    font-weight: 700;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
     line-height: 1.1;
-    margin-bottom: 10px;
+    margin: 0 0 16px;
     position: relative;
   }
-  header p {
-    font-family: 'Space Mono', monospace;
+  header h1 em { font-style: italic; color: #f6c87a; }
+  .hdr-sub {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    color: rgba(250,247,242,0.6);
+    letter-spacing: 1.5px;
+    color: rgba(250,247,242,.55);
     position: relative;
   }
+  .back-link {
+    position: absolute;
+    top: 16px; left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(250,247,242,.45);
+    text-decoration: none;
+  }
+  .back-link:hover, .back-link:focus { color: rgba(250,247,242,.85); }
 
   /* SYNTAX BAR */
   .syntax-section {
@@ -440,15 +442,13 @@
 </head>
 <body>
 
-<nav aria-label="Volver al índice" style="position:sticky;top:0;z-index:9999;background:#1c1814;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
-  <a href="index.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.85)'" onmouseout="this.style.color='rgba(255,255,255,.45)'" onfocus="this.style.color='rgba(255,255,255,.85)'" onblur="this.style.color='rgba(255,255,255,.45)'">← Artefactos</a>
-</nav>
-
 <header>
-  <div class="header-tag">Universidad de los Andes</div>
-  <div class="header-tag">ISIS2603 Desarrollo de SW en equipos</div>
-  <h1>Ingeniería de Sistemas y Computación</h1>
-  <p>Recursos para ayuda al aprendizaje</p>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Conceptos REST</div>
+    <h1>Simulador de <em>URIs</em></h1>
+    <div class="hdr-sub">Estructura y semántica de URLs en servicios web</div>
+  </div>
 </header>
 
 <div class="syntax-section">
