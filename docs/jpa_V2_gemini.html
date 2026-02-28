@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clase JPA: Mapeo y Persistencia</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       /* ── CANONICAL HEADER ── */
@@ -51,7 +51,8 @@
         text-decoration: none;
       }
       .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
-        .code-font { font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+        body { background-color: #f2efe9 !important; color: #1c1814 !important; font-family: 'DM Sans', sans-serif !important; }
+        .code-font { font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace; }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -62,7 +63,7 @@
         .fk-col { background-color: #dcfce7; border-color: #86efac; color: #166534; font-weight: bold; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans">
+<body class="font-sans">
     <header class="jpa-header">
       <a href="index.html" class="back-link">← Artefactos</a>
       <div class="hdr-content">
@@ -74,7 +75,7 @@
 
     <nav aria-label="Contenido de la página" class="bg-white shadow sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex overflow-x-auto">
-            <button onclick="setStep(1)" id="btn-1" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-indigo-600 text-indigo-900 transition hover:bg-slate-50">
+            <button onclick="setStep(1)" id="btn-1" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-amber-600 text-amber-900 transition hover:bg-slate-50">
                 Paso 1: La Entidad
             </button>
             <button onclick="setStep(2)" id="btn-2" class="flex-1 py-4 px-2 text-center font-semibold border-b-4 border-transparent text-gray-500 transition hover:bg-slate-50">
@@ -92,13 +93,13 @@
     <main class="max-w-6xl mx-auto p-6 min-h-screen">
 
         <div id="step-1" class="step-content fade-in">
-            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
-                <h2 class="text-2xl font-bold mb-4 text-indigo-800">1. Del Objeto a la Tabla</h2>
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-amber-500">
+                <h2 class="text-2xl font-bold mb-4 text-amber-800">1. Del Objeto a la Tabla</h2>
                 <p class="mb-6 text-lg">Usamos <strong>Lombok (@Data)</strong> y <strong>JPA (@Entity)</strong>. Observa cómo una clase simple se convierte en una estructura de base de datos.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                     <div class="bg-slate-900 text-slate-100 p-6 rounded-lg shadow-inner code-font text-sm relative">
-                        <div class="absolute top-0 right-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded-bl">Java Class</div>
+                        <div class="absolute top-0 right-0 bg-amber-600 text-white text-xs px-2 py-1 rounded-bl">Java Class</div>
                         <span class="text-yellow-400">@Data</span> <span class="text-gray-500">// Getters, Setters...</span><br>
                         <span class="text-yellow-400">@Entity</span><br>
                         <span class="text-purple-400">public class</span> <span class="text-blue-300">EmployeeEntity</span> {<br><br>
@@ -138,9 +139,9 @@
         </div>
 
         <div id="step-2" class="step-content hidden fade-in">
-            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-amber-500">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-indigo-800">2. Mapeo Objeto vs. Base de Datos</h2>
+                    <h2 class="text-2xl font-bold text-amber-800">2. Mapeo Objeto vs. Base de Datos</h2>
                     <button onclick="toggleVisualMatch()" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 font-bold border border-red-300 text-sm">
                         👁️ Ver correspondencia mappedBy
                     </button>
@@ -150,10 +151,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
-                    <div class="border-2 border-indigo-100 rounded-lg p-4 bg-indigo-50 flex flex-col h-full">
+                    <div class="border-2 border-amber-100 rounded-lg p-4 bg-amber-50 flex flex-col h-full">
                         <div class="mb-2 flex justify-between items-center">
-                            <span class="font-bold text-indigo-900">1. Clase Java (Inversa)</span>
-                            <span class="bg-indigo-200 text-indigo-800 text-xs px-2 py-1 rounded">DepartmentEntity</span>
+                            <span class="font-bold text-amber-900">1. Clase Java (Inversa)</span>
+                            <span class="bg-amber-200 text-amber-800 text-xs px-2 py-1 rounded">DepartmentEntity</span>
                         </div>
                         
                         <div class="bg-slate-900 text-slate-100 p-4 rounded code-font text-xs mb-4 flex-grow">
@@ -224,8 +225,8 @@
         </div>
 
         <div id="step-3" class="step-content hidden fade-in">
-            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-indigo-500">
-                <h2 class="text-2xl font-bold mb-4 text-indigo-800">3. El Repositorio (JpaRepository)</h2>
+            <div class="bg-white p-8 rounded-lg shadow-lg border-l-8 border-amber-500">
+                <h2 class="text-2xl font-bold mb-4 text-amber-800">3. El Repositorio (JpaRepository)</h2>
                 <p class="mb-4">Spring Data JPA implementa el acceso a datos por nosotros.</p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -335,7 +336,7 @@
 
     </main>
 
-    <footer class="text-center p-6 text-gray-500 text-sm">
+    <footer class="text-center p-6 text-sm" style="color:#8a7a6a;border-top:1px solid #dfd6c8;">
         Artefacto Docente JPA - Ingeniería de Software
     </footer>
 
@@ -345,14 +346,14 @@
             document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
             for(let i=1; i<=4; i++) {
                 const btn = document.getElementById(`btn-${i}`);
-                btn.classList.remove('border-indigo-600', 'text-indigo-900');
+                btn.classList.remove('border-amber-600', 'text-amber-900');
                 if(i !== 4) btn.classList.add('border-transparent', 'text-gray-500');
             }
             document.getElementById(`step-${stepNum}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`btn-${stepNum}`);
             if (stepNum !== 4) {
                 activeBtn.classList.remove('border-transparent', 'text-gray-500');
-                activeBtn.classList.add('border-indigo-600', 'text-indigo-900');
+                activeBtn.classList.add('border-amber-600', 'text-amber-900');
             }
         }
 
