@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(wc -l /c/2026/recursos-isis2603/docs/*.html)",
-      "Bash(ls -lah *.html)"
+      "Bash(ls -lah *.html)",
+      "Bash(git checkout --ours docs/explorador-jpa-interactivo.html docs/jpa-element-collection.html docs/layered-arch-tutorial.html)",
+      "Bash(git add docs/explorador-jpa-interactivo.html docs/jpa-element-collection.html docs/layered-arch-tutorial.html)",
+      "Bash(git add docs/)",
+      "Bash(git commit:*)",
+      "Bash(git add docs/code-review-guide.html)"
     ]
   }
 }
