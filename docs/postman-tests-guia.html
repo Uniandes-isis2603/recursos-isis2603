@@ -164,11 +164,39 @@ h3.sh{font-family:'DM Serif Display',serif;font-size:19px;font-weight:700;color:
 .ph-h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);color:#f2efe9;line-height:1.15;margin-bottom:10px;}
 .ph-h1 em{font-style:italic;opacity:.8;}
 .ph-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1px;}
+
+/* ── MOBILE ── */
+.nav-toggle{
+  display:none;
+  position:fixed;top:12px;left:12px;z-index:300;
+  background:var(--ink);border:none;color:#f7f4ee;
+  font-size:18px;width:36px;height:36px;
+  border-radius:6px;cursor:pointer;
+  align-items:center;justify-content:center;
+}
+.nav-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:150;
+  background:rgba(0,0,0,.45);
+}
+@media(max-width:768px){
+  body{grid-template-columns:1fr;}
+  nav{position:fixed;top:0;left:-220px;height:100vh;z-index:200;transition:left .25s ease;width:210px;}
+  nav.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,.4);}
+  .nav-overlay.open{display:block;}
+  .nav-toggle{display:flex;}
+  main{padding:28px 20px 60px;}
+  .page-hdr{padding:32px 20px 28px;}
+}
 </style>
 </head>
 <body>
+
+<button class="nav-toggle" aria-label="Abrir menú" onclick="toggleNav()">☰</button>
+<div class="nav-overlay" id="nav-overlay" onclick="toggleNav()"></div>
+
 <!-- SIDEBAR -->
-<nav aria-label="Secciones del tutorial">
+<nav id="sidebar" aria-label="Secciones del tutorial">
   <div class="nb">
     <a href="index.html" style="display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.color='rgba(255,255,255,.35)'" onfocus="this.style.color='rgba(255,255,255,.75)'" onblur="this.style.color='rgba(255,255,255,.35)'">← Artefactos</a>
   </div>
@@ -807,6 +835,13 @@ function runL3(){
     {name:'Location presente',  pass:!!(loc&&loc.includes('/api/artistas/')), detail:`Location: ${loc||'ausente'}`},
     {name:'albumes vacío',      pass:true,                                 detail:'albumes.length: 0'}
   ]);
+}
+
+function toggleNav(){
+  const nav=document.getElementById('sidebar');
+  const overlay=document.getElementById('nav-overlay');
+  nav.classList.toggle('open');
+  overlay.classList.toggle('open');
 }
 </script>
 </body>
