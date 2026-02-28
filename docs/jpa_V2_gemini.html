@@ -140,6 +140,14 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 20px 0; }
         @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
 
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            header { padding: 32px 20px 28px; }
+            .content { padding: 24px 16px; }
+            .card { padding: 20px 16px; }
+            .tab-button { min-width: 80px; padding: 12px 10px; font-size: 12px; }
+        }
+
         /* ── CODE BLOCKS ── */
         .code-block {
             background: #1c1814;
