@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de Code Review y CI/CD - ISIS2603</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+  </script>
+
+  <style>
+    body {
+      font-family: "Roboto", sans-serif;
+    }
+
+    .code-block {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    .step-active {
+      border-left: 4px solid #f59e0b;
+      background-color: #fffbeb;
+      font-weight: bold;
+    }
+
+    .nav-item {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background-color: #f3f4f6;
+    }
+
+    /* Estilos para las capturas de pantalla */
+    .tutorial-img {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin: 1.5rem 0;
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      /* Asegura que la imagen se vea completa */
+      background-color: #f9fafb;
+      /* Fondo gris claro por si la imagen es transparente */
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: opacity 0.3s ease;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+      opacity: 0;
+    }
+
+    .zoom-btn {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .img-wrapper:hover .zoom-btn {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 h-screen flex flex-col overflow-hidden">
+  <div id="app" class="flex flex-col h-full">
+    <header class="bg-slate-800 text-white p-4 shadow-md flex justify-between items-center shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-brands fa-git-alt text-3xl text-orange-400"></i>
+        <div>
+          <h1 class="text-xl font-bold">Guía de Code Review Efectivo</h1>
+          <p class="text-xs text-gray-300">
+            Arquitectura de Software - Spring Boot & GitHub Flow
+          </p>
+        </div>
+      </div>
+      <div class="text-sm bg-slate-700 px-3 py-1 rounded">isis2603</div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <nav class="w-64 bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col">
+        <div class="p-4 uppercase text-xs font-bold text-gray-400 tracking-wider">
+          Flujo de Trabajo
+        </div>
+        <ul>
+          <li v-for="(step, index) in steps" :key="index" @click="currentStep = index"
+            :class="['nav-item p-4 border-b border-gray-100 flex items-center gap-3', currentStep === index ? 'step-active text-amber-600' : 'text-gray-600']">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs border"
+              :class="currentStep === index ? 'border-amber-500 bg-amber-100' : 'border-gray-300 bg-gray-50'">
+              {{ index + 1 }}
+            </div>
+            <span>{{ step.title }}</span>
+          </li>
+        </ul>
+      </nav>
+
+      <main class="flex-1 overflow-y-auto p-8 bg-white relative">
+        <transition name="fade" mode="out-in">
+          <div :key="currentStep" class="max-w-3xl mx-auto">
+            <div class="mb-6 border-b pb-4">
+              <h2 class="text-3xl font-bold text-slate-800 mb-2">
+                {{ steps[currentStep].title }}
+              </h2>
+              <p class="text-gray-600 text-lg">
+                {{ steps[currentStep].description }}
+              </p>
+            </div>
+
+            <div v-html="steps[currentStep].content" class="prose max-w-none text-slate-700 leading-relaxed"></div>
+
+            <div v-if="currentStep === 1" class="mt-8 bg-blue-50 p-6 rounded-lg border border-blue-100">
+              <h3 class="font-bold text-blue-800 mb-3">
+                <i class="fa-solid fa-list-check mr-2"></i>Checklist de
+                Arquitectura
+              </h3>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 text-blue-600 rounded" />
+                  <span>No se exponen <code>Entities</code> en los Controladores
+                    (Uso de DTOs).</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 text-blue-600 rounded" />
+                  <span>La lógica de negocio está en <code>Services</code>, no en
+                    Controladores.</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 text-blue-600 rounded" />
+                  <span>Inyección de dependencias por Constructor.</span>
+                </label>
+              </div>
+            </div>
+
+            <div v-if="currentStep === 1"
+              class="mt-8 bg-red-50 p-4 rounded-lg border border-red-200 flex gap-4 items-start">
+              <i class="fa-solid fa-robot text-red-500 text-2xl mt-1"></i>
+              <div>
+                <h4 class="font-bold text-red-800">Detección de IA</h4>
+                <p class="text-sm text-red-700">
+                  Si detectas código que parece copiado/pegado de ChatGPT,
+                  debes marcarlo.
+                </p>
+                <div class="mt-2 bg-white p-2 border border-red-100 rounded text-xs text-gray-600 italic">
+                  "Comentario sugerido: Este bloque de código parece generado
+                  automáticamente. Por favor marca la autoría."
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-between mt-12 pt-6 border-t">
+              <button v-if="currentStep > 0" @click="currentStep--"
+                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium transition">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+              </button>
+              <div v-else></div>
+
+              <button v-if="currentStep < steps.length - 1" @click="currentStep++"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-900 rounded text-white font-medium transition">
+                Siguiente <i class="fa-solid fa-arrow-right ml-2"></i>
+              </button>
+              <button v-else @click="currentStep = 0"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white font-medium transition">
+                <i class="fa-solid fa-check mr-2"></i> Finalizar Guía
+              </button>
+            </div>
+          </div>
+        </transition>
+      </main>
+    </div>
+
+    <!-- Zoom Modal -->
+    <transition name="fade">
+      <div v-if="isZoomOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80"
+        @click="closeZoom">
+        <div class="relative max-w-full max-h-full">
+          <img :src="zoomSrc" class="max-w-full max-h-screen object-contain rounded shadow-2xl" @click.stop>
+          <button @click="closeZoom"
+            class="absolute -top-4 -right-4 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-bold shadow hover:bg-gray-200">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    </transition>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          currentStep: 0,
+          steps: [
+            {
+              title: "1. Acceso a PRs",
+              description: "Cómo iniciar la revisión y entender la interfaz.",
+              content: `
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                                    <p class="font-bold text-blue-800">Objetivo:</p>
+                                    <p class="text-blue-700 text-sm">Entender el contexto del cambio antes de mirar una sola línea de código.</p>
+                                </div>
+
+                                <h3 class="font-bold text-xl text-slate-800 mb-6">1. Accediendo al Pull Request (PR)</h3>
+                                
+                                <div class="space-y-8 mb-8">
+                                    <!-- Sub-paso 1 -->
+                                    <div>
+                                        <div class="flex items-start gap-3 mb-3">
+                                            <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</span>
+                                            <p class="mt-0.5">Ve a la pestaña <span class="font-bold text-slate-700"><i class="fa-solid fa-code-pull-request"></i> Pull Requests</span> del repositorio.</p>
+                                        </div>
+                                        
+                                        <div class="ml-9">
+                                            <img src="capturas/pr-tab.png" class="tutorial-img mt-0 mb-2" alt="Pestaña Pull Requests en GitHub">
+                                            <p class="text-xs text-center italic text-gray-500">
+                                                Figura 1: Ubicación de la pestaña "Pull Requests" en la barra de navegación del repositorio.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Sub-paso 2 -->
+                                    <div class="flex items-start gap-3">
+                                        <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</span>
+                                        <p class="mt-0.5">Haz clic en el título del PR que vas a revisar en la lista.</p>
+                                    </div>
+
+                                    <!-- Sub-paso 3 -->
+                                    <div>
+                                        <div class="flex items-start gap-3 mb-3">
+                                            <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</span>
+                                            <p class="mt-0.5">Dirígete a la pestaña <strong>"Files changed"</strong> para ver el diff.</p>
+                                        </div>
+                                        
+                                        <div class="ml-9">
+                                            <img src="capturas/files-changed-tab.png" class="tutorial-img mt-0 mb-2" alt="Pestaña Files Changed en GitHub">
+                                            <p class="text-xs text-center italic text-gray-500">
+                                                Figura 2: Pestaña "Files changed" donde se revisan las diferencias de código.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nuevo Sub-paso 4: Partes de la Revisión -->
+                                    <div>
+                                        <div class="flex items-start gap-3 mb-3">
+                                            <span class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0">4</span>
+                                            <p class="mt-0.5">Identifica las partes clave de la revisión: <strong>File Tree</strong> (izquierda) y <strong>Diff Viewer</strong> (centro).</p>
+                                        </div>
+                                        <p class="ml-9 text-sm text-gray-600 mb-2">
+                                            El panel izquierdo te permite navegar archivo por archivo, mientras que el centro muestra los cambios línea por línea.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-bold text-xl text-slate-800 mb-3">2. Identificando Tipos de Cambios</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div class="border p-3 rounded bg-green-50 border-green-200">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <i class="fa-solid fa-file-circle-plus text-green-600 text-xl"></i>
+                                            <span class="font-bold text-green-800">Added</span>
+                                        </div>
+                                        <p class="text-xs text-green-700">Archivos nuevos. Revisa que sigan la estructura del paquete.</p>
+                                    </div>
+                                    <div class="border p-3 rounded bg-amber-50 border-amber-200">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <i class="fa-solid fa-file-pen text-amber-600 text-xl"></i>
+                                            <span class="font-bold text-amber-800">Modified</span>
+                                        </div>
+                                        <p class="text-xs text-amber-700">Cambios en lógica existente. ¿Rompe algo anterior?</p>
+                                    </div>
+                                    <div class="border p-3 rounded bg-red-50 border-red-200">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <i class="fa-solid fa-file-circle-minus text-red-600 text-xl"></i>
+                                            <span class="font-bold text-red-800">Deleted</span>
+                                        </div>
+                                        <p class="text-xs text-red-700">Código eliminado. ¿Era código muerto o es un error?</p>
+                                    </div>
+                                </div>
+
+                                <!-- Comparativa Visual -->
+                                <div class="mb-4">
+                                    <h4 class="font-bold text-lg text-slate-700 mb-2">Comparativa Visual en GitHub</h4>
+                                    <figure>
+                                        <img src="capturas/gh-change-types.png" class="tutorial-img mb-2" alt="Comparativa de tipos de cambios en GitHub" title="Added vs Modified vs Deleted">
+                                        <figcaption class="text-xs text-center italic text-gray-500">
+                                            Figura 3: Diferencia visual entre archivos agregados (verde), modificados (naranja) y eliminados (rojo).
+                                        </figcaption>
+                                    </figure>
+                                </div>
+                            `,
+            },
+            {
+              title: "2. Revisión en GitHub",
+              description: "Revisión estática de arquitectura y buenas prácticas.",
+              content: `
+                                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6">
+                                    <p class="font-bold text-indigo-800">Objetivo:</p>
+                                    <p class="text-indigo-700 text-sm">Detectar problemas estructurales y de calidad antes de descargar el código.</p>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <p class="mb-2">Para ver ejemplos reales de PRs y código, consulta el repositorio de referencia:</p>
+                                    <a href="https://github.com/Uniandes-isis2603/EffectiveCodeReview" target="_blank" class="text-blue-600 hover:text-blue-800 underline flex items-center gap-2">
+                                        <i class="fa-brands fa-github"></i> Uniandes-isis2603/EffectiveCodeReview
+                                    </a>
+                                </div>
+
+                                <h3 class="font-bold text-xl text-slate-800 mb-3">1. Errores Comunes (Bad Code Examples)</h3>
+                                <p class="mb-4 text-sm">Ejemplos tomados de <a href="https://github.com/Uniandes-isis2603/EffectiveCodeReview/pull/2/changes" target="_blank" class="text-blue-600 underline">este PR de ejemplo</a>.</p>
+
+                                <div class="space-y-6 mb-8">
+                                    <!-- Error 1: Logic in Controller -->
+                                    <div class="border border-red-200 rounded-lg overflow-hidden bg-white">
+                                        <div class="bg-red-50 p-2 border-b border-red-100 flex items-center justify-between">
+                                            <span class="font-bold text-red-800 text-sm"><i class="fa-solid fa-bug mr-2"></i> Lógica de Negocio en Controlador</span>
+                                            <span class="bg-red-200 text-red-800 text-xs px-2 py-1 rounded">Crucial</span>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-block text-xs mb-2">
+@GetMapping("/{id}")
+public BookEntity getBook(@PathVariable Long id) {
+    <span class="text-red-400">// ❌ ERROR: Validaciones y lógica en el controlador</span>
+    if (id < 0) {
+        throw new BusinessLogicException("Id inválido");
+    }
+    return bookService.getBook(id);
+}
+                                            </div>
+                                            <p class="text-xs text-slate-600 italic">
+                                            <p class="text-xs text-slate-600 italic">
+                                                <strong>Por qué está mal:</strong> El controlador solo debe recibir peticiones y delegar. Las validaciones de negocio van en la capa <code>Service</code>.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error 2: Entities in Controller -->
+                                    <div class="border border-amber-200 rounded-lg overflow-hidden bg-white">
+                                        <div class="bg-amber-50 p-2 border-b border-amber-100 flex items-center justify-between">
+                                            <span class="font-bold text-amber-800 text-sm"><i class="fa-solid fa-layer-group mr-2"></i> Exponer Entidades (JPA)</span>
+                                            <span class="bg-amber-200 text-amber-800 text-xs px-2 py-1 rounded">Importante</span>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-block text-xs mb-2">
+@PostMapping
+public <span class="text-amber-400">BookEntity</span> create(@RequestBody <span class="text-amber-400">BookEntity</span> book) {
+    <span class="text-gray-500">// ...</span>
+}
+                                            </div>
+                                            <p class="text-xs text-slate-600 italic">
+                                                <strong>Por qué está mal:</strong> Rompe el encapsulamiento. Usa siempre <code>BookDTO</code> (Data Transfer Object) para la comunicación con el cliente.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Error 3: Variable Naming / Comments -->
+                                    <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+                                        <div class="bg-slate-50 p-2 border-b border-slate-100 flex items-center justify-between">
+                                            <span class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-font mr-2"></i> Nambramiento y Comentarios</span>
+                                        </div>
+                                        <div class="p-4">
+                                            <div class="code-block text-xs mb-2">
+<span class="text-green-400">// This function saves the book</span> <span class="text-gray-500"><- Comentario obvio/redundante</span>
+public BookDTO <span class="text-red-400">save</span>(BookDTO b) { ... } <span class="text-gray-500"><- Verbo genérico, usar business verbs (create, register)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-bold text-xl text-slate-800 mb-3">2. Checklist Extendido de Revisión GitHub</h3>
+                                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>Arquitectura:</strong> ¿Se usan DTOs en lugar de Entities en los controladores?</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>Capas:</strong> ¿El Controller delega al Service? ¿El Service usa el Repository?</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>Inyección:</strong> ¿Se usa <code>@Autowired</code> (evitar si es posible) o inyección por constructor (recomendado)?</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>Limpieza:</strong> ¿Hay <code>System.out.println</code> olvidados? (Usar Loggers slf4j)</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>Pruebas:</strong> ¿Los nuevos métodos tienen pruebas unitarias asociadas en la carpeta <code>src/test</code>?</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-purple-600 rounded cursor-pointer">
+                                            <span class="text-sm"><strong>IA:</strong> ¿El código parece generado mecánicamente sin adaptación al estilo del proyecto?</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            `,
+            },
+            {
+              title: "3. Ejecución Local del proyecto",
+              description: "Cambia de rama y verifica la base de datos H2.",
+              content: `
+                                <p class="mb-4">No necesitas clonar de nuevo. Asegúrate de tener los últimos cambios y cambiar a la rama del PR.</p>
+                                
+                                <h4 class="font-bold text-slate-800 mb-3">1. Cambiando de Rama (Switch Branch)</h4>
+                                
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-r">
+                                    <div class="flex items-start gap-3">
+                                        <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                                        <div>
+                                            <p class="font-bold text-blue-800 text-sm">¿Cuál es el nombre de la rama?</p>
+                                            <p class="text-sm text-blue-700 mb-2">
+                                                En GitHub, busca el recuadro gris con el nombre de la rama.
+                                                Haz clic en el ícono de <strong>copiar</strong> <i class="fa-regular fa-copy"></i> para obtener el nombre exacto.
+                                            </p>
+                                            <img src="capturas/pr-branch-name.png" class="tutorial-img w-full border border-blue-200 rounded shadow-sm" alt="Ubicación del nombre de la rama en el PR">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <!-- Columna 1: Consola -->
+                                    <div class="bg-slate-900 rounded-lg p-4 text-white">
+                                        <div class="flex items-center gap-2 mb-3 border-b border-slate-700 pb-2">
+                                            <i class="fa-solid fa-terminal text-green-400"></i>
+                                            <span class="font-mono font-bold">Consola Git</span>
+                                        </div>
+                                        <div class="font-mono text-sm space-y-4">
+                                            <div>
+                                                <p class="text-gray-400 mb-1"># 1. Actualizar ramas remotas</p>
+                                                <p class="text-yellow-300">git fetch</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 mb-1"># 2. Cambiar a la rama del PR</p>
+                                                <p class="text-yellow-300">git checkout feature/nueva-cosa</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-400 mb-1"># 3. Actualizar la rama local</p>
+                                                <p class="text-yellow-300">git pull</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Columna 2: VS Code Extension -->
+                                    <div class="bg-white border rounded-lg p-4 shadow-sm">
+                                        <div class="flex items-center gap-2 mb-3 border-b pb-2">
+                                            <i class="fa-solid fa-code-branch text-blue-600"></i>
+                                            <span class="font-bold text-slate-800">VS Code Git Extension</span>
+                                        </div>
+                                        <div class="space-y-4 text-sm text-slate-700">
+                                            <div class="flex items-start gap-2">
+                                                <span class="bg-slate-100 px-2 rounded font-bold">1.</span>
+                                                <p>Clic en el ícono de <strong>Source Control</strong> o en la rama actual (esquina inferior izquierda).</p>
+                                            </div>
+                                            <div class="flex items-start gap-2">
+                                                <span class="bg-slate-100 px-2 rounded font-bold">2.</span>
+                                                <p>Selecciona <strong>Fetch</strong> en el menú de tres puntos (...).</p>
+                                            </div>
+                                            <div class="flex items-start gap-2">
+                                                <span class="bg-slate-100 px-2 rounded font-bold">3.</span>
+                                                <p>Clic en la rama actual -> Selecciona la rama origin/feature/...</p>
+                                            </div>
+                                            <img src="capturas/vscode-git.png" class="tutorial-img mt-2 h-32 object-cover" alt="Selector de ramas VS Code">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="font-bold text-slate-800 mb-3">2. Validación de Base de Datos (H2)</h4>
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+                                    <p class="mb-3 text-sm">
+                                        Ejecuta el proyecto (Play Botton) y verifica que las tablas se creen correctamente en la consola H2.
+                                    </p>
+                                    <div class="flex items-center gap-2 mb-4 bg-white p-2 rounded border border-blue-100">
+                                        <i class="fa-solid fa-link text-blue-500"></i>
+                                        <a href="http://localhost:8080/api/h2-console" target="_blank" class="text-blue-600 underline font-mono text-sm">
+                                            http://localhost:8080/api/h2-console
+                                        </a>
+                                    </div>
+                                    
+                                    <h5 class="font-bold text-blue-800 text-sm mb-2"><i class="fa-solid fa-clipboard-check"></i> Checklist de Validación H2:</h5>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm">El proyecto inicia <strong>sin errores</strong> en la consola ("Started ... in X seconds").</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm">Puedes ingresar a la H2 Console.</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm">Las tablas nuevas aparecen en el panel izquierdo.</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer">
+                                            <span class="text-sm">
+                                                Las columnas tienen los tipos correctos.
+                                                <a href="https://uniandes-isis2603.github.io/recursos-isis2603/jpa_V2_gemini.html" target="_blank" class="text-blue-600 underline ml-1 text-xs">
+                                                    (Ver Referencia JPA <i class="fa-solid fa-arrow-up-right-from-square"></i>)
+                                                </a>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            `,
+            },
+            {
+              title: "4. Ejecución Local de pruebas unitarias",
+              description:
+                "Usa el Spring Boot Extension Pack para ejecutar tests.",
+              content: `
+                                <p class="mb-4">Gracias al <strong>Spring Boot Extension Pack</strong>, puedes ejecutar las pruebas de manera visual.</p>
+                                
+                                <h4 class="font-bold text-slate-800 mt-4 mb-2">Pasos para validar:</h4>
+                                <ol class="list-decimal pl-5 space-y-3 mb-4">
+                                    <li class="flex items-center gap-2">Busca el botón <img src="capturas/vscode-test-icon.png" class="inline-block h-6 w-6 rounded border shadow-sm" alt="Icono Testing VS Code"> en la barra lateral.</li>
+                                    <li>Haz clic en el botón de <strong>Play (▶)</strong> del proyecto.</li>
+                                    <li>Verifica el estado de los tests.</li>
+                                </ol>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                    <div class="border border-green-200 rounded-lg overflow-hidden bg-white">
+                                        <div class="bg-green-50 p-2 border-b border-green-100 font-bold text-green-800 text-sm flex items-center gap-2">
+                                            <i class="fa-solid fa-circle-check"></i> Todo Correcto
+                                        </div>
+                                        <div class="p-2">
+                                            <img src="capturas/tests-passed.png" class="tutorial-img w-full h-auto mb-2" alt="Tests Pasando Correctamente">
+                                            <p class="text-xs text-gray-500">Todos los checks en verde. ✅ APROBADO.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="border border-red-200 rounded-lg overflow-hidden bg-white">
+                                        <div class="bg-red-50 p-2 border-b border-red-100 font-bold text-red-800 text-sm flex items-center gap-2">
+                                            <i class="fa-solid fa-circle-xmark"></i> Tests Fallidos
+                                        </div>
+                                        <div class="p-2">
+                                            <img src="capturas/tests-failed.png" class="tutorial-img w-full h-auto mb-2" alt="Tests Fallando">
+                                            <p class="text-xs text-gray-500">Algunos checks en rojo. ❌ RECHAZADO.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `,
+            },
+            {
+              title: "5. Caso 1 - Identificando errores y dejando feedback",
+              description: "Identificando errores y dejando feedback.",
+              content: `
+                                <h4 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-comment-dots"></i> Caso Práctico: Violación de Nombres</h4>
+                                <p class="mb-4">
+                                    Vamos a corregir juntos una violación de convención de nombres (Snake Case en lugar de Camel Case).
+                                </p>
+
+                                <div class="space-y-8">
+                                    <!-- Paso 1 -->
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h5 class="font-bold text-blue-800 text-lg mb-2">Paso 1: Identifica el error</h5>
+                                        <div class="bg-amber-50 p-3 rounded border border-amber-100 mb-2">
+                                            <p class="text-sm">En la línea 14, vemos <code>private String name_entrenador;</code> (Snake Case). <br>En Java usamos <strong>Camel Case</strong>.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Paso 2 -->
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h5 class="font-bold text-blue-800 text-lg mb-2">Paso 2: Haz clic en el "+" azul</h5>
+                                        <p class="text-sm mb-2">Pasa el mouse sobre el número de línea <strong>14</strong>. Aparecerá un cuadro azul con un <strong>+</strong>.</p>
+                                        <figure>
+                                            <img src="capturas/comment-step-1.png" class="tutorial-img w-full border rounded shadow-sm" alt="Haciendo clic en el botón más de la línea de código">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Clic en el "+" al lado del número de línea.</figcaption>
+                                        </figure>
+                                    </div>
+
+                                    <!-- Paso 3 -->
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h5 class="font-bold text-blue-800 text-lg mb-2">Paso 3: Escribe tu sugerencia</h5>
+                                        <p class="text-sm mb-2">Escribe claramente por qué está mal y cómo corregirlo.</p>
+                                        <div class="bg-gray-100 p-3 rounded text-sm italic text-gray-700 border border-gray-200 mb-2">
+                                            "El atributo <code>nombre_entrenador</code> usa Snake Case, pero en este proyecto usamos Camel Case (<code>nombreEntrenador</code>). Por favor corrige el nombre."
+                                        </div>
+                                        <figure>
+                                            <img src="capturas/comment-step-2.png" class="tutorial-img w-full border rounded shadow-sm" alt="Escribiendo el comentario en la caja de texto">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Escribe tu comentario en la caja de texto.</figcaption>
+                                        </figure>
+                                    </div>
+                                    
+                                    <!-- Paso 4 -->
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h5 class="font-bold text-blue-800 text-lg mb-2">Paso 4: Start a Review</h5>
+                                        <p class="text-sm mb-2">Si es tu primer comentario, el botón verde dirá <strong>"Start a review"</strong>. Esto agrupa tus comentarios para enviarlos todos al final.</p>
+                                        <figure>
+                                            <img src="capturas/comment-step-3.png" class="tutorial-img w-full border rounded shadow-sm" alt="Botón Start a review">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Clic en "Start a review" (o "Add review comment").</figcaption>
+                                        </figure>
+                                    </div>
+                                </div>
+
+                                <!-- Finalizar Review -->
+                                <div class="mt-12 border-t pt-8">
+                                    <h4 class="font-bold text-slate-800 mb-4"><i class="fa-solid fa-paper-plane"></i> Finalizando la Revisión</h4>
+                                    <p class="mb-4 text-sm">
+                                        Cuando hayas revisado todos los archivos, debes enviar tu feedback.
+                                    </p>
+
+                                    <div class="border-l-4 border-green-500 pl-4 mb-6">
+                                        <h5 class="font-bold text-green-800 text-lg mb-2">Paso Final: Submit Review</h5>
+                                        <p class="text-sm mb-2">
+                                            Ve arriba a la derecha, botón <strong>"Review changes"</strong>. Se abrirá una ventana emergente.
+                                        </p>
+                                        <figure class="mb-4">
+                                            <img src="capturas/submit-review-modal.png" class="tutorial-img w-full border rounded shadow-sm" alt="Ventana emergente de Submit Review">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Ventana de confirmación de revisión.</figcaption>
+                                        </figure>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="border p-3 rounded bg-gray-50">
+                                                <span class="font-bold text-gray-700 block mb-1">Comment</span>
+                                                <p class="text-xs text-gray-600">
+                                                    Selecciónalo si solo tienes preguntas o sugerencias menores. <br>
+                                                    <span class="font-bold">NO impide el merge.</span>
+                                                </p>
+                                            </div>
+                                            <div class="border p-3 rounded bg-red-50 border-red-100">
+                                                <span class="font-bold text-red-700 block mb-1">Request Changes</span>
+                                                <p class="text-xs text-red-600">
+                                                    Selecciónalo si encontraste errores (como el nombre de variable). <br>
+                                                    <span class="font-bold">BLOQUEA el merge hasta que se corrija.</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `,
+            },
+            {
+              title: "6. Caso 2 - Todo bien, aprobar",
+              description: "En el caso que todo esté bien, puedes aprobar el PR de la siguiente manera:",
+              content: `
+                                <p class="mb-4">Ve al botón verde <strong>"Review changes"</strong> arriba a la derecha.</p>
+                                
+                                <img src="capturas/submit-review.png" class="tutorial-img" alt="Menú Review Changes">
+
+                             
+                            `,
+            },
+            {
+              title: "7. Soy el Autor: Feedback y Corrección",
+              description: "¿Te solicitaron cambios? Itera.",
+              content: `
+                                <div class="space-y-6">
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <i class="fa-solid fa-triangle-exclamation text-yellow-600"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-yellow-800">
+                                                    <strong>Importante:</strong> Si te piden cambios, <span class="uppercase font-bold">NO cierres el PR</span> ni abras uno nuevo. 
+                                                    El PR se actualiza solo cuando haces un nuevo push.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Paso 1 -->
+                                    <div>
+                                        <h5 class="font-bold text-slate-800 mb-2">1. Revisa los comentarios</h5>
+                                        <p class="text-sm mb-2">Ve a la pestaña <strong>"Files changed"</strong> o <strong>"Conversation"</strong> de tu PR. Busca los comentarios rojos (Request Changes) o amarillos.</p>
+                                        <figure>
+                                            <img src="capturas/author-feedback-location.png" class="tutorial-img w-full border rounded shadow-sm" alt="Ubicación de comentarios en el PR">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Identifica qué líneas debes corregir.</figcaption>
+                                        </figure>
+                                    </div>
+
+                                    <!-- Paso 2 -->
+                                    <div>
+                                        <h5 class="font-bold text-slate-800 mb-2">2. Corrige en VS Code</h5>
+                                        <p class="text-sm mb-2">Vuelve a tu editor. Asegúrate de estar en la misma rama del PR (<code>git branch</code> para verificar).</p>
+                                        <ul class="list-disc pl-5 text-sm text-gray-700">
+                                            <li>Localiza el archivo y la línea.</li>
+                                            <li>Realiza la corrección solicitada (ej. cambiar el nombre de la variable).</li>
+                                            <li>Guarda el archivo.</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Paso 3 -->
+                                    <div>
+                                        <h5 class="font-bold text-slate-800 mb-2">3. Actualizar el PR (Commit & Push)</h5>
+                                        <p class="text-sm mb-2">Sube tus cambios. GitHub detectará el nuevo commit automáticamente.</p>
+                                        <div class="code-block text-sm">
+                                            <span class="text-green-400">user@laptop</span>$ git add .<br>
+                                            <span class="text-green-400">user@laptop</span>$ git commit -m "Fix: correccion de nombres snake case"<br>
+                                            <span class="text-green-400">user@laptop</span>$ git push
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-2 italic">
+                                            * Al hacer esto, el PR en GitHub se actualiza solo. ¡Magia!
+                                        </p>
+                                    </div>
+
+                                    <!-- Paso 4 -->
+                                    <div>
+                                        <h5 class="font-bold text-slate-800 mb-2">4. Notifica a tus compañeros</h5>
+                                        <p class="text-sm mb-2">Vuelve a GitHub. Responde al comentario diciendo "Listo" o "Corregido" y espera a que vuelvan a revisar.</p>
+                                        <figure>
+                                            <img src="capturas/author-reply.png" class="tutorial-img w-full border rounded shadow-sm" alt="Respondiendo al comentario en GitHub">
+                                        </figure>
+                                    </div>
+
+                                    <!-- Paso 5 (Para el Revisor) -->
+                                    <div class="border-t-2 border-dashed border-gray-300 pt-6 mt-6">
+                                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                            <h5 class="font-bold text-green-800 mb-2"><i class="fa-solid fa-check-double"></i> Turno del Revisor: Verificar y Aprobar</h5>
+                                            <p class="text-sm mb-4 text-green-900">
+                                                Cuando el autor haya subido los cambios, tú (el revisor) debes volver a entrar.
+                                            </p>
+
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <h6 class="font-bold text-green-700 text-sm">1. Verifica los cambios</h6>
+                                                    <p class="text-xs text-green-800 mb-1">Ve a la pestaña "Files changed" de nuevo. Verifica que el código ahora sí cumpla las reglas.</p>
+                                                </div>
+
+                                                <div>
+                                                    <h6 class="font-bold text-green-700 text-sm">2. Resolver conversaciones</h6>
+                                                    <p class="text-xs text-green-800 mb-2">Si el cambio es correcto, haz clic en <strong>"Resolve conversation"</strong> para cerrar el hilo.</p>
+                                                    <figure class="mb-2">
+                                                    </figure>
+                                                </div>
+
+                                                <div>
+                                                    <h6 class="font-bold text-green-700 text-sm">3. Aprobar finalmente</h6>
+                                                    <p class="text-xs text-green-800 mb-2">Si ya no quedan errores, ve a "Review changes" y selecciona <strong>Approve</strong>.</p>
+                                                    <figure>
+                                                    
+                                                        <figcaption class="text-xs text-center text-green-700 mt-1">¡Ahora sí, el PR está listo para merge!</figcaption>
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `,
+            },
+            {
+              title: "8. Fusión: Squash and Merge",
+              description: "El paso final para llevar el código a Main.",
+              content: `
+                                <div class="space-y-6">
+                                    <!-- Checklist Pre-Merge -->
+                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <h4 class="font-bold text-slate-800 mb-3"><i class="fa-solid fa-list-check"></i> Antes de hacer Merge</h4>
+                                        <p class="text-sm mb-3">Solo puedes hacer merge si cumples TODAS estas condiciones:</p>
+                                        <ul class="space-y-2 text-sm">
+                                            <li class="flex items-center gap-2">
+                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span>Aprobación de al menos 1 compañero (Approved).</span>
+                                            </li>
+                                            <li class="flex items-center gap-2">
+                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span>Todas las conversaciones resueltas (sin hilos pendientes).</span>
+                                            </li>
+                                            <li class="flex items-center gap-2">
+                                                <i class="fa-solid fa-check text-green-500"></i>
+                                                <span>Tests de GitHub Actions en verde (sin <span class="text-red-500 font-bold">X</span> rojas).</span>
+                                            </li>
+                                        </ul>
+                                        
+                                        <div class="mt-4 bg-red-50 border-l-4 border-red-400 p-2 text-xs text-red-800">
+                                            <strong>STOP:</strong> Si hay conflictos o tests fallando, NO hagas merge. Pide ayuda o corrige primero.
+                                        </div>
+                                    </div>
+
+                                    <!-- Squash and Merge -->
+                                    <div>
+                                        <h4 class="font-bold text-slate-800 mb-2">1. Seleccionar Squash and Merge</h4>
+                                        <p class="text-sm mb-4">Para mantener un historial limpio en <code>main</code>, usamos siempre <strong>Squash and merge</strong>.</p>
+                                        
+                                        
+
+                                        <p class="text-sm mb-2"><strong>Cómo activarlo:</strong></p>
+                                        <ol class="list-decimal pl-5 text-sm space-y-2 mb-4">
+                                            <li>Haz clic en la <strong>flecha pequeña</strong> al lado del botón verde "Merge pull request".</li>
+                                            <li>Selecciona la opción <strong>Squash and merge</strong> del menú desplegable.</li>
+                                            <li>Si no aparece, contacta al administrador del repositorio (puede estar deshabilitado en Settings).</li>
+                                        </ol>
+                                        
+                                        <figure>
+                                            <img src="capturas/squash-merge.png" class="tutorial-img w-full border rounded shadow-sm" alt="Opción Squash and Merge">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Clic en la flecha -> Squash and merge.</figcaption>
+                                        </figure>
+                                    </div>
+
+                                    <!-- Confirmar -->
+                                    <div>
+                                        <h4 class="font-bold text-slate-800 mb-2">2. Confirmar</h4>
+                                        <p class="text-sm mb-2">Aparecerá una ventana de confirmación. Verifica que el mensaje sea descriptivo y haz clic en <strong>"Confirm squash and merge"</strong>.</p>
+                                        <figure class="mb-4">
+                                            <img src="capturas/confirm-squash-merge.png" class="tutorial-img w-full border rounded shadow-sm" alt="Confirmación de Squash and Merge">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">Ventana final de confirmación en GitHub.</figcaption>
+                                        </figure>
+                                    </div>
+
+                                    <!-- Estado Final del PR -->
+                                    <div class="border-t pt-6">
+                                        <h4 class="font-bold text-slate-800 mb-2">3. ¿Cómo sé que terminó?</h4>
+                                        <p class="text-sm mb-2">Sabrás que el proceso fue exitoso cuando veas el distintivo púrpura de <strong>Merged</strong> en la parte superior del PR.</p>
+                                        <figure class="mb-4">
+                                            <img src="capturas/pr-merged-status.png" class="tutorial-img w-full border rounded shadow-sm" alt="Estado Merged del PR">
+                                            <figcaption class="text-xs text-center text-gray-500 mt-1">El PR ahora muestra el estado "Merged".</figcaption>
+                                        </figure>
+                                    </div>
+
+                                    <!-- Verificar en Main -->
+                                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                        <h4 class="font-bold text-blue-800 mb-2"><i class="fa-solid fa-magnifying-glass"></i> Verificar en Main</h4>
+                                        <p class="text-sm text-blue-900">
+                                            Una vez fusionado, ve a la página principal del repositorio, asegúrate de estar en la rama <strong>main</strong> y revisa el historial de commits. Deberías ver tu cambio ahí como un único commit limpio.
+                                        </p>
+                                    </div>
+                                </div>
+                            `,
+            },
+          ],
+          zoomSrc: '',
+          isZoomOpen: false
+        };
+      },
+      watch: {
+        currentStep() {
+          // Re-run image enhancement when step changes
+          // Use setTimeout to ensure DOM is updated after transition
+          setTimeout(() => {
+            this.enhanceImages();
+            mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+          }, 500); // 500ms to match/exceed transition time
+        }
+      },
+      mounted() {
+        this.enhanceImages();
+        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+        // Also watch for transition end if possible, but timeout is simpler for now
+      },
+      updated() {
+        // Redundant if we watch currentStep, but safe to keep or remove. 
+        // Removing explicit updated hook to avoid double calling, relying on watch.
+      },
+      methods: {
+        openZoom(src) {
+          this.zoomSrc = src;
+          this.isZoomOpen = true;
+        },
+        closeZoom() {
+          this.isZoomOpen = false;
+        },
+        enhanceImages() {
+          this.$nextTick(() => {
+            const images = document.querySelectorAll('.tutorial-img');
+            images.forEach(img => {
+              if (img.parentElement.classList.contains('img-wrapper')) return;
+
+              // Create wrapper
+              const wrapper = document.createElement('div');
+              wrapper.className = 'relative group img-wrapper inline-block w-full';
+
+              // Create Button
+              const btn = document.createElement('button');
+              // Using Font Awesome zoom icon
+              btn.innerHTML = '<i class="fa-solid fa-magnifying-glass-plus"></i>';
+              btn.className = 'zoom-btn absolute bottom-3 right-3 bg-white text-slate-800 p-2 rounded-full shadow-lg hover:bg-slate-100 hover:text-blue-600 transition cursor-pointer z-10 w-10 h-10 flex items-center justify-center';
+              btn.title = 'Ampliar imagen';
+
+              // Bind click
+              // Since we are outside Vue's direct template control here, we need to bind explicitly
+              // We can use a custom event or direct method call if we expose it
+              // But arrow function in loop captures scope correctly if we are careful
+              // However, 'this' refers to Vue instance here
+              btn.onclick = (e) => {
+                e.stopPropagation(); // Prevent bubbling if needed
+                this.openZoom(img.src);
+              };
+
+              // Insert wrapper
+              img.parentNode.insertBefore(wrapper, img);
+              wrapper.appendChild(img);
+              wrapper.appendChild(btn);
+            });
+          });
+        }
+      }
+    }).mount("#app");
+  </script>
+</body>
+
+</html>
