@@ -24,6 +24,10 @@
   --logic-bg:  #e8eefb;
   --logic-bdr: #93aef0;
 
+  --front:     #be185d;
+  --front-bg:  #fce7f3;
+  --front-bdr: #f9a8d4;
+
   --persist:   #b45309;
   --persist-bg:#fef4e6;
   --persist-bdr:#f6c87a;
@@ -237,6 +241,13 @@ header h1 em { font-style: italic; color: #f6c87a; }
 .layer-persist .artifact-icon { background: var(--persist-bg); color: var(--persist); }
 .layer-persist .artifact-link:hover .artifact-name { color: var(--persist); }
 
+.layer-front .layer-header { background: var(--front-bg); border-bottom-color: var(--front-bdr); }
+.layer-front .layer-number { color: var(--front); }
+.layer-front .layer-title { color: var(--front); }
+.layer-front .artifact-link:hover { border-color: var(--front-bdr); background: var(--front-bg); }
+.layer-front .artifact-icon { background: var(--front-bg); color: var(--front); }
+.layer-front .artifact-link:hover .artifact-name { color: var(--front); }
+
 /* ── INFO SECTION ── */
 .info-section {
   max-width: 1200px;
@@ -321,6 +332,7 @@ header h1 em { font-style: italic; color: #f6c87a; }
 .layer:nth-child(1) { animation-delay: 0.1s; }
 .layer:nth-child(2) { animation-delay: 0.2s; }
 .layer:nth-child(3) { animation-delay: 0.3s; }
+.layer:nth-child(4) { animation-delay: 0.4s; }
 
 /* ── INTERACTIVE LAYERS ── */
 .layers-interactive {
@@ -585,6 +597,30 @@ header h1 em { font-style: italic; color: #f6c87a; }
 
 <div class="arch-diagram">
   <div class="arch-container">
+
+    <!-- ════════════ FRONTEND LAYER ════════════ -->
+    <div class="layer layer-front">
+      <div class="layer-header">
+        <div class="layer-icon">🎨</div>
+        <div class="layer-title-group">
+          <div class="layer-number">Frontend</div>
+          <div class="layer-title">Desarrollo Web</div>
+        </div>
+      </div>
+      <div class="layer-desc">
+        HTML, CSS y fundamentos de desarrollo web para construir interfaces de usuario.
+      </div>
+      <div class="layer-links">
+        <a href="front/html-css-intro.html" class="artifact-link">
+          <div class="artifact-icon">🖥️</div>
+          <div class="artifact-text">
+            <span class="artifact-name">HTML &amp; CSS — Fundamentos</span>
+            <span class="artifact-subtitle">Introducción al desarrollo web</span>
+          </div>
+          <span class="artifact-arrow">→</span>
+        </a>
+      </div>
+    </div>
 
     <!-- ════════════ API REST LAYER ════════════ -->
     <div class="layer layer-api">
