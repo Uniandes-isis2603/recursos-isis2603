@@ -20,12 +20,15 @@ Since this is a static documentation repo, no build or test commands are needed.
 
 | Path | Contents |
 |------|----------|
-| `docs/` | Interactive HTML documentation and tutorials |
+| `docs/` | Interactive HTML documentation and tutorials (backend 3-layer) |
+| `docs/front/` | Angular frontend tutorials (see `docs/front/CLAUDE.md`) |
+| `docs/capturas/` | PNG screenshots used by the code-review guide artifacts |
 | `ADR/` | Architecture Decision Record template (Spanish) |
 | `json/` | Sample JSON datasets used in API examples |
 | `images/` | Per-semester course images (folders named by semester, e.g. `202420/`) |
 | `imagesWiki/` | Screenshots, diagrams, GIFs, and MP4s for the GitHub Wiki |
 | `samplebootstrap/` | Bootstrap HTML grid layout example |
+| `test-tabs.html` | Root-level scratch/prototype file for tab UI experiments |
 
 ## docs/ Architecture
 
@@ -33,11 +36,12 @@ The HTML files in `docs/` teach a **3-layer Java/Spring enterprise architecture*
 
 | Layer | Color code | Key files |
 |-------|-----------|-----------|
-| API REST (controllers, DTOs, endpoints) | green (`--api`) | `flujo-rest-3capas.html`, `uri-simulator.html`, `mini-postman-musica.html`, `postman-tests.html` |
+| API REST (controllers, DTOs, endpoints) | green (`--api`) | `flujo-rest-3capas.html`, `uri-simulator.html`, `mini-postman-musica.html`, `postman-tests.html`, `postman-tests-guia.html`, `uml-dtos-musica.html` |
 | Business Logic (services, domain rules) | blue (`--logic`) | `capa-logica-negocio.html`, `capa-logica-negocio-pruebas.html`, `quiz-logica-pruebas.html` |
 | Persistence (JPA/ORM, entities) | amber (`--persist`) | `explorador-jpa-interactivo.html`, `jpa-element-collection.html`, `jpa_V2_gemini.html` |
+| Cross-layer / general | (no accent color) | `layered-arch-tutorial.html`, `code-review-guide.html`, `code-review-guide-v1.html` |
 
-The `index.html` landing page links to all of the above.
+The `index.html` landing page links to all of the above. Use `_template.html` as the canonical starting point when creating new backend artifacts.
 
 ## Design System (docs/)
 
@@ -49,6 +53,24 @@ All HTML files share a consistent inline CSS design system with these CSS custom
 - **Shadows/radii:** `--shadow-sm`, `--shadow`, `--shadow-lg`, `--radius: 12px`
 
 When editing HTML files, preserve this design system. Each file replicates the full `<style>` block (no shared stylesheet).
+
+## docs/front/ — Angular Frontend
+
+The `docs/front/` subdirectory contains interactive HTML artifacts teaching **Angular frontend development** for students who already understand the 3-layer backend. It has its own `docs/front/CLAUDE.md` with detailed guidance; key points:
+
+- **Target**: Angular 17+ (standalone components, `inject()`, `@if`/`@for` control flow)
+- **Layer color**: API REST green — same `--api` palette — because the frontend consumes the REST API
+- **Back-link**: points to `../index.html` (main artifact index), or local `index.html` if one exists in `front/`
+- **Template**: use `docs/front/_template-front.html` when creating new frontend artifacts
+- **No Tailwind, no Font Awesome** — only Google Fonts CDN (plus Vue/Alpine if needed for interactivity)
+
+Current artifacts in `docs/front/`:
+
+| File | Topic |
+|------|-------|
+| `index-front.html` | Landing page for the frontend section |
+| `html-css-intro.html` | HTML & CSS fundamentals intro |
+| `styles-front.html` | Styling patterns and responsive layout |
 
 ## Architecture Decision Records
 

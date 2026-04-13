@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bootstrap Básico – ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══ TOKENS ════════════════════════════════════════════ */
+    :root {
+      --bg:        #f2efe9;
+      --surface:   #faf8f4;
+      --surface2:  #ffffff;
+      --border:    #ddd8d0;
+      --border2:   #ece8e0;
+      --ink:       #1c1814;
+      --ink-mid:   #4a4440;
+      --ink-soft:  #8c847c;
+      --layer:     #0e7a5a;
+      --layer-bg:  #e6f5f0;
+      --layer-bdr: #9dd9c5;
+      --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+      --shadow:    0 4px 20px rgba(28,24,20,.09);
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══ HEADER ════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content { position: relative; text-align: center; max-width: 900px; }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--layer-bdr); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--layer-bdr);
+      text-decoration: none; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: .75; transition: opacity .15s;
+    }
+    .back-link:hover { opacity: 1; }
+
+    /* ══ TOP-LEVEL TABS ═════════════════════════════════════ */
+    .top-tab-nav {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      gap: 0;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .top-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: .5px;
+      padding: 14px 22px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .top-tab-btn:hover { color: var(--ink-mid); }
+    .top-tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .top-tab-panel { display: none; }
+    .top-tab-panel.active { display: block; }
+
+    /* ══ TYPOGRAPHY ═════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; color: var(--ink); margin-bottom: 14px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink-mid); margin: 20px 0 8px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 14px; }
+
+    /* ══ LAYOUT ═════════════════════════════════════════════ */
+    .container { max-width: 1000px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══ CARDS ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer);
+      margin-bottom: 24px;
+    }
+
+    /* ══ CARD HEADER ════════════════════════════════════════ */
+    .card-hdr {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+    .card-hdr h2 { margin-bottom: 0; }
+
+    /* ══ HIGHLIGHT BOX ══════════════════════════════════════ */
+    .highlight {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+    }
+
+    /* ══ CODE ═══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.6;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* ══ CALLOUTS ═══════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; flex-shrink: 0; margin-top: 3px;
+    }
+    .callout p { margin: 0; }
+    .callout-tip  { background: var(--layer-bg); border-left: 4px solid var(--layer); }
+    .callout-tip  .callout-icon { color: var(--layer); }
+    .callout-info { background: #e8eefb; border-left: 4px solid #1d4ed8; }
+    .callout-info .callout-icon { color: #1d4ed8; }
+
+    /* ══ TABLE ══════════════════════════════════════════════ */
+    .tbl { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .tbl th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 10px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .tbl td {
+      padding: 12px 16px; color: var(--ink-mid);
+      border-bottom: 1px solid var(--border2); vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--layer-bg); }
+
+    /* ══ BADGE ══════════════════════════════════════════════ */
+    .badge-adv {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 20px;
+      background: #fef4e6; color: #b45309;
+      border: 1px solid #f6c87a;
+      vertical-align: middle; margin-left: 8px;
+    }
+
+    /* ══ SECTION LABEL ══════════════════════════════════════ */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--layer); margin-bottom: 24px;
+      display: block;
+    }
+
+    /* ══ EXERCISES ══════════════════════════════════════════ */
+    .ex-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.9;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin: 16px 0;
+      display: block;
+    }
+    .blank-input {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: #252220;
+      border: none;
+      border-bottom: 2px solid #fef08a;
+      border-radius: 3px;
+      color: #fef08a;
+      padding: 0 6px;
+      outline: none;
+      vertical-align: baseline;
+      transition: background .15s, color .15s;
+    }
+    .blank-input:focus { background: rgba(254,240,138,.15); }
+    .blank-input.correct {
+      background: rgba(14,122,90,.25);
+      border-bottom-color: var(--layer-bdr);
+      color: var(--layer-bdr);
+    }
+    .blank-input.incorrect {
+      background: rgba(185,28,28,.2);
+      border-bottom-color: #fca5a5;
+      color: #fca5a5;
+    }
+    .ex-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn-verify {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      padding: 10px 24px;
+      border: none; border-radius: 8px;
+      background: var(--layer); color: #fff;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-verify:hover { background: #0b6449; }
+    .btn-reset {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 10px 18px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--ink-soft);
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-reset:hover { border-color: var(--layer); color: var(--layer); }
+    .ex-feedback {
+      font-size: 14px; line-height: 1.6;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-top: 14px;
+      display: none;
+    }
+    .ex-feedback.show { display: block; }
+    .ex-feedback.ok  { background: var(--layer-bg); border-left: 4px solid var(--layer); color: var(--ink-mid); }
+    .ex-feedback.err { background: #fef2f2; border-left: 4px solid #b91c1c; color: var(--ink-mid); }
+
+    /* ══ QUIZ ════════════════════════════════════════════════ */
+    .quiz-score-bar {
+      display: flex; align-items: center; gap: 20px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .score-big {
+      font-family: 'DM Serif Display', serif;
+      font-size: 40px; color: var(--layer); line-height: 1;
+    }
+    .score-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft); letter-spacing: .5px;
+    }
+    .score-meta span { display: block; font-size: 13px; color: var(--ink-mid); margin-top: 3px; }
+    .q-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      transition: border-color .2s;
+    }
+    .q-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--ink-soft); margin-bottom: 10px;
+    }
+    .q-text {
+      font-size: 16px; font-weight: 500;
+      color: var(--ink); margin-bottom: 18px; line-height: 1.5;
+    }
+    .q-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .q-opt {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 18px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--ink-mid);
+      cursor: pointer; text-align: left;
+      transition: border-color .15s, background .15s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .q-opt:hover:not([disabled]) { border-color: var(--layer-bdr); background: var(--layer-bg); color: var(--ink); }
+    .q-opt[disabled] { cursor: default; }
+    .q-opt.correct   { border-color: var(--layer); background: var(--layer-bg); color: #0a5e45; }
+    .q-opt.incorrect { border-color: #b91c1c; background: #fef2f2; color: #991b1b; }
+    .q-opt.dimmed    { opacity: .4; }
+    .q-marker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--ink-soft);
+    }
+    .q-opt.correct   .q-marker { background: var(--layer); border-color: var(--layer); color: #fff; }
+    .q-opt.incorrect .q-marker { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .q-exp {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+      display: none; margin-top: 10px;
+    }
+    .q-exp.show { display: block; }
+    .q-wrong-exp {
+      background: #fef2f2;
+      border-left: 4px solid #b91c1c;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+      display: none; margin-top: 10px;
+    }
+    .q-wrong-exp.show { display: block; }
+
+    /* ══ FOOTER ═════════════════════════════════════════════ */
+    footer {
+      margin-top: 60px; padding: 24px;
+      text-align: center; border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: .5px; margin: 0;
+    }
+    footer span { color: var(--layer); }
+
+    /* ══ GRID DEMO (slider) ═════════════════════════════════ */
+    .grid-demo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-top: 20px;
+    }
+    .grid-demo-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft); margin-bottom: 10px;
+    }
+    .demo-row { display: flex; gap: 4px; margin-bottom: 4px; }
+    .demo-col {
+      height: 36px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,.85);
+    }
+    .demo-col:nth-child(odd)  { background: rgba(14,122,90,.55); }
+    .demo-col:nth-child(even) { background: rgba(14,122,90,.35); }
+
+    /* ══ GRID ILLUSTRATION ══════════════════════════════════ */
+    .grid-illus {
+      margin-top: 24px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .grid-illus-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      padding-bottom: 10px; margin-bottom: 4px;
+      border-top: 1px solid var(--border); padding-top: 16px;
+    }
+    .grid-illus-row-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft); margin-bottom: 6px;
+    }
+    .grid-illus-row { display: flex; gap: 6px; }
+    .gi-cell {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--layer);
+      border-radius: 6px;
+      padding: 10px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .gi-cell strong { font-size: 13px; color: var(--ink); font-family: 'DM Sans', sans-serif; }
+    .gi-cell p      { font-size: 12px; line-height: 1.5; color: var(--ink-soft); margin: 0; }
+    .gi-sidebar { border-top-color: #1d4ed8; }
+    .gi-muted {
+      background: var(--surface);
+      border-top-color: var(--border);
+      align-items: center; justify-content: center;
+    }
+    .gi-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      color: var(--layer); background: var(--layer-bg);
+      border: 1px solid var(--layer-bdr);
+      border-radius: 4px; padding: 1px 6px;
+      align-self: flex-start;
+    }
+    .gi-muted .gi-tag { color: var(--ink-soft); background: var(--surface); border-color: var(--border); }
+    .gi-muted-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--ink-soft);
+    }
+    .gi-img-placeholder {
+      background: rgba(14,122,90,.06);
+      border: 1px dashed var(--layer-bdr);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--ink-soft); padding: 8px;
+    }
+    .gi-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .gi-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 6px 10px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .gi-table td {
+      padding: 6px 10px; font-size: 12px;
+      color: var(--ink-mid); border-bottom: 1px solid var(--border2);
+    }
+    .gi-table tr:last-child td { border-bottom: none; }
+    .gi-table code { font-size: 11px; }
+
+    /* ══ MOBILE ═════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card { padding: 20px 16px; }
+      .top-tab-nav { padding: 0 12px; }
+      .top-tab-btn { padding: 12px 14px; font-size: 11px; }
+      .tbl { font-size: 12px; }
+      .tbl th, .tbl td { padding: 8px 10px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index-front.html" class="back-link">← Front</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Frontend · Bootstrap 4</div>
+    <h1>Bootstrap <em>Básico</em></h1>
+    <div class="hdr-sub">grilla · estilos · componentes · responsive</div>
+  </div>
+</header>
+
+<div class="top-tab-nav" role="tablist">
+  <button class="top-tab-btn active" onclick="switchTab(event,'tab-teoria')"   role="tab">TEORÍA</button>
+  <button class="top-tab-btn"        onclick="switchTab(event,'tab-practica')"  role="tab">PRÁCTICA</button>
+  <button class="top-tab-btn"        onclick="switchTab(event,'tab-evaluacion')" role="tab">EVALUACIÓN</button>
+</div>
+
+<div class="container">
+  <div class="content">
+
+    <!-- ══════════════════════════════ TEORÍA ══ -->
+    <section class="top-tab-panel active" id="tab-teoria">
+
+      <span class="section-label">01 — Teoría</span>
+
+      <!-- 1. ¿Qué es Bootstrap? -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">⚡</span>
+          <h2>¿Qué es Bootstrap?</h2>
+        </div>
+        <p>Bootstrap es un framework de código abierto para construir sitios web y aplicaciones web <strong>adaptativas (responsives)</strong> a partir de HTML, CSS y JavaScript. Fue desarrollado originalmente por un equipo en Twitter y permite que las aplicaciones se vean bien en cualquier dispositivo, especialmente en teléfonos.</p>
+        <div class="highlight">
+          Bootstrap contiene estilos predefinidos para botones, tablas, formularios, barras de navegación y componentes avanzados de interfaz.
+        </div>
+        <div class="callout callout-tip">
+          <span class="callout-icon">DOC</span>
+          <p>Documentación oficial: <a href="https://getbootstrap.com/docs/4.1/getting-started/introduction/" target="_blank" rel="noopener" style="color:var(--layer);font-family:'JetBrains Mono',monospace;font-size:13px">getbootstrap.com/docs/4.1</a> — referencia completa de componentes, grilla y utilidades. En ISIS2603 se trabaja con <strong>Bootstrap 4.1</strong>.</p>
+        </div>
+      </div>
+
+      <!-- 2. La Grilla Bootstrap -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">📐</span>
+          <h2>La Grilla Bootstrap</h2>
+        </div>
+        <p>El sistema de grilla de Bootstrap organiza zonas de la pantalla usando <strong>contenedores, filas y columnas</strong>. Está implementada con Flexbox y es completamente adaptativa. La grilla se compone de un máximo de <strong>12 columnas</strong> y tantas filas como se necesiten.</p>
+        <div class="highlight">
+          Los contenedores (<code>.container</code> o <code>.container-fluid</code>) son obligatorios cuando se usa el sistema de grilla.
+        </div>
+        <pre><code>&lt;div class="container-fluid"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col"&gt;Columna 1&lt;/div&gt;
+    &lt;div class="col"&gt;Columna 2&lt;/div&gt;
+    &lt;div class="col"&gt;Columna 3&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <!-- Slider demo -->
+        <div class="grid-demo">
+          <div class="grid-demo-label">Visualizador de Grilla — arrastra el slider para ajustar columnas</div>
+          <div id="grid-preview"></div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+            <label for="col-slider" style="font-size:11px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace">Columnas:</label>
+            <input type="range" id="col-slider" min="1" max="12" value="4" style="flex:1;accent-color:var(--layer)">
+            <span id="col-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--layer);min-width:80px">col-4 × 3</span>
+          </div>
+        </div>
+
+        <!-- Grid illustration -->
+        <div class="grid-illus">
+          <div class="grid-illus-title">Tres filas con distribuciones distintas</div>
+
+          <!-- Fila 1: col-4 + col-4 + col-4 -->
+          <div>
+            <div class="grid-illus-row-label"><code>.col-4 + .col-4 + .col-4</code> — tres columnas iguales (4 + 4 + 4 = 12)</div>
+            <div class="grid-illus-row">
+              <div class="gi-cell" style="flex:4">
+                <span class="gi-tag">col-4</span>
+                <strong>Artículo A</strong>
+                <p>Texto introductorio del primer bloque de contenido. Ocupa un tercio del ancho.</p>
+              </div>
+              <div class="gi-cell" style="flex:4">
+                <span class="gi-tag">col-4</span>
+                <strong>Artículo B</strong>
+                <p>Los tres bloques tienen el mismo ancho y se alinean automáticamente.</p>
+              </div>
+              <div class="gi-cell" style="flex:4">
+                <span class="gi-tag">col-4</span>
+                <strong>Artículo C</strong>
+                <p>Ideal para tarjetas, galerías o listas de características.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fila 2: col-8 + col-4 -->
+          <div>
+            <div class="grid-illus-row-label"><code>.col-8 + .col-4</code> — contenido principal y barra lateral (8 + 4 = 12)</div>
+            <div class="grid-illus-row">
+              <div class="gi-cell" style="flex:8">
+                <span class="gi-tag">col-8</span>
+                <strong>Contenido principal</strong>
+                <p>Área amplia para texto, código o el cuerpo principal de la página. Ocupa dos tercios del ancho disponible.</p>
+                <div class="gi-img-placeholder" style="height:56px">📝 Texto largo, tabla o sección de contenido</div>
+              </div>
+              <div class="gi-cell gi-sidebar" style="flex:4">
+                <span class="gi-tag">col-4</span>
+                <strong>Barra lateral</strong>
+                <p>Espacio secundario para menú, metadatos o imagen.</p>
+                <div class="gi-img-placeholder" style="height:72px">🖼️ Imagen</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fila 3: col-2 + col-8 + col-2 -->
+          <div>
+            <div class="grid-illus-row-label"><code>.col-2 + .col-8 + .col-2</code> — tabla centrada con márgenes (2 + 8 + 2 = 12)</div>
+            <div class="grid-illus-row">
+              <div class="gi-cell gi-muted" style="flex:2">
+                <span class="gi-tag">col-2</span>
+                <span class="gi-muted-label">margen</span>
+              </div>
+              <div class="gi-cell" style="flex:8">
+                <span class="gi-tag">col-8</span>
+                <strong>Tabla de clases de columna</strong>
+                <table class="gi-table">
+                  <thead>
+                    <tr><th>Clase</th><th>Espacios</th><th>Uso típico</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>col-4</code></td><td>4 / 12</td><td>Tarjetas en grupos de 3</td></tr>
+                    <tr><td><code>col-6</code></td><td>6 / 12</td><td>Dos columnas iguales</td></tr>
+                    <tr><td><code>col-8</code></td><td>8 / 12</td><td>Contenido + barra lateral</td></tr>
+                    <tr><td><code>col-12</code></td><td>12 / 12</td><td>Ancho completo</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="gi-cell gi-muted" style="flex:2">
+                <span class="gi-tag">col-2</span>
+                <span class="gi-muted-label">margen</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /grid-illus -->
+      </div>
+
+      <!-- 3. Columnas de Distintos Tamaños -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">📏</span>
+          <h2>Columnas de Distintos Tamaños</h2>
+        </div>
+        <p>Para columnas de <strong>distintos tamaños</strong>, se indica cuántos espacios (de los 12 disponibles) ocupará cada columna. Por ejemplo, <code>col-6</code> ocupa la mitad, <code>col-4</code> un tercio, y <code>col-10</code> diez doceavos del ancho total.</p>
+        <div class="highlight">
+          La suma de los valores de las columnas en una fila debe ser igual a 12 para un diseño perfecto.
+        </div>
+        <pre><code>&lt;div class="row"&gt;
+  &lt;div class="col-2"&gt;Pequeña&lt;/div&gt;
+  &lt;div class="col-8"&gt;Grande&lt;/div&gt;
+  &lt;div class="col-2"&gt;Pequeña&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <!-- 4. Estilos Bootstrap -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">🎨</span>
+          <h2>Estilos Bootstrap</h2>
+        </div>
+        <p>Bootstrap aplica estilos visuales a los elementos HTML mediante clases CSS. Por ejemplo, <code>class="table"</code> mejora el aspecto de una tabla, <code>class="btn btn-success"</code> crea un botón verde, y <code>class="thead-dark"</code> da un encabezado oscuro a una tabla.</p>
+        <div class="highlight">
+          Solo incluyendo el link al CSS de Bootstrap en el <code>&lt;head&gt;</code>, todos los estilos quedan disponibles inmediatamente.
+        </div>
+        <pre><code>&lt;link rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"&gt;</code></pre>
+        <div class="callout callout-info">
+          <span class="callout-icon">NPM</span>
+          <p>En proyectos con <strong>Angular o React</strong>, Bootstrap no se enlaza desde un CDN — se instala como dependencia con <code>npm install bootstrap</code> y se importa en el archivo de estilos global:<br><br>
+          <code>// styles.css (Angular) o index.css (React)<br>@import 'bootstrap/dist/css/bootstrap.min.css';</code></p>
+        </div>
+      </div>
+
+      <!-- 5. La grilla en acción (avanzado) -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">🗂️</span>
+          <h2>La grilla en acción: esta misma página <span class="badge-adv">Avanzado</span></h2>
+        </div>
+        <p>El layout que estás viendo ahora mismo se puede construir con Bootstrap. La barra de navegación usa <code>navbar</code>, el contenido central usa <code>container</code> con una fila centrada mediante <code>justify-content-center</code>, y la columna principal limita el ancho con <code>col-md-10</code>. Las tarjetas usan <code>card</code> con <code>border-start</code> para el borde izquierdo de color.</p>
+        <div class="highlight">
+          En Bootstrap, centrar contenido horizontalmente se logra con <code>row</code> + <code>justify-content-center</code> + <code>col-md-N</code>.
+        </div>
+        <pre><code>&lt;!-- Barra de navegación (ancho completo) --&gt;
+&lt;nav class="navbar navbar-dark bg-dark px-4 d-flex justify-content-between"&gt;
+  &lt;span class="navbar-brand fw-bold"&gt;Bootstrap Básico&lt;/span&gt;
+  &lt;div class="d-flex gap-3"&gt;
+    &lt;button class="btn btn-link text-white"&gt;Teoría&lt;/button&gt;
+    &lt;button class="btn btn-link text-secondary"&gt;Práctica&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;!-- Contenido centrado con la grilla --&gt;
+&lt;div class="container py-5"&gt;
+  &lt;div class="row justify-content-center"&gt;
+    &lt;div class="col-12 col-md-10"&gt;
+      &lt;div class="card shadow-sm border-0 border-start border-4 border-success"&gt;
+        &lt;div class="card-body p-4"&gt;
+          &lt;h5 class="card-title"&gt;⚡ ¿Qué es Bootstrap?&lt;/h5&gt;
+          &lt;p class="card-text text-muted"&gt;Bootstrap es un framework...&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <h3>Clases utilizadas</h3>
+        <table class="tbl">
+          <thead><tr><th>Clase</th><th>Descripción</th></tr></thead>
+          <tbody>
+            <tr><td><code>navbar navbar-dark bg-dark</code></td><td>Barra de navegación con fondo oscuro y texto claro adaptado automáticamente.</td></tr>
+            <tr><td><code>px-4</code></td><td>Padding horizontal de 1.5 rem a izquierda y derecha (utility de espaciado).</td></tr>
+            <tr><td><code>d-flex justify-content-between</code></td><td>Activa Flexbox y distribuye los hijos en los dos extremos de la fila.</td></tr>
+            <tr><td><code>navbar-brand fw-bold</code></td><td>Estilo de marca del navbar; fw-bold aplica font-weight: 700.</td></tr>
+            <tr><td><code>btn btn-link text-white</code></td><td>Botón con apariencia de enlace de texto; text-white controla el color.</td></tr>
+            <tr><td><code>d-flex gap-3</code></td><td>Flexbox con separación de 1 rem entre los botones del menú.</td></tr>
+            <tr><td><code>container py-5</code></td><td>Contenedor centrado de ancho máximo fijo; py-5 añade padding vertical de 3 rem.</td></tr>
+            <tr><td><code>row justify-content-center</code></td><td>Fila de la grilla que centra horizontalmente sus columnas hijas.</td></tr>
+            <tr><td><code>col-12 col-md-10</code></td><td>Columna de ancho completo en móvil; en pantallas ≥ 768 px ocupa 10 de 12 espacios.</td></tr>
+            <tr><td><code>card shadow-sm border-0</code></td><td>Componente tarjeta con sombra sutil y sin borde por defecto.</td></tr>
+            <tr><td><code>border-start border-4 border-success</code></td><td>Agrega un borde izquierdo de 4 px en color verde.</td></tr>
+            <tr><td><code>card-body p-4</code></td><td>Área de contenido interna de la tarjeta; p-4 añade padding uniforme de 1.5 rem.</td></tr>
+            <tr><td><code>text-muted</code></td><td>Color de texto atenuado (gris #6c757d), para información secundaria.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. Bootstrap y Flexbox (avanzado) -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">📦</span>
+          <h2>Bootstrap y Flexbox <span class="badge-adv">Avanzado</span></h2>
+        </div>
+        <p>El sistema de grilla de Bootstrap <strong>está construido sobre Flexbox</strong>: no son tecnologías separadas. Cuando escribes <code>.row</code>, Bootstrap aplica internamente <code>display: flex; flex-wrap: wrap</code>, por lo que obtienes todo el comportamiento de Flexbox automáticamente. Cada columna (<code>.col</code>, <code>.col-4</code>, etc.) es un flex item — Bootstrap traduce el número de columna a <code>flex-basis</code> con porcentajes fijos. Un <code>.col-4</code> equivale a <code>flex: 0 0 33.33%</code>, y un <code>.col</code> sin número equivale a <code>flex: 1 0 0%</code>, por eso las columnas iguales reparten el espacio automáticamente.</p>
+        <div class="highlight">
+          La grilla de 12 columnas es Flexbox con nombres fijos. <code>col-4</code> = flex-basis 33.33 %, <code>col-6</code> = 50 %, <code>col-12</code> = 100 %.
+        </div>
+        <div class="callout callout-tip">
+          <span class="callout-icon">TIP</span>
+          <p>Además de la grilla, Bootstrap expone Flexbox directamente con clases utilitarias: <code>d-flex</code>, <code>justify-content-between</code>, <code>align-items-center</code>, <code>gap-3</code>. En frameworks como <strong>Angular o React</strong> estas clases se aplican a cualquier componente para alinear elementos dentro de tarjetas, navbars o botones — sin escribir CSS propio.</p>
+        </div>
+      </div>
+
+    </section><!-- /tab-teoria -->
+
+
+    <!-- ══════════════════════════════ PRÁCTICA ══ -->
+    <section class="top-tab-panel" id="tab-practica">
+
+      <span class="section-label">02 — Práctica</span>
+
+      <div class="card">
+        <h2>Ejercicios Prácticos</h2>
+        <p>Escribe el nombre de clase correcto en cada campo amarillo. Usa el botón <strong>Verificar</strong> para comprobar tus respuestas.</p>
+      </div>
+
+      <!-- Ejercicio 1 -->
+      <div class="card">
+        <h2>Ejercicio 1 — Grilla de 12 columnas iguales</h2>
+        <p>Completa el código para crear una fila con 12 columnas iguales dentro de un <code>container-fluid</code>.</p>
+        <div class="ex-code"><span>&lt;div class="</span><input class="blank-input" id="e1b1" data-ans="container-fluid" size="15" placeholder="___"><span>"&gt;
+  &lt;div class="</span><input class="blank-input" id="e1b2" data-ans="row" size="5" placeholder="___"><span>"&gt;
+    &lt;div class="</span><input class="blank-input" id="e1b3" data-ans="col" size="4" placeholder="___"><span>"&gt;1&lt;/div&gt;
+    &lt;div class="col"&gt;2&lt;/div&gt;
+    &lt;div class="col"&gt;3&lt;/div&gt;
+    &lt;div class="col"&gt;... (hasta 12)&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex1',['e1b1','e1b2','e1b3'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e1b1','e1b2','e1b3'],'ex1fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex1fb"></div>
+      </div>
+
+      <!-- Ejercicio 2 -->
+      <div class="card">
+        <h2>Ejercicio 2 — Columna de 10 espacios</h2>
+        <p>Crea una fila con tres columnas donde la del medio ocupa 10 de los 12 espacios disponibles.</p>
+        <div class="ex-code"><span>&lt;div class="row"&gt;
+  &lt;div class="col"&gt;I&lt;/div&gt;
+  &lt;div class="</span><input class="blank-input" id="e2b1" data-ans="col-10" size="7" placeholder="___"><span>"&gt;Centro grande&lt;/div&gt;
+  &lt;div class="col"&gt;D&lt;/div&gt;
+&lt;/div&gt;</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex2',['e2b1'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e2b1'],'ex2fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex2fb"></div>
+      </div>
+
+      <!-- Ejercicio 3 -->
+      <div class="card">
+        <h2>Ejercicio 3 — Botones con estilos Bootstrap</h2>
+        <p>Aplica los estilos correctos para crear un botón rojo de eliminar y un botón verde de agregar.</p>
+        <div class="ex-code"><span>&lt;button class="btn </span><input class="blank-input" id="e3b1" data-ans="btn-danger" size="11" placeholder="___"><span>"&gt;Eliminar&lt;/button&gt;
+&lt;button class="btn </span><input class="blank-input" id="e3b2" data-ans="btn-success" size="11" placeholder="___"><span>"&gt;Agregar&lt;/button&gt;</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex3',['e3b1','e3b2'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e3b1','e3b2'],'ex3fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex3fb"></div>
+      </div>
+
+    </section><!-- /tab-practica -->
+
+
+    <!-- ══════════════════════════════ EVALUACIÓN ══ -->
+    <section class="top-tab-panel" id="tab-evaluacion">
+
+      <span class="section-label">03 — Evaluación</span>
+
+      <div class="quiz-score-bar">
+        <div class="score-big" id="score-num">0</div>
+        <div class="score-meta">PUNTAJE<span>de 6 preguntas</span></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 1 de 6</div>
+        <div class="q-text">¿Cuántas columnas como máximo soporta la grilla de Bootstrap?</div>
+        <div class="q-options" id="qo1">
+          <button class="q-opt" onclick="answer('qo1',0,2,['6 no es la base del sistema — aunque es divisible entre varios números, Bootstrap necesitaba más divisores para ofrecer mayor flexibilidad de diseño.','10 no fue elegido porque no es divisible entre 3, lo que limitaría layouts de tres columnas iguales. Bootstrap priorizó la divisibilidad matemática.',null,'16 permitiría más divisiones pero haría el sistema más complejo de usar. Bootstrap optó por 12 como equilibrio entre flexibilidad y simplicidad.'],'qe1','qw1')"><span class="q-marker">A</span> 6</button>
+          <button class="q-opt" onclick="answer('qo1',1,2,['6 no es la base del sistema — aunque es divisible entre varios números, Bootstrap necesitaba más divisores para ofrecer mayor flexibilidad de diseño.','10 no fue elegido porque no es divisible entre 3, lo que limitaría layouts de tres columnas iguales. Bootstrap priorizó la divisibilidad matemática.',null,'16 permitiría más divisiones pero haría el sistema más complejo de usar. Bootstrap optó por 12 como equilibrio entre flexibilidad y simplicidad.'],'qe1','qw1')"><span class="q-marker">B</span> 10</button>
+          <button class="q-opt" onclick="answer('qo1',2,2,['6 no es la base del sistema — aunque es divisible entre varios números, Bootstrap necesitaba más divisores para ofrecer mayor flexibilidad de diseño.','10 no fue elegido porque no es divisible entre 3, lo que limitaría layouts de tres columnas iguales. Bootstrap priorizó la divisibilidad matemática.',null,'16 permitiría más divisiones pero haría el sistema más complejo de usar. Bootstrap optó por 12 como equilibrio entre flexibilidad y simplicidad.'],'qe1','qw1')"><span class="q-marker">C</span> 12</button>
+          <button class="q-opt" onclick="answer('qo1',3,2,['6 no es la base del sistema — aunque es divisible entre varios números, Bootstrap necesitaba más divisores para ofrecer mayor flexibilidad de diseño.','10 no fue elegido porque no es divisible entre 3, lo que limitaría layouts de tres columnas iguales. Bootstrap priorizó la divisibilidad matemática.',null,'16 permitiría más divisiones pero haría el sistema más complejo de usar. Bootstrap optó por 12 como equilibrio entre flexibilidad y simplicidad.'],'qe1','qw1')"><span class="q-marker">D</span> 16</button>
+        </div>
+        <div class="q-exp" id="qe1">La grilla Bootstrap está basada en 12 columnas. Este número fue elegido porque es divisible por 1, 2, 3, 4, 6 y 12, dando mucha flexibilidad de diseño.</div>
+        <div class="q-wrong-exp" id="qw1"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 2 de 6</div>
+        <div class="q-text">¿Qué clase se usa para un contenedor que ocupa todo el ancho de la pantalla?</div>
+        <div class="q-options" id="qo2">
+          <button class="q-opt" onclick="answer('qo2',0,1,['container tiene un ancho máximo que varía por breakpoint (sm, md, lg…). No ocupa siempre el 100% del ancho — para eso existe otra clase.',null,'container-full no existe en Bootstrap. Es un nombre intuitivo pero incorrecto — revisa la documentación oficial de clases de contenedor.','row-fluid era una clase de Bootstrap 2, ya eliminada. row define una fila de la grilla, no un contenedor de ancho completo.'],'qe2','qw2')"><span class="q-marker">A</span> container</button>
+          <button class="q-opt" onclick="answer('qo2',1,1,['container tiene un ancho máximo que varía por breakpoint (sm, md, lg…). No ocupa siempre el 100% del ancho — para eso existe otra clase.',null,'container-full no existe en Bootstrap. Es un nombre intuitivo pero incorrecto — revisa la documentación oficial de clases de contenedor.','row-fluid era una clase de Bootstrap 2, ya eliminada. row define una fila de la grilla, no un contenedor de ancho completo.'],'qe2','qw2')"><span class="q-marker">B</span> container-fluid</button>
+          <button class="q-opt" onclick="answer('qo2',2,1,['container tiene un ancho máximo que varía por breakpoint (sm, md, lg…). No ocupa siempre el 100% del ancho — para eso existe otra clase.',null,'container-full no existe en Bootstrap. Es un nombre intuitivo pero incorrecto — revisa la documentación oficial de clases de contenedor.','row-fluid era una clase de Bootstrap 2, ya eliminada. row define una fila de la grilla, no un contenedor de ancho completo.'],'qe2','qw2')"><span class="q-marker">C</span> container-full</button>
+          <button class="q-opt" onclick="answer('qo2',3,1,['container tiene un ancho máximo que varía por breakpoint (sm, md, lg…). No ocupa siempre el 100% del ancho — para eso existe otra clase.',null,'container-full no existe en Bootstrap. Es un nombre intuitivo pero incorrecto — revisa la documentación oficial de clases de contenedor.','row-fluid era una clase de Bootstrap 2, ya eliminada. row define una fila de la grilla, no un contenedor de ancho completo.'],'qe2','qw2')"><span class="q-marker">D</span> row-fluid</button>
+        </div>
+        <div class="q-exp" id="qe2">container-fluid crea un contenedor de ancho completo (100%). La clase container, en cambio, tiene un ancho máximo que varía según el tamaño de la pantalla.</div>
+        <div class="q-wrong-exp" id="qw2"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 3 de 6</div>
+        <div class="q-text">¿Qué tecnología CSS usa Bootstrap internamente para implementar su grilla?</div>
+        <div class="q-options" id="qo3">
+          <button class="q-opt" onclick="answer('qo3',0,1,['CSS Grid es una tecnología distinta de Flexbox. Bootstrap no la usa para su sistema de grilla — Bootstrap eligió Flexbox por su soporte amplio cuando se desarrolló Bootstrap 4.',null,'Float fue la técnica usada en Bootstrap 3 y anteriores. Bootstrap 4 la abandonó completamente en favor de otra tecnología con mejor soporte para alineamiento.','Inline-block nunca fue la base del sistema de grilla de Bootstrap. Tiene limitaciones importantes para layouts complejos.'],'qe3','qw3')"><span class="q-marker">A</span> CSS Grid</button>
+          <button class="q-opt" onclick="answer('qo3',1,1,['CSS Grid es una tecnología distinta de Flexbox. Bootstrap no la usa para su sistema de grilla — Bootstrap eligió Flexbox por su soporte amplio cuando se desarrolló Bootstrap 4.',null,'Float fue la técnica usada en Bootstrap 3 y anteriores. Bootstrap 4 la abandonó completamente en favor de otra tecnología con mejor soporte para alineamiento.','Inline-block nunca fue la base del sistema de grilla de Bootstrap. Tiene limitaciones importantes para layouts complejos.'],'qe3','qw3')"><span class="q-marker">B</span> Flexbox</button>
+          <button class="q-opt" onclick="answer('qo3',2,1,['CSS Grid es una tecnología distinta de Flexbox. Bootstrap no la usa para su sistema de grilla — Bootstrap eligió Flexbox por su soporte amplio cuando se desarrolló Bootstrap 4.',null,'Float fue la técnica usada en Bootstrap 3 y anteriores. Bootstrap 4 la abandonó completamente en favor de otra tecnología con mejor soporte para alineamiento.','Inline-block nunca fue la base del sistema de grilla de Bootstrap. Tiene limitaciones importantes para layouts complejos.'],'qe3','qw3')"><span class="q-marker">C</span> Float</button>
+          <button class="q-opt" onclick="answer('qo3',3,1,['CSS Grid es una tecnología distinta de Flexbox. Bootstrap no la usa para su sistema de grilla — Bootstrap eligió Flexbox por su soporte amplio cuando se desarrolló Bootstrap 4.',null,'Float fue la técnica usada en Bootstrap 3 y anteriores. Bootstrap 4 la abandonó completamente en favor de otra tecnología con mejor soporte para alineamiento.','Inline-block nunca fue la base del sistema de grilla de Bootstrap. Tiene limitaciones importantes para layouts complejos.'],'qe3','qw3')"><span class="q-marker">D</span> Inline-block</button>
+        </div>
+        <div class="q-exp" id="qe3">Bootstrap 4 migró a Flexbox para implementar su grilla, lo que permite un control mucho más preciso del alineamiento y distribución de espacio.</div>
+        <div class="q-wrong-exp" id="qw3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 4 de 6</div>
+        <div class="q-text">Si una fila tiene tres columnas con clases col-4, col-4 y col-4, ¿qué ocurre?</div>
+        <div class="q-options" id="qo4">
+          <button class="q-opt" onclick="answer('qo4',0,1,['Bootstrap acepta exactamente 12 columnas por fila — esa es la base del sistema. La suma correcta es 4+4+4=12, que no produce desbordamiento.',null,'Las columnas solo caen a la siguiente línea cuando la suma supera 12. Aquí 4+4+4=12 es exactamente el límite, así que las tres caben en la misma fila.','Bootstrap no ignora columnas. Las renderiza todas — solo cuando la suma supera 12 hay un salto automático a la siguiente línea.'],'qe4','qw4')"><span class="q-marker">A</span> Se desbordan porque suman 12 y Bootstrap solo acepta 11</button>
+          <button class="q-opt" onclick="answer('qo4',1,1,['Bootstrap acepta exactamente 12 columnas por fila — esa es la base del sistema. La suma correcta es 4+4+4=12, que no produce desbordamiento.',null,'Las columnas solo caen a la siguiente línea cuando la suma supera 12. Aquí 4+4+4=12 es exactamente el límite, así que las tres caben en la misma fila.','Bootstrap no ignora columnas. Las renderiza todas — solo cuando la suma supera 12 hay un salto automático a la siguiente línea.'],'qe4','qw4')"><span class="q-marker">B</span> Tres columnas iguales que llenan el ancho completo (4+4+4=12)</button>
+          <button class="q-opt" onclick="answer('qo4',2,1,['Bootstrap acepta exactamente 12 columnas por fila — esa es la base del sistema. La suma correcta es 4+4+4=12, que no produce desbordamiento.',null,'Las columnas solo caen a la siguiente línea cuando la suma supera 12. Aquí 4+4+4=12 es exactamente el límite, así que las tres caben en la misma fila.','Bootstrap no ignora columnas. Las renderiza todas — solo cuando la suma supera 12 hay un salto automático a la siguiente línea.'],'qe4','qw4')"><span class="q-marker">C</span> La tercera columna cae a la siguiente línea</button>
+          <button class="q-opt" onclick="answer('qo4',3,1,['Bootstrap acepta exactamente 12 columnas por fila — esa es la base del sistema. La suma correcta es 4+4+4=12, que no produce desbordamiento.',null,'Las columnas solo caen a la siguiente línea cuando la suma supera 12. Aquí 4+4+4=12 es exactamente el límite, así que las tres caben en la misma fila.','Bootstrap no ignora columnas. Las renderiza todas — solo cuando la suma supera 12 hay un salto automático a la siguiente línea.'],'qe4','qw4')"><span class="q-marker">D</span> Bootstrap ignora la tercera columna</button>
+        </div>
+        <div class="q-exp" id="qe4">4+4+4=12, que es exactamente el total de la grilla. El resultado son tres columnas del mismo tamaño que juntas ocupan el 100% del ancho disponible.</div>
+        <div class="q-wrong-exp" id="qw4"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 5 de 6</div>
+        <div class="q-text">¿Qué clase de Bootstrap aplica un estilo visual mejorado a una tabla HTML?</div>
+        <div class="q-options" id="qo5">
+          <button class="q-opt" onclick="answer('qo5',0,1,['table-bootstrap no existe en Bootstrap. Las clases para tablas sí comienzan con table-, pero el nombre completo es diferente y más corto.',null,'bt-table no existe en Bootstrap. El prefijo bt- no forma parte de la convención de nombres del framework.','bootstrap-table es el nombre de una librería externa e independiente de Bootstrap. La clase oficial del framework es más corta y directa.'],'qe5','qw5')"><span class="q-marker">A</span> table-bootstrap</button>
+          <button class="q-opt" onclick="answer('qo5',1,1,['table-bootstrap no existe en Bootstrap. Las clases para tablas sí comienzan con table-, pero el nombre completo es diferente y más corto.',null,'bt-table no existe en Bootstrap. El prefijo bt- no forma parte de la convención de nombres del framework.','bootstrap-table es el nombre de una librería externa e independiente de Bootstrap. La clase oficial del framework es más corta y directa.'],'qe5','qw5')"><span class="q-marker">B</span> table</button>
+          <button class="q-opt" onclick="answer('qo5',2,1,['table-bootstrap no existe en Bootstrap. Las clases para tablas sí comienzan con table-, pero el nombre completo es diferente y más corto.',null,'bt-table no existe en Bootstrap. El prefijo bt- no forma parte de la convención de nombres del framework.','bootstrap-table es el nombre de una librería externa e independiente de Bootstrap. La clase oficial del framework es más corta y directa.'],'qe5','qw5')"><span class="q-marker">C</span> bt-table</button>
+          <button class="q-opt" onclick="answer('qo5',3,1,['table-bootstrap no existe en Bootstrap. Las clases para tablas sí comienzan con table-, pero el nombre completo es diferente y más corto.',null,'bt-table no existe en Bootstrap. El prefijo bt- no forma parte de la convención de nombres del framework.','bootstrap-table es el nombre de una librería externa e independiente de Bootstrap. La clase oficial del framework es más corta y directa.'],'qe5','qw5')"><span class="q-marker">D</span> bootstrap-table</button>
+        </div>
+        <div class="q-exp" id="qe5">La clase table de Bootstrap transforma una tabla HTML básica en una tabla elegante con bordes, padding y hover states. Es uno de los estilos más simples y usados.</div>
+        <div class="q-wrong-exp" id="qw5"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 6 de 6</div>
+        <div class="q-text">¿Cuál es el propósito de la clase img-fluid en Bootstrap?</div>
+        <div class="q-options" id="qo6">
+          <button class="q-opt" onclick="answer('qo6',0,2,['img-fluid no altera colores ni aplica filtros visuales. Para filtros CSS se usaría la propiedad filter de CSS, que Bootstrap no gestiona con esta clase.','El lazy loading se controla con el atributo HTML loading=&quot;lazy&quot;, no con clases CSS. img-fluid solo afecta el tamaño de la imagen, no su momento de carga.',null,'img-fluid no aplica ningún efecto visual sobre los colores. Para escala de grises se usaría filter: grayscale(100%) en CSS propio.'],'qe6','qw6')"><span class="q-marker">A</span> Aplica un filtro de color a la imagen</button>
+          <button class="q-opt" onclick="answer('qo6',1,2,['img-fluid no altera colores ni aplica filtros visuales. Para filtros CSS se usaría la propiedad filter de CSS, que Bootstrap no gestiona con esta clase.','El lazy loading se controla con el atributo HTML loading=&quot;lazy&quot;, no con clases CSS. img-fluid solo afecta el tamaño de la imagen, no su momento de carga.',null,'img-fluid no aplica ningún efecto visual sobre los colores. Para escala de grises se usaría filter: grayscale(100%) en CSS propio.'],'qe6','qw6')"><span class="q-marker">B</span> Carga la imagen de forma diferida (lazy loading)</button>
+          <button class="q-opt" onclick="answer('qo6',2,2,['img-fluid no altera colores ni aplica filtros visuales. Para filtros CSS se usaría la propiedad filter de CSS, que Bootstrap no gestiona con esta clase.','El lazy loading se controla con el atributo HTML loading=&quot;lazy&quot;, no con clases CSS. img-fluid solo afecta el tamaño de la imagen, no su momento de carga.',null,'img-fluid no aplica ningún efecto visual sobre los colores. Para escala de grises se usaría filter: grayscale(100%) en CSS propio.'],'qe6','qw6')"><span class="q-marker">C</span> Hace que la imagen se adapte al tamaño de su contenedor</button>
+          <button class="q-opt" onclick="answer('qo6',3,2,['img-fluid no altera colores ni aplica filtros visuales. Para filtros CSS se usaría la propiedad filter de CSS, que Bootstrap no gestiona con esta clase.','El lazy loading se controla con el atributo HTML loading=&quot;lazy&quot;, no con clases CSS. img-fluid solo afecta el tamaño de la imagen, no su momento de carga.',null,'img-fluid no aplica ningún efecto visual sobre los colores. Para escala de grises se usaría filter: grayscale(100%) en CSS propio.'],'qe6','qw6')"><span class="q-marker">D</span> Convierte la imagen a escala de grises</button>
+        </div>
+        <div class="q-exp" id="qe6">img-fluid aplica max-width: 100% y height: auto a la imagen, lo que hace que se redimensione proporcionalmente para caber en su contenedor en cualquier pantalla.</div>
+        <div class="q-wrong-exp" id="qw6"></div>
+      </div>
+
+    </section><!-- /tab-evaluacion -->
+
+  </div>
+</div>
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+  <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic</p>
+</footer>
+
+<script>
+
+  // ── GRID SLIDER ───────────────────────────────────────
+  (function () {
+    const slider  = document.getElementById('col-slider');
+    const label   = document.getElementById('col-label');
+    const preview = document.getElementById('grid-preview');
+    if (!slider) return;
+
+    function update() {
+      const span    = Number.parseInt(slider.value, 10);
+      const count   = Math.floor(12 / span);
+      const rem     = 12 % span;
+      const colName = span === 12 ? 'col-12' : 'col-' + span;
+
+      let cols = Array.from({ length: count }, () =>
+        `<div class="demo-col" style="flex:${span}">${colName}</div>`
+      );
+      if (rem > 0) cols.push(`<div class="demo-col" style="flex:${rem};opacity:.4">${rem}</div>`);
+      preview.innerHTML = `<div class="demo-row">${cols.join('')}</div>`;
+
+      let suffix;
+      if (span === 1)       suffix = '× 12';
+      else if (span === 12) suffix = '';
+      else                  suffix = `× ${count}${rem ? ' + col-' + rem : ''}`;
+      label.textContent = `col-${span} ${suffix}`;
+    }
+
+    slider.addEventListener('input', update);
+    update();
+  })();
+
+  // ── TAB NAVIGATION ────────────────────────────────────
+  function switchTab(e, panelId) {
+    document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.top-tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // ── EXERCISES ─────────────────────────────────────────
+  const exExplanations = {
+    ex1: 'container-fluid crea un contenedor de ancho completo. row define la fila. col divide el espacio equitativamente entre todas las columnas hijas.',
+    ex2: 'col-10 indica que esa columna ocupa 10 de los 12 espacios. Las otras dos columnas con solo col se reparten el espacio restante (1 espacio cada una). Suma: 1 + 10 + 1 = 12.',
+    ex3: 'Bootstrap define colores semánticos: btn-danger (rojo), btn-success (verde), btn-primary (azul), btn-warning (amarillo), btn-secondary (gris).'
+  };
+
+  function verify(exId, ids) {
+    let allOk = true;
+    ids.forEach(id => {
+      const inp = document.getElementById(id);
+      inp.classList.remove('correct', 'incorrect');
+      if (inp.value.trim() === inp.dataset.ans) {
+        inp.classList.add('correct');
+      } else {
+        inp.classList.add('incorrect');
+        allOk = false;
+      }
+    });
+    const fb = document.getElementById(exId + 'fb');
+    fb.className = 'ex-feedback show ' + (allOk ? 'ok' : 'err');
+    fb.innerHTML = allOk
+      ? '✓ ¡Correcto! ' + exExplanations[exId]
+      : '✗ Hay errores — revisa los campos marcados en rojo e inténtalo de nuevo.';
+  }
+
+  function reset(ids, fbId) {
+    ids.forEach(id => {
+      const inp = document.getElementById(id);
+      inp.value = '';
+      inp.classList.remove('correct', 'incorrect');
+    });
+    const fb = document.getElementById(fbId);
+    fb.className = 'ex-feedback';
+    fb.innerHTML = '';
+  }
+
+  // ── QUIZ ──────────────────────────────────────────────
+  let quizScore = 0;
+  const answered = {};
+
+  function answer(optContainerId, chosen, correct, wrongExp, expId, wrongExpId) {
+    if (answered[optContainerId]) return;
+    answered[optContainerId] = true;
+
+    const opts = document.querySelectorAll('#' + optContainerId + ' .q-opt');
+    opts.forEach((opt, i) => {
+      opt.disabled = true;
+      if (i === correct)      opt.classList.add('correct');
+      else if (i === chosen)  opt.classList.add('incorrect');
+      else                    opt.classList.add('dimmed');
+    });
+
+    if (chosen === correct) {
+      quizScore++;
+      document.getElementById('score-num').textContent = quizScore;
+      document.getElementById(expId).classList.add('show');
+    } else {
+      const wrongText = wrongExp[chosen];
+      if (wrongText) {
+        const wEl = document.getElementById(wrongExpId);
+        wEl.textContent = wrongText;
+        wEl.classList.add('show');
+      }
+      document.getElementById(expId).classList.add('show');
+    }
+  }
+
+</script>
+
+</body>
+</html>

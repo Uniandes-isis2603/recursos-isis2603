@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript – ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══ TOKENS ════════════════════════════════════════════ */
+    :root {
+      --bg:        #f2efe9;
+      --surface:   #faf8f4;
+      --surface2:  #ffffff;
+      --border:    #ddd8d0;
+      --border2:   #ece8e0;
+      --ink:       #1c1814;
+      --ink-mid:   #4a4440;
+      --ink-soft:  #8c847c;
+      --layer:     #0e7a5a;
+      --layer-bg:  #e6f5f0;
+      --layer-bdr: #9dd9c5;
+      --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+      --shadow:    0 4px 20px rgba(28,24,20,.09);
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══ HEADER ════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content { position: relative; text-align: center; max-width: 900px; }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--layer-bdr); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--layer-bdr);
+      text-decoration: none; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: .75; transition: opacity .15s;
+    }
+    .back-link:hover { opacity: 1; }
+
+    /* ══ TOP-LEVEL TABS ═════════════════════════════════════ */
+    .top-tab-nav {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      gap: 0;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .top-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: .5px;
+      padding: 14px 22px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .top-tab-btn:hover { color: var(--ink-mid); }
+    .top-tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .top-tab-panel { display: none; }
+    .top-tab-panel.active { display: block; }
+
+    /* ══ TYPOGRAPHY ═════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; color: var(--ink); margin-bottom: 14px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink-mid); margin: 20px 0 8px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 14px; }
+
+    /* ══ LAYOUT ═════════════════════════════════════════════ */
+    .container { max-width: 1000px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══ CARDS ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer);
+      margin-bottom: 24px;
+    }
+    .card-hdr {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+    .card-hdr h2 { margin-bottom: 0; }
+
+    /* ══ HIGHLIGHT BOX ══════════════════════════════════════ */
+    .highlight {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+    }
+
+    /* ══ CODE ═══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* TS syntax coloring inside pre */
+    .kw  { color: #c084fc; }   /* keywords: const, let, function, class... */
+    .ty  { color: #67e8f9; }   /* types: string, number, boolean... */
+    .cm  { color: #6b7280; font-style: italic; }  /* comments */
+    .st  { color: #86efac; }   /* strings */
+    .nm  { color: #fdba74; }   /* numbers */
+
+    /* ══ CALLOUTS ═══════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; flex-shrink: 0; margin-top: 3px;
+    }
+    .callout p { margin: 0; }
+    .callout a { color: inherit; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .callout-tip     { background: var(--layer-bg); border-left: 4px solid var(--layer); }
+    .callout-tip     .callout-icon { color: var(--layer); }
+    .callout-info    { background: #e8eefb; border-left: 4px solid #1d4ed8; }
+    .callout-info    .callout-icon { color: #1d4ed8; }
+    .callout-warning { background: #fef4e6; border-left: 4px solid #b45309; }
+    .callout-warning .callout-icon { color: #b45309; }
+    .callout-video   { background: #fdf4ff; border-left: 4px solid #9333ea; }
+    .callout-video   .callout-icon { color: #9333ea; }
+    .callout-video a { color: #9333ea; }
+
+    /* ══ TABLE ══════════════════════════════════════════════ */
+    .tbl { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .tbl th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 10px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .tbl td {
+      padding: 12px 16px; color: var(--ink-mid);
+      border-bottom: 1px solid var(--border2); vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--layer-bg); }
+
+    /* ══ BADGES ═════════════════════════════════════════════ */
+    .badge-adv {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 20px;
+      background: #fef4e6; color: #b45309;
+      border: 1px solid #f6c87a;
+      vertical-align: middle; margin-left: 8px;
+    }
+
+    /* ══ SECTION LABEL ══════════════════════════════════════ */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--layer); margin-bottom: 24px;
+      display: block;
+    }
+
+    /* ══ INNER THEORY TABS ══════════════════════════════════ */
+    .theory-tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .theory-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .8px;
+      padding: 8px 18px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .theory-tab-btn:hover { color: var(--ink-mid); }
+    .theory-tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .theory-tab-panel { display: none; }
+    .theory-tab-panel.active { display: block; }
+
+    /* ══ EXERCISES ══════════════════════════════════════════ */
+    .ex-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.9;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin: 16px 0;
+      display: block;
+    }
+    .blank-input {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: #252220;
+      border: none;
+      border-bottom: 2px solid #fef08a;
+      border-radius: 3px;
+      color: #fef08a;
+      padding: 0 6px;
+      outline: none;
+      vertical-align: baseline;
+      transition: background .15s, color .15s;
+    }
+    .blank-input:focus { background: rgba(254,240,138,.15); }
+    .blank-input.correct {
+      background: rgba(14,122,90,.25);
+      border-bottom-color: var(--layer-bdr);
+      color: var(--layer-bdr);
+    }
+    .blank-input.incorrect {
+      background: rgba(185,28,28,.2);
+      border-bottom-color: #fca5a5;
+      color: #fca5a5;
+    }
+    .ex-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn-verify {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      padding: 10px 24px;
+      border: none; border-radius: 8px;
+      background: var(--layer); color: #fff;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-verify:hover { background: #0b6449; }
+    .btn-reset {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 10px 18px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--ink-soft);
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-reset:hover { border-color: var(--layer); color: var(--layer); }
+    .ex-feedback {
+      font-size: 14px; line-height: 1.6;
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-top: 14px;
+      display: none;
+    }
+    .ex-feedback.show { display: block; }
+    .ex-feedback.ok  { background: var(--layer-bg); border-left: 4px solid var(--layer); color: var(--ink-mid); }
+    .ex-feedback.err { background: #fef2f2; border-left: 4px solid #b91c1c; color: var(--ink-mid); }
+
+    /* ══ QUIZ ════════════════════════════════════════════════ */
+    .quiz-score-bar {
+      display: flex; align-items: center; gap: 20px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .score-big {
+      font-family: 'DM Serif Display', serif;
+      font-size: 40px; color: var(--layer); line-height: 1;
+    }
+    .score-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft); letter-spacing: .5px;
+    }
+    .score-meta span { display: block; font-size: 13px; color: var(--ink-mid); margin-top: 3px; }
+    .q-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .q-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--ink-soft); margin-bottom: 10px;
+    }
+    .q-text {
+      font-size: 16px; font-weight: 500;
+      color: var(--ink); margin-bottom: 18px; line-height: 1.5;
+    }
+    .q-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .q-opt {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 18px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      background: var(--surface); color: var(--ink-mid);
+      cursor: pointer; text-align: left;
+      transition: border-color .15s, background .15s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .q-opt:hover:not([disabled]) { border-color: var(--layer-bdr); background: var(--layer-bg); color: var(--ink); }
+    .q-opt[disabled] { cursor: default; }
+    .q-opt.correct   { border-color: var(--layer); background: var(--layer-bg); color: #0a5e45; }
+    .q-opt.incorrect { border-color: #b91c1c; background: #fef2f2; color: #991b1b; }
+    .q-opt.dimmed    { opacity: .4; }
+    .q-marker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--ink-soft);
+    }
+    .q-opt.correct   .q-marker { background: var(--layer); border-color: var(--layer); color: #fff; }
+    .q-opt.incorrect .q-marker { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+    .q-exp {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+      display: none; margin-top: 10px;
+    }
+    .q-exp.show { display: block; }
+    .q-wrong-exp {
+      background: #fef2f2;
+      border-left: 4px solid #b91c1c;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+      display: none; margin-top: 10px;
+    }
+    .q-wrong-exp.show { display: block; }
+
+    /* ══ FOOTER ═════════════════════════════════════════════ */
+    footer {
+      margin-top: 60px; padding: 24px;
+      text-align: center; border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: .5px; margin: 0;
+    }
+    footer span { color: var(--layer); }
+
+    /* ══ MOBILE ═════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card { padding: 20px 16px; }
+      .top-tab-nav { padding: 0 12px; }
+      .top-tab-btn { padding: 12px 14px; font-size: 11px; }
+      .tbl { font-size: 12px; }
+      .tbl th, .tbl td { padding: 8px 10px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index-front.html" class="back-link">← Front</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Frontend · TypeScript</div>
+    <h1>Type<em>Script</em></h1>
+    <div class="hdr-sub">tipos · funciones · clases · interfaces · dom</div>
+  </div>
+</header>
+
+<div class="top-tab-nav" role="tablist">
+  <button class="top-tab-btn active" onclick="switchTab(event,'tab-teoria')"    role="tab">TEORÍA</button>
+  <button class="top-tab-btn"        onclick="switchTab(event,'tab-practica')"   role="tab">PRÁCTICA</button>
+  <button class="top-tab-btn"        onclick="switchTab(event,'tab-evaluacion')" role="tab">EVALUACIÓN</button>
+</div>
+
+<div class="container">
+  <div class="content">
+
+    <!-- ══════════════════════════════ TEORÍA ══ -->
+    <section class="top-tab-panel active" id="tab-teoria">
+
+      <span class="section-label">01 — Teoría</span>
+
+      <!-- Inner theory tab navigation -->
+      <div class="theory-tab-nav" role="tablist">
+        <button class="theory-tab-btn active" onclick="switchTheoryTab(event,'ttab-intro')" role="tab">INTRO</button>
+        <button class="theory-tab-btn" onclick="switchTheoryTab(event,'ttab-primitivos')" role="tab">TIPOS PRIMITIVOS</button>
+        <button class="theory-tab-btn" onclick="switchTheoryTab(event,'ttab-complejos')" role="tab">DATOS COMPLEJOS</button>
+        <button class="theory-tab-btn" onclick="switchTheoryTab(event,'ttab-funciones')" role="tab">FUNCIONES</button>
+      </div>
+
+      <!-- ── INTRO ────────────────────────────────────────── -->
+      <div class="theory-tab-panel active" id="ttab-intro">
+
+        <!-- Card: ¿Qué es TypeScript? -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">🔷</span>
+            <h2>¿Qué es TypeScript?</h2>
+          </div>
+          <p>TypeScript es un <strong>superset de JavaScript</strong> desarrollado por Microsoft que añade tipado estático opcional. Todo código JavaScript válido es también TypeScript válido. Al compilar, TypeScript produce JavaScript puro que cualquier navegador puede ejecutar.</p>
+          <p>La principal limitación de JavaScript es que <strong>los errores solo se detectan en tiempo de ejecución</strong> — cuando el usuario ya está usando la aplicación. TypeScript los detecta mientras se escribe el código, antes de ejecutar nada.</p>
+          <div class="highlight">
+            TypeScript = JavaScript + tipos. El compilador <code>tsc</code> transforma archivos <code>.ts</code> en archivos <code>.js</code> listos para el navegador.
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">DOC</span>
+            <p>Documentación oficial: <a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener">typescriptlang.org/docs</a> — referencia completa del lenguaje, el compilador y el sistema de tipos.</p>
+          </div>
+        </div>
+
+        <!-- Card: Variables -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">📌</span>
+            <h2>Variables</h2>
+          </div>
+          <p>TypeScript permite <strong>declarar explícitamente el tipo</strong> de cada variable. Si no se declara, el compilador <em>infiere</em> el tipo según el valor asignado. Las dos palabras clave modernas son <code>const</code> (inmutable) y <code>let</code> (mutable). Evita <code>var</code> — tiene alcance de función y genera comportamientos inesperados.</p>
+
+          <pre><code><span class="cm">// Tipado explícito</span>
+<span class="kw">const</span> nombre:  <span class="ty">string</span>  = <span class="st">"Ana"</span>;
+<span class="kw">let</span>   edad:    <span class="ty">number</span>  = <span class="nm">21</span>;
+<span class="kw">const</span> activo:  <span class="ty">boolean</span> = <span class="kw">true</span>;
+
+<span class="cm">// TypeScript infiere el tipo del valor inicial</span>
+<span class="kw">const</span> pi      = <span class="nm">3.14</span>;      <span class="cm">// inferido: number</span>
+<span class="kw">const</span> saludo  = <span class="st">"Hola"</span>;    <span class="cm">// inferido: string</span>
+
+<span class="cm">// let puede reasignarse al mismo tipo</span>
+<span class="kw">let</span> contador: <span class="ty">number</span> = <span class="nm">0</span>;
+contador = <span class="nm">1</span>;             <span class="cm">// ✓ OK</span>
+<span class="cm">// contador = "uno";       ✗ Error: string no es number</span></code></pre>
+
+          <div class="highlight">
+            Regla práctica: usa <code>const</code> por defecto. Cambia a <code>let</code> solo si necesitas reasignar el valor. Nunca uses <code>var</code>.
+          </div>
+        </div>
+
+        <!-- Card: Estructuras de control -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">🔀</span>
+            <h2>Estructuras de Control</h2>
+          </div>
+          <p>TypeScript usa las mismas estructuras de control que JavaScript — <code>if/else</code>, <code>switch</code> y bucles — con la ventaja de que el compilador verifica que las condiciones sean del tipo correcto.</p>
+
+          <pre><code><span class="cm">// if / else</span>
+<span class="kw">const</span> nota: <span class="ty">number</span> = <span class="nm">3.5</span>;
+<span class="kw">if</span> (nota &gt;= <span class="nm">3.0</span>) {
+  console.log(<span class="st">"Aprobado"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="st">"Reprobado"</span>);
+}
+
+<span class="cm">// switch</span>
+<span class="kw">enum</span> Dia { Lunes, Martes, Miercoles }
+<span class="kw">const</span> hoy: Dia = Dia.Lunes;
+<span class="kw">switch</span> (hoy) {
+  <span class="kw">case</span> Dia.Lunes:   console.log(<span class="st">"Inicio de semana"</span>); <span class="kw">break</span>;
+  <span class="kw">case</span> Dia.Martes:  console.log(<span class="st">"Segundo día"</span>);     <span class="kw">break</span>;
+  <span class="kw">default</span>:          console.log(<span class="st">"Otro día"</span>);
+}
+
+<span class="cm">// for...of — iterar un arreglo tipado</span>
+<span class="kw">const</span> cursos: <span class="ty">string</span>[] = [<span class="st">"ISIS2603"</span>, <span class="st">"MISO4208"</span>];
+<span class="kw">for</span> (<span class="kw">const</span> curso <span class="kw">of</span> cursos) {
+  console.log(curso);
+}
+
+<span class="cm">// while</span>
+<span class="kw">let</span> i: <span class="ty">number</span> = <span class="nm">0</span>;
+<span class="kw">while</span> (i &lt; <span class="nm">3</span>) {
+  console.log(i);
+  i++;
+}</code></pre>
+        </div>
+
+      </div><!-- /ttab-intro -->
+
+
+      <!-- ── TIPOS PRIMITIVOS ──────────────────────────────── -->
+      <div class="theory-tab-panel" id="ttab-primitivos">
+
+        <!-- Card: number -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">🔢</span>
+            <h2>number</h2>
+          </div>
+          <p>En TypeScript (y JavaScript) todos los números — enteros y decimales — son del tipo <code>number</code>. No existe un tipo <code>int</code> separado. Internamente usa el estándar IEEE 754 de doble precisión.</p>
+
+          <pre><code><span class="cm">// Enteros y decimales: mismo tipo</span>
+<span class="kw">const</span> edad:     <span class="ty">number</span> = <span class="nm">21</span>;
+<span class="kw">const</span> precio:   <span class="ty">number</span> = <span class="nm">19.99</span>;
+<span class="kw">const</span> negativo: <span class="ty">number</span> = <span class="nm">-5</span>;
+
+<span class="cm">// Operadores aritméticos</span>
+<span class="kw">const</span> suma     = edad + precio;   <span class="cm">// 40.99</span>
+<span class="kw">const</span> resto    = <span class="nm">10</span> % <span class="nm">3</span>;         <span class="cm">// 1   — módulo</span>
+<span class="kw">const</span> potencia = <span class="nm">2</span> ** <span class="nm">8</span>;         <span class="cm">// 256 — exponenciación</span>
+
+<span class="cm">// Valores especiales</span>
+<span class="kw">const</span> infinito = <span class="nm">1</span> / <span class="nm">0</span>;          <span class="cm">// Infinity</span>
+<span class="kw">const</span> noEsNum  = <span class="nm">0</span> / <span class="nm">0</span>;          <span class="cm">// NaN</span>
+Number.isNaN(noEsNum);            <span class="cm">// true</span>
+Number.isFinite(infinito);        <span class="cm">// false</span>
+Number.parseInt(<span class="st">"42px"</span>);        <span class="cm">// 42</span>
+Number.parseFloat(<span class="st">"3.14abc"</span>);   <span class="cm">// 3.14</span>
+
+<span class="cm">// Math — operaciones comunes</span>
+Math.round(<span class="nm">3.7</span>);   <span class="cm">// 4  — redondear al entero más cercano</span>
+Math.floor(<span class="nm">3.9</span>);   <span class="cm">// 3  — redondear hacia abajo</span>
+Math.ceil(<span class="nm">3.1</span>);    <span class="cm">// 4  — redondear hacia arriba</span>
+Math.abs(<span class="nm">-7</span>);      <span class="cm">// 7  — valor absoluto</span>
+Math.max(<span class="nm">1</span>,<span class="nm">5</span>,<span class="nm">3</span>);   <span class="cm">// 5  — máximo</span>
+Math.min(<span class="nm">1</span>,<span class="nm">5</span>,<span class="nm">3</span>);   <span class="cm">// 1  — mínimo</span>
+Math.sqrt(<span class="nm">16</span>);     <span class="cm">// 4  — raíz cuadrada</span>
+Math.pow(<span class="nm">2</span>, <span class="nm">10</span>);   <span class="cm">// 1024</span></code></pre>
+
+          <div class="callout callout-warning">
+            <span class="callout-icon">OJO</span>
+            <p><code>NaN === NaN</code> es <code>false</code> en JavaScript/TypeScript. Para verificar si un valor es NaN usa siempre <code>Number.isNaN(valor)</code>, nunca la comparación directa.</p>
+          </div>
+        </div>
+
+        <!-- Card: string -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">🔤</span>
+            <h2>string</h2>
+          </div>
+          <p>Los strings representan texto. TypeScript soporta <strong>tres formas de delimitarlos</strong>: comillas simples, dobles y acentos graves (<em>template literals</em>). Las tres crean el mismo tipo <code>string</code>; la diferencia está en sus capacidades.</p>
+
+          <pre><code><span class="cm">// ① Comillas simples</span>
+<span class="kw">const</span> a: <span class="ty">string</span> = <span class="st">'Hola mundo'</span>;
+
+<span class="cm">// ② Comillas dobles</span>
+<span class="kw">const</span> b: <span class="ty">string</span> = <span class="st">"Hola mundo"</span>;
+
+<span class="cm">// ③ Template literals (acento grave / backtick `)</span>
+<span class="cm">//    · Interpolación con ${expresión}</span>
+<span class="cm">//    · Pueden ocupar varias líneas sin \n</span>
+<span class="kw">const</span> nombre = <span class="st">"Ana"</span>;
+<span class="kw">const</span> c: <span class="ty">string</span> = <span class="st">`Hola, ${nombre}!`</span>;   <span class="cm">// "Hola, Ana!"</span>
+<span class="kw">const</span> multi  = <span class="st">`Primera línea
+Segunda línea`</span>;
+
+<span class="cm">// Métodos de manipulación</span>
+<span class="kw">const</span> s = <span class="st">"  TypeScript  "</span>;
+s.trim();                    <span class="cm">// "TypeScript"</span>
+s.toUpperCase();             <span class="cm">// "  TYPESCRIPT  "</span>
+s.toLowerCase();             <span class="cm">// "  typescript  "</span>
+
+<span class="kw">const</span> t = <span class="st">"ISIS2603"</span>;
+t.length;                    <span class="cm">// 8</span>
+t.includes(<span class="st">"2603"</span>);         <span class="cm">// true</span>
+t.startsWith(<span class="st">"ISIS"</span>);       <span class="cm">// true</span>
+t.endsWith(<span class="st">"3"</span>);            <span class="cm">// true</span>
+t.indexOf(<span class="st">"26"</span>);            <span class="cm">// 4</span>
+t.slice(<span class="nm">0</span>, <span class="nm">4</span>);              <span class="cm">// "ISIS"</span>
+t.replace(<span class="st">"ISIS"</span>, <span class="st">"MISO"</span>); <span class="cm">// "MISO2603"</span>
+t.split(<span class="st">""</span>);                <span class="cm">// ["I","S","I","S","2","6","0","3"]</span>
+<span class="st">"ha"</span>.repeat(<span class="nm">3</span>);             <span class="cm">// "hahaha"</span></code></pre>
+
+          <div class="highlight">
+            Usa template literals (<code>`backticks`</code>) siempre que necesites incluir variables en el texto o escribir en varias líneas. Para strings simples sin interpolación, simples o dobles son equivalentes — escoge una y sé consistente.
+          </div>
+        </div>
+
+        <!-- Card: boolean -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">☑️</span>
+            <h2>boolean</h2>
+          </div>
+          <p>El tipo <code>boolean</code> solo tiene dos valores posibles: <code>true</code> y <code>false</code>. Es el tipo de retorno de las comparaciones y el tipo esperado en condiciones de <code>if</code> y <code>while</code>.</p>
+
+          <pre><code><span class="kw">const</span> activo:   <span class="ty">boolean</span> = <span class="kw">true</span>;
+<span class="kw">const</span> inactivo: <span class="ty">boolean</span> = <span class="kw">false</span>;
+
+<span class="cm">// Operadores de comparación — producen boolean</span>
+<span class="nm">5</span> === <span class="nm">5</span>;        <span class="cm">// true  — igualdad estricta (tipo + valor)</span>
+<span class="nm">5</span> !== <span class="nm">3</span>;        <span class="cm">// true  — desigualdad estricta</span>
+<span class="nm">5</span> &gt; <span class="nm">3</span>;          <span class="cm">// true</span>
+<span class="nm">5</span> &lt; <span class="nm">3</span>;          <span class="cm">// false</span>
+<span class="st">"a"</span> === <span class="st">"a"</span>;   <span class="cm">// true</span>
+
+<span class="cm">// Operadores lógicos</span>
+<span class="kw">const</span> mayorDeEdad  = activo &amp;&amp; edad &gt;= <span class="nm">18</span>;  <span class="cm">// AND — ambos true</span>
+<span class="kw">const</span> puedeAcceder = activo || esAdmin;      <span class="cm">// OR  — al menos uno true</span>
+<span class="kw">const</span> noActivo     = !activo;               <span class="cm">// NOT → false</span>
+
+<span class="cm">// Truthy y falsy</span>
+<span class="cm">// Falsy: 0, "", null, undefined, NaN</span>
+<span class="cm">// Truthy: cualquier otro valor</span>
+<span class="kw">if</span> (<span class="nm">0</span>)   { <span class="cm">/* nunca ejecuta */</span> }
+<span class="kw">if</span> (<span class="st">""</span>)  { <span class="cm">/* nunca ejecuta */</span> }
+<span class="kw">if</span> (<span class="nm">42</span>)  { <span class="cm">/* sí ejecuta   */</span> }
+<span class="kw">if</span> (<span class="st">"x"</span>) { <span class="cm">/* sí ejecuta   */</span> }</code></pre>
+
+          <div class="callout callout-warning">
+            <span class="callout-icon">OJO</span>
+            <p>Usa siempre <code>===</code> en lugar de <code>==</code>. Con <code>==</code>, JavaScript hace conversiones de tipo implícitas: <code>0 == false</code> es <code>true</code>, <code>"1" == 1</code> también es <code>true</code>. TypeScript con <code>strict</code> activo rechaza muchos usos de <code>==</code>.</p>
+          </div>
+        </div>
+
+        <!-- Card: null, undefined y tipos especiales -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">🔵</span>
+            <h2>null, undefined y tipos especiales de TS</h2>
+          </div>
+          <p>TypeScript añade varios tipos para describir situaciones especiales: ausencia de valor, tipos incógnitos, funciones que nunca retornan, etc.</p>
+
+          <pre><code><span class="cm">// undefined — variable declarada sin valor inicial</span>
+<span class="kw">let</span> sinValor: <span class="ty">string</span> | <span class="ty">undefined</span>;
+console.log(sinValor);    <span class="cm">// undefined</span>
+
+<span class="cm">// null — ausencia intencional de valor</span>
+<span class="kw">let</span> usuario: <span class="ty">string</span> | <span class="ty">null</span> = <span class="kw">null</span>;
+usuario = <span class="st">"Ana"</span>;           <span class="cm">// se asigna después</span>
+
+<span class="cm">// any — desactiva el chequeo de tipos (evitar)</span>
+<span class="kw">let</span> dato: <span class="ty">any</span> = <span class="st">"texto"</span>;
+dato = <span class="nm">42</span>;                 <span class="cm">// sin error, sin protección</span>
+
+<span class="cm">// unknown — alternativa segura a any</span>
+<span class="cm">// hay que verificar el tipo antes de usar</span>
+<span class="kw">let</span> entrada: <span class="ty">unknown</span> = obtenerValor();
+<span class="kw">if</span> (<span class="kw">typeof</span> entrada === <span class="st">"string"</span>) {
+  console.log(entrada.toUpperCase());  <span class="cm">// seguro</span>
+}
+
+<span class="cm">// void — función que no retorna valor</span>
+<span class="kw">function</span> log(msg: <span class="ty">string</span>): <span class="ty">void</span> {
+  console.log(msg);
+}
+
+<span class="cm">// never — función que NUNCA retorna (siempre lanza error)</span>
+<span class="kw">function</span> fallo(msg: <span class="ty">string</span>): <span class="ty">never</span> {
+  <span class="kw">throw new</span> Error(msg);
+}
+
+<span class="cm">// ?? — nullish coalescing: valor por defecto si null/undefined</span>
+<span class="kw">const</span> nombre = usuario ?? <span class="st">"Anónimo"</span>;
+
+<span class="cm">// ?. — optional chaining: acceso seguro a propiedades</span>
+<span class="kw">const</span> longitud = usuario?.length;   <span class="cm">// undefined si null</span>
+
+<span class="cm">// as — type assertion: indicar el tipo exacto al compilador</span>
+<span class="kw">const</span> btn = document.getElementById(<span class="st">"btn"</span>) <span class="kw">as</span> HTMLButtonElement;</code></pre>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">TIP</span>
+            <p>Activa <code>"strict": true</code> en <code>tsconfig.json</code>. Con esta opción TypeScript obliga a manejar explícitamente los casos <code>null</code> y <code>undefined</code>, evitando los famosos errores <em>"Cannot read properties of null"</em> en runtime.</p>
+          </div>
+        </div>
+
+      </div><!-- /ttab-primitivos -->
+
+
+      <!-- ── DATOS COMPLEJOS ───────────────────────────────── -->
+      <div class="theory-tab-panel" id="ttab-complejos">
+
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">📦</span>
+            <h2>Tipos de Datos Complejos</h2>
+          </div>
+          <p>Además de los primitivos, TypeScript soporta estructuras de datos más ricas: <strong>enumeraciones</strong> para conjuntos de constantes nombradas, <strong>arreglos</strong> para colecciones homogéneas, y <strong>tuplas</strong> para colecciones de longitud y tipos fijos.</p>
+
+          <pre><code><span class="cm">// Enum — conjunto de constantes nombradas</span>
+<span class="kw">enum</span> Rol { Estudiante, Profesor, Admin }
+<span class="kw">const</span> miRol: Rol = Rol.Estudiante;
+
+<span class="cm">// Array — dos sintaxis equivalentes</span>
+<span class="kw">const</span> notas:   <span class="ty">number</span>[]          = [<span class="nm">4.5</span>, <span class="nm">3.8</span>, <span class="nm">5.0</span>];
+<span class="kw">const</span> nombres: Array&lt;<span class="ty">string</span>&gt;      = [<span class="st">"Ana"</span>, <span class="st">"Luis"</span>];
+
+<span class="cm">// Tuple — longitud y tipos estrictamente fijos</span>
+<span class="kw">const</span> coordenada: [<span class="ty">number</span>, <span class="ty">number</span>] = [<span class="nm">4.71</span>, <span class="nm">-74.07</span>];
+<span class="kw">const</span> entrada:    [<span class="ty">string</span>, <span class="ty">number</span>] = [<span class="st">"Ana"</span>, <span class="nm">21</span>];</code></pre>
+
+          <div class="highlight">
+            Un <code>enum</code> mejora la legibilidad: <code>Rol.Profesor</code> es más claro que el número <code>1</code>. Un <code>array</code> puede crecer; una <code>tuple</code> tiene longitud fija y TypeScript verifica cada posición.
+          </div>
+        </div>
+
+      </div><!-- /ttab-complejos -->
+
+
+      <!-- ── FUNCIONES ─────────────────────────────────────── -->
+      <div class="theory-tab-panel" id="ttab-funciones">
+
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">⚙️</span>
+            <h2>Funciones</h2>
+          </div>
+          <p>En TypeScript las funciones declaran el tipo de cada parámetro y el tipo de retorno. Un parámetro seguido de <code>?</code> es opcional. Las <strong>funciones también son objetos</strong> — se pueden pasar como argumentos o devolver desde otras funciones.</p>
+
+          <pre><code><span class="cm">// Parámetros tipados y tipo de retorno explícito</span>
+<span class="kw">function</span> sumar(a: <span class="ty">number</span>, b: <span class="ty">number</span>): <span class="ty">number</span> {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="cm">// Parámetro opcional con ?</span>
+<span class="kw">function</span> saludar(nombre: <span class="ty">string</span>, titulo<span class="kw">?</span>: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="st">`Hola, ${titulo ?? <span class="st">''</span>} ${nombre}`</span>;
+}
+saludar(<span class="st">"Ana"</span>);           <span class="cm">// "Hola,  Ana"</span>
+saludar(<span class="st">"Ana"</span>, <span class="st">"Dra."</span>);   <span class="cm">// "Hola, Dra. Ana"</span>
+
+<span class="cm">// Arrow function</span>
+<span class="kw">const</span> doble = (x: <span class="ty">number</span>): <span class="ty">number</span> =&gt; x * <span class="nm">2</span>;
+
+<span class="cm">// Función como argumento (las funciones son objetos)</span>
+<span class="kw">function</span> aplicar(fn: (n: <span class="ty">number</span>) =&gt; <span class="ty">number</span>, val: <span class="ty">number</span>): <span class="ty">number</span> {
+  <span class="kw">return</span> fn(val);
+}
+aplicar(doble, <span class="nm">5</span>);  <span class="cm">// 10</span></code></pre>
+
+          <div class="highlight">
+            El operador <code>??</code> (nullish coalescing) retorna el valor de la derecha si el de la izquierda es <code>null</code> o <code>undefined</code>. Perfecto para dar valores por defecto a parámetros opcionales.
+          </div>
+        </div>
+
+      </div><!-- /ttab-funciones -->
+
+    </section><!-- /tab-teoria -->
+
+
+    <!-- ══════════════════════════════ PRÁCTICA ══ -->
+    <section class="top-tab-panel" id="tab-practica">
+
+      <span class="section-label">02 — Práctica</span>
+
+      <div class="card">
+        <h2>Ejercicios Prácticos</h2>
+        <p>Escribe el nombre del tipo o la palabra clave correcta en cada campo amarillo. Usa el botón <strong>Verificar</strong> para comprobar tus respuestas.</p>
+      </div>
+
+      <!-- Ejercicio 1 -->
+      <div class="card">
+        <h2>Ejercicio 1 — Declarar variables tipadas</h2>
+        <p>Completa las anotaciones de tipo para que cada variable corresponda correctamente al valor que se le asigna.</p>
+        <div class="ex-code"><span><span class="kw">const</span> nombre: </span><input class="blank-input" id="e1b1" data-ans="string"  size="7"  placeholder="___"><span> = <span class="st">"Ana"</span>;
+<span class="kw">let</span>   edad:   </span><input class="blank-input" id="e1b2" data-ans="number"  size="7"  placeholder="___"><span> = <span class="nm">25</span>;
+<span class="kw">const</span> activo: </span><input class="blank-input" id="e1b3" data-ans="boolean" size="8"  placeholder="___"><span> = <span class="kw">true</span>;</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex1',['e1b1','e1b2','e1b3'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e1b1','e1b2','e1b3'],'ex1fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex1fb"></div>
+      </div>
+
+      <!-- Ejercicio 2 -->
+      <div class="card">
+        <h2>Ejercicio 2 — Función con parámetro opcional</h2>
+        <p>Completa la función: el parámetro <code>titulo</code> debe ser opcional y la función debe retornar un <code>string</code>.</p>
+        <div class="ex-code"><span><span class="kw">function</span> saludar(nombre: <span class="ty">string</span>, titulo</span><input class="blank-input" id="e2b1" data-ans="?" size="2" placeholder="_"><span>: <span class="ty">string</span>): </span><input class="blank-input" id="e2b2" data-ans="string" size="7" placeholder="___"><span> {
+  <span class="kw">return</span> <span class="st">`Hola, ${titulo ?? <span class="st">''</span>} ${nombre}`</span>;
+}</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex2',['e2b1','e2b2'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e2b1','e2b2'],'ex2fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex2fb"></div>
+      </div>
+
+      <!-- Ejercicio 3 -->
+      <div class="card">
+        <h2>Ejercicio 3 — Clase que implementa una interface</h2>
+        <p>Completa el nombre de la interface, la palabra clave que enlaza la clase con ella, y el tipo de retorno del método.</p>
+        <div class="ex-code"><span><span class="kw">interface</span> </span><input class="blank-input" id="e3b1" data-ans="Describible" size="12" placeholder="___"><span> {
+  describir(): <span class="ty">string</span>;
+}
+
+<span class="kw">class</span> Curso <span class="kw"></span></span><input class="blank-input" id="e3b2" data-ans="implements" size="10" placeholder="___"><span> Describible {
+  <span class="kw">constructor</span>(<span class="kw">public</span> nombre: <span class="ty">string</span>) {}
+
+  describir(): </span><input class="blank-input" id="e3b3" data-ans="string" size="7" placeholder="___"><span> {
+    <span class="kw">return</span> <span class="st">`Curso: ${this.nombre}`</span>;
+  }
+}</span></div>
+        <div class="ex-actions">
+          <button class="btn-verify" onclick="verify('ex3',['e3b1','e3b2','e3b3'])">Verificar</button>
+          <button class="btn-reset"  onclick="reset(['e3b1','e3b2','e3b3'],'ex3fb')">Reiniciar</button>
+        </div>
+        <div class="ex-feedback" id="ex3fb"></div>
+      </div>
+
+    </section><!-- /tab-practica -->
+
+
+    <!-- ══════════════════════════════ EVALUACIÓN ══ -->
+    <section class="top-tab-panel" id="tab-evaluacion">
+
+      <span class="section-label">03 — Evaluación</span>
+
+      <div class="quiz-score-bar">
+        <div class="score-big" id="score-num">0</div>
+        <div class="score-meta">PUNTAJE<span>de 6 preguntas</span></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 1 de 6</div>
+        <div class="q-text">¿Qué ventaja principal ofrece TypeScript sobre JavaScript?</div>
+        <div class="q-options" id="qo1">
+          <button class="q-opt" onclick="answer('qo1',0,1,['La velocidad de ejecución no depende de TypeScript — el código TS se compila a JS y el rendimiento en runtime es igual. La ventaja es en el proceso de desarrollo, no en la ejecución.','TypeScript tiene un solo compilador oficial (tsc) y no añade frameworks. Su propósito es el tipado estático, no ampliar el ecosistema.','El desarrollo móvil requiere frameworks como React Native o Ionic. TypeScript es un superset de JavaScript que añade tipado, no un framework para móviles.'],'qe1','qw1')"><span class="q-marker">A</span> Ejecuta el código más rápido que JavaScript</button>
+          <button class="q-opt" onclick="answer('qo1',1,1,['La velocidad de ejecución no depende de TypeScript — el código TS se compila a JS y el rendimiento en runtime es igual. La ventaja es en el proceso de desarrollo, no en la ejecución.','TypeScript tiene un solo compilador oficial (tsc) y no añade frameworks. Su propósito es el tipado estático, no ampliar el ecosistema.','El desarrollo móvil requiere frameworks como React Native o Ionic. TypeScript es un superset de JavaScript que añade tipado, no un framework para móviles.'],'qe1','qw1')"><span class="q-marker">B</span> Detecta errores de tipo en compilación, antes de ejecutar</button>
+          <button class="q-opt" onclick="answer('qo1',2,1,['La velocidad de ejecución no depende de TypeScript — el código TS se compila a JS y el rendimiento en runtime es igual. La ventaja es en el proceso de desarrollo, no en la ejecución.','TypeScript tiene un solo compilador oficial (tsc) y no añade frameworks. Su propósito es el tipado estático, no ampliar el ecosistema.','El desarrollo móvil requiere frameworks como React Native o Ionic. TypeScript es un superset de JavaScript que añade tipado, no un framework para móviles.'],'qe1','qw1')"><span class="q-marker">C</span> Añade soporte nativo para más frameworks</button>
+          <button class="q-opt" onclick="answer('qo1',3,1,['La velocidad de ejecución no depende de TypeScript — el código TS se compila a JS y el rendimiento en runtime es igual. La ventaja es en el proceso de desarrollo, no en la ejecución.','TypeScript tiene un solo compilador oficial (tsc) y no añade frameworks. Su propósito es el tipado estático, no ampliar el ecosistema.','El desarrollo móvil requiere frameworks como React Native o Ionic. TypeScript es un superset de JavaScript que añade tipado, no un framework para móviles.'],'qe1','qw1')"><span class="q-marker">D</span> Permite crear aplicaciones móviles sin frameworks</button>
+        </div>
+        <div class="q-exp" id="qe1">TypeScript añade tipado estático a JavaScript. Esto permite que el compilador <code>tsc</code> detecte errores de tipo mientras se escribe el código — antes de que el usuario ejecute la aplicación. Todo código TS se compila a JS estándar, así que el rendimiento en runtime es idéntico.</div>
+        <div class="q-wrong-exp" id="qw1"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 2 de 6</div>
+        <div class="q-text">¿Qué palabra clave se prefiere en TypeScript para declarar variables que pueden cambiar de valor?</div>
+        <div class="q-options" id="qo2">
+          <button class="q-opt" onclick="answer('qo2',0,1,[null,'def es la sintaxis de Python y otros lenguajes para definir funciones, no para declarar variables. No es una palabra clave válida en TypeScript.','val es la sintaxis de Kotlin y Scala para valores inmutables. En TypeScript se usa const para ese propósito.'],'qe2','qw2')"><span class="q-marker">A</span> <code>const</code></button>
+          <button class="q-opt" onclick="answer('qo2',1,1,[null,'def es la sintaxis de Python y otros lenguajes para definir funciones, no para declarar variables. No es una palabra clave válida en TypeScript.','val es la sintaxis de Kotlin y Scala para valores inmutables. En TypeScript se usa const para ese propósito.'],'qe2','qw2')"><span class="q-marker">B</span> <code>let</code></button>
+          <button class="q-opt" onclick="answer('qo2',2,1,[null,'def es la sintaxis de Python y otros lenguajes para definir funciones, no para declarar variables. No es una palabra clave válida en TypeScript.','val es la sintaxis de Kotlin y Scala para valores inmutables. En TypeScript se usa const para ese propósito.'],'qe2','qw2')"><span class="q-marker">C</span> <code>def</code></button>
+          <button class="q-opt" onclick="answer('qo2',3,1,[null,'def es la sintaxis de Python y otros lenguajes para definir funciones, no para declarar variables. No es una palabra clave válida en TypeScript.','val es la sintaxis de Kotlin y Scala para valores inmutables. En TypeScript se usa const para ese propósito.'],'qe2','qw2')"><span class="q-marker">D</span> <code>val</code></button>
+        </div>
+        <div class="q-exp" id="qe2"><code>let</code> crea variables de bloque que pueden reasignarse. <code>const</code> también es preferida sobre <code>var</code>, pero para valores que NO cambian después de ser asignados. Para variables mutables (que cambian) se usa <code>let</code>. Se debe evitar <code>var</code> porque tiene alcance de función y genera comportamientos inesperados.</div>
+        <div class="q-wrong-exp" id="qw2"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 3 de 6</div>
+        <div class="q-text">¿Cómo se marca un parámetro de función como opcional en TypeScript?</div>
+        <div class="q-options" id="qo3">
+          <button class="q-opt" onclick="answer('qo3',0,0,[null,'* no es un modificador válido para parámetros en TypeScript. Se usa en generadores de JavaScript, pero no para marcar opcionalidad.','La palabra optional no existe como modificador en TypeScript. La sintaxis correcta es añadir ? directamente después del nombre del parámetro.','// inicia un comentario de línea en TypeScript — no es un modificador de parámetros.'],'qe3','qw3')"><span class="q-marker">A</span> Con <code>?</code> después del nombre del parámetro</button>
+          <button class="q-opt" onclick="answer('qo3',1,0,[null,'* no es un modificador válido para parámetros en TypeScript. Se usa en generadores de JavaScript, pero no para marcar opcionalidad.','La palabra optional no existe como modificador en TypeScript. La sintaxis correcta es añadir ? directamente después del nombre del parámetro.','// inicia un comentario de línea en TypeScript — no es un modificador de parámetros.'],'qe3','qw3')"><span class="q-marker">B</span> Con <code>*</code> antes del nombre del parámetro</button>
+          <button class="q-opt" onclick="answer('qo3',2,0,[null,'* no es un modificador válido para parámetros en TypeScript. Se usa en generadores de JavaScript, pero no para marcar opcionalidad.','La palabra optional no existe como modificador en TypeScript. La sintaxis correcta es añadir ? directamente después del nombre del parámetro.','// inicia un comentario de línea en TypeScript — no es un modificador de parámetros.'],'qe3','qw3')"><span class="q-marker">C</span> Con la palabra <code>optional</code> antes del tipo</button>
+          <button class="q-opt" onclick="answer('qo3',3,0,[null,'* no es un modificador válido para parámetros en TypeScript. Se usa en generadores de JavaScript, pero no para marcar opcionalidad.','La palabra optional no existe como modificador en TypeScript. La sintaxis correcta es añadir ? directamente después del nombre del parámetro.','// inicia un comentario de línea en TypeScript — no es un modificador de parámetros.'],'qe3','qw3')"><span class="q-marker">D</span> Con <code>//</code> al final de la declaración</button>
+        </div>
+        <div class="q-exp" id="qe3">El <code>?</code> colocado inmediatamente después del nombre del parámetro lo hace opcional: <code>function saludar(nombre: string, titulo?: string)</code>. Al llamar la función, <code>titulo</code> puede omitirse — TypeScript lo tratará como <code>undefined</code>. Se puede combinar con <code>??</code> para dar un valor por defecto.</div>
+        <div class="q-wrong-exp" id="qw3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 4 de 6</div>
+        <div class="q-text">¿Cómo se declara correctamente un arreglo de strings en TypeScript?</div>
+        <div class="q-options" id="qo4">
+          <button class="q-opt" onclick="answer('qo4',0,0,[null,'Array(string) no es sintaxis válida de TypeScript. Para el tipo array genérico se usa Array&lt;string&gt; con corchetes angulares, o la forma abreviada string[].','[string] en TypeScript define una tupla de un solo elemento, no un array de longitud variable. Para arreglos se usa string[] o Array&lt;string&gt;.','list&lt;string&gt; es la sintaxis de Java y C#. En TypeScript el equivalente es string[] o Array&lt;string&gt;.'],'qe4','qw4')"><span class="q-marker">A</span> <code>string[]</code></button>
+          <button class="q-opt" onclick="answer('qo4',1,0,[null,'Array(string) no es sintaxis válida de TypeScript. Para el tipo array genérico se usa Array&lt;string&gt; con corchetes angulares, o la forma abreviada string[].','[string] en TypeScript define una tupla de un solo elemento, no un array de longitud variable. Para arreglos se usa string[] o Array&lt;string&gt;.','list&lt;string&gt; es la sintaxis de Java y C#. En TypeScript el equivalente es string[] o Array&lt;string&gt;.'],'qe4','qw4')"><span class="q-marker">B</span> <code>Array(string)</code></button>
+          <button class="q-opt" onclick="answer('qo4',2,0,[null,'Array(string) no es sintaxis válida de TypeScript. Para el tipo array genérico se usa Array&lt;string&gt; con corchetes angulares, o la forma abreviada string[].','[string] en TypeScript define una tupla de un solo elemento, no un array de longitud variable. Para arreglos se usa string[] o Array&lt;string&gt;.','list&lt;string&gt; es la sintaxis de Java y C#. En TypeScript el equivalente es string[] o Array&lt;string&gt;.'],'qe4','qw4')"><span class="q-marker">C</span> <code>[string]</code></button>
+          <button class="q-opt" onclick="answer('qo4',3,0,[null,'Array(string) no es sintaxis válida de TypeScript. Para el tipo array genérico se usa Array&lt;string&gt; con corchetes angulares, o la forma abreviada string[].','[string] en TypeScript define una tupla de un solo elemento, no un array de longitud variable. Para arreglos se usa string[] o Array&lt;string&gt;.','list&lt;string&gt; es la sintaxis de Java y C#. En TypeScript el equivalente es string[] o Array&lt;string&gt;.'],'qe4','qw4')"><span class="q-marker">D</span> <code>list&lt;string&gt;</code></button>
+        </div>
+        <div class="q-exp" id="qe4"><code>string[]</code> es la sintaxis abreviada para un arreglo de strings. La forma genérica equivalente es <code>Array&lt;string&gt;</code>. Ambas son correctas y TypeScript las trata de forma idéntica. La mayoría de guías de estilo prefieren <code>string[]</code> por ser más concisa.</div>
+        <div class="q-wrong-exp" id="qw4"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 5 de 6</div>
+        <div class="q-text">¿Qué devuelve <code>document.getElementById("id")</code> si el elemento no existe en el HTML?</div>
+        <div class="q-options" id="qo5">
+          <button class="q-opt" onclick="answer('qo5',0,1,['undefined es lo que retorna una función sin return o acceder a una propiedad inexistente en un objeto. getElementById tiene un retorno específico cuando no encuentra el elemento.',null,'false es un valor booleano. getElementById no retorna booleanos — retorna referencias a elementos HTML o el valor especial que indica ausencia.','getElementById nunca lanza excepciones — simplemente retorna el valor especial que indica que no encontró el elemento. Por eso TypeScript fuerza a verificar el resultado.'],'qe5','qw5')"><span class="q-marker">A</span> <code>undefined</code></button>
+          <button class="q-opt" onclick="answer('qo5',1,1,['undefined es lo que retorna una función sin return o acceder a una propiedad inexistente en un objeto. getElementById tiene un retorno específico cuando no encuentra el elemento.',null,'false es un valor booleano. getElementById no retorna booleanos — retorna referencias a elementos HTML o el valor especial que indica ausencia.','getElementById nunca lanza excepciones — simplemente retorna el valor especial que indica que no encontró el elemento. Por eso TypeScript fuerza a verificar el resultado.'],'qe5','qw5')"><span class="q-marker">B</span> <code>null</code></button>
+          <button class="q-opt" onclick="answer('qo5',2,1,['undefined es lo que retorna una función sin return o acceder a una propiedad inexistente en un objeto. getElementById tiene un retorno específico cuando no encuentra el elemento.',null,'false es un valor booleano. getElementById no retorna booleanos — retorna referencias a elementos HTML o el valor especial que indica ausencia.','getElementById nunca lanza excepciones — simplemente retorna el valor especial que indica que no encontró el elemento. Por eso TypeScript fuerza a verificar el resultado.'],'qe5','qw5')"><span class="q-marker">C</span> <code>false</code></button>
+          <button class="q-opt" onclick="answer('qo5',3,1,['undefined es lo que retorna una función sin return o acceder a una propiedad inexistente en un objeto. getElementById tiene un retorno específico cuando no encuentra el elemento.',null,'false es un valor booleano. getElementById no retorna booleanos — retorna referencias a elementos HTML o el valor especial que indica ausencia.','getElementById nunca lanza excepciones — simplemente retorna el valor especial que indica que no encontró el elemento. Por eso TypeScript fuerza a verificar el resultado.'],'qe5','qw5')"><span class="q-marker">D</span> Lanza una excepción</button>
+        </div>
+        <div class="q-exp" id="qe5">El tipo de retorno de <code>getElementById</code> es <code>HTMLElement | null</code>. Cuando el elemento no existe, retorna <code>null</code>. Por eso TypeScript obliga a manejar esa posibilidad — con una verificación <code>if (el !== null)</code> o con el operador <code>!</code> cuando se tiene certeza de que el elemento existe.</div>
+        <div class="q-wrong-exp" id="qw5"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="q-card">
+        <div class="q-num">Pregunta 6 de 6</div>
+        <div class="q-text">¿Qué es una <code>interface</code> en TypeScript?</div>
+        <div class="q-options" id="qo6">
+          <button class="q-opt" onclick="answer('qo6',0,1,['Una interface no es una clase abstracta — no puede tener implementación ni constructor. Solo declara la forma que deben tener los objetos que la implementen.',null,'Los módulos en TypeScript se crean con export/import. Una interface define la forma de un tipo, no organiza código en módulos.','Los tipos primitivos como string, number o boolean son tipos básicos predefinidos. Una interface es un tipo compuesto y definido por el desarrollador.'],'qe6','qw6')"><span class="q-marker">A</span> Una clase abstracta sin constructor</button>
+          <button class="q-opt" onclick="answer('qo6',1,1,['Una interface no es una clase abstracta — no puede tener implementación ni constructor. Solo declara la forma que deben tener los objetos que la implementen.',null,'Los módulos en TypeScript se crean con export/import. Una interface define la forma de un tipo, no organiza código en módulos.','Los tipos primitivos como string, number o boolean son tipos básicos predefinidos. Una interface es un tipo compuesto y definido por el desarrollador.'],'qe6','qw6')"><span class="q-marker">B</span> Un contrato que define propiedades y firmas de métodos</button>
+          <button class="q-opt" onclick="answer('qo6',2,1,['Una interface no es una clase abstracta — no puede tener implementación ni constructor. Solo declara la forma que deben tener los objetos que la implementen.',null,'Los módulos en TypeScript se crean con export/import. Una interface define la forma de un tipo, no organiza código en módulos.','Los tipos primitivos como string, number o boolean son tipos básicos predefinidos. Una interface es un tipo compuesto y definido por el desarrollador.'],'qe6','qw6')"><span class="q-marker">C</span> Un módulo que exporta funciones</button>
+          <button class="q-opt" onclick="answer('qo6',3,1,['Una interface no es una clase abstracta — no puede tener implementación ni constructor. Solo declara la forma que deben tener los objetos que la implementen.',null,'Los módulos en TypeScript se crean con export/import. Una interface define la forma de un tipo, no organiza código en módulos.','Los tipos primitivos como string, number o boolean son tipos básicos predefinidos. Una interface es un tipo compuesto y definido por el desarrollador.'],'qe6','qw6')"><span class="q-marker">D</span> Un tipo primitivo como string o number</button>
+        </div>
+        <div class="q-exp" id="qe6">Una <code>interface</code> en TypeScript define un contrato: las propiedades y firmas de métodos que debe tener cualquier objeto o clase que la implemente. No contiene implementación — es solo la declaración de la forma. Una clase declara <code>implements NombreInterface</code> para comprometerse a cumplir ese contrato.</div>
+        <div class="q-wrong-exp" id="qw6"></div>
+      </div>
+
+    </section><!-- /tab-evaluacion -->
+
+  </div>
+</div>
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+  <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic</p>
+</footer>
+
+<script>
+
+  // ── TAB NAVIGATION ────────────────────────────────────
+  function switchTab(e, panelId) {
+    document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.top-tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  function switchTheoryTab(e, panelId) {
+    document.querySelectorAll('.theory-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.theory-tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // ── EXERCISES ─────────────────────────────────────────
+  const exExplanations = {
+    ex1: 'string se asigna a texto ("Ana"), number a valores numéricos (25) y boolean a verdadero/falso (true). El compilador verifica que no se reasigne un valor de tipo diferente.',
+    ex2: 'El símbolo ? después del nombre del parámetro lo hace opcional — puede omitirse al llamar la función. El tipo de retorno : string indica que la función siempre devuelve texto.',
+    ex3: 'Describible es el nombre de la interface que define el contrato. implements enlaza la clase con la interface. El método describir() debe retornar string para cumplir el contrato.'
+  };
+
+  function verify(exId, ids) {
+    let allOk = true;
+    ids.forEach(id => {
+      const inp = document.getElementById(id);
+      inp.classList.remove('correct', 'incorrect');
+      if (inp.value.trim() === inp.dataset.ans) {
+        inp.classList.add('correct');
+      } else {
+        inp.classList.add('incorrect');
+        allOk = false;
+      }
+    });
+    const fb = document.getElementById(exId + 'fb');
+    fb.className = 'ex-feedback show ' + (allOk ? 'ok' : 'err');
+    fb.innerHTML = allOk
+      ? '✓ ¡Correcto! ' + exExplanations[exId]
+      : '✗ Hay errores — revisa los campos marcados en rojo e inténtalo de nuevo.';
+  }
+
+  function reset(ids, fbId) {
+    ids.forEach(id => {
+      const inp = document.getElementById(id);
+      inp.value = '';
+      inp.classList.remove('correct', 'incorrect');
+    });
+    const fb = document.getElementById(fbId);
+    fb.className = 'ex-feedback';
+    fb.innerHTML = '';
+  }
+
+  // ── QUIZ ──────────────────────────────────────────────
+  let quizScore = 0;
+  const answered = {};
+
+  function answer(optContainerId, chosen, correct, wrongExp, expId, wrongExpId) {
+    if (answered[optContainerId]) return;
+    answered[optContainerId] = true;
+
+    const opts = document.querySelectorAll('#' + optContainerId + ' .q-opt');
+    opts.forEach((opt, i) => {
+      opt.disabled = true;
+      if (i === correct)     opt.classList.add('correct');
+      else if (i === chosen) opt.classList.add('incorrect');
+      else                   opt.classList.add('dimmed');
+    });
+
+    if (chosen === correct) {
+      quizScore++;
+      document.getElementById('score-num').textContent = quizScore;
+      document.getElementById(expId).classList.add('show');
+    } else {
+      const wrongText = wrongExp[chosen];
+      if (wrongText) {
+        const wEl = document.getElementById(wrongExpId);
+        wEl.textContent = wrongText;
+        wEl.classList.add('show');
+      }
+      document.getElementById(expId).classList.add('show');
+    }
+  }
+
+</script>
+
+</body>
+</html>
