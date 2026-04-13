@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch origin styles)",
+      "Bash(git push -u origin styles)",
+      "Bash(git push -u origin refs/heads/styles)"
+    ]
+  }
+}

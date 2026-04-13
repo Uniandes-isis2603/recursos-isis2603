@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>De HTML estático a JavaScript dinámico — Guía paso a paso</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <style>
+    body { background-color: #f8f9fa; }
+
+    /* Section heading with left accent bar */
+    .step-heading {
+      border-left: 4px solid #212529;
+      padding-left: 12px;
+    }
+
+    /* Step number badge */
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #212529;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    /* Code blocks */
+    pre {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    pre .cm  { color: #6a9955; }   /* comment */
+    pre .kw  { color: #569cd6; }   /* keyword: class, function, const, async… */
+    pre .tp  { color: #4ec9b0; }   /* type / class name */
+    pre .st  { color: #ce9178; }   /* string */
+    pre .nm  { color: #9cdcfe; }   /* variable / property name */
+    pre .op  { color: #d4d4d4; }   /* operator / punctuation */
+
+    /* Inline code */
+    code {
+      background-color: #e9ecef;
+      color: #212529;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    /* Callout box */
+    .callout {
+      border-left: 4px solid #0d6efd;
+      background-color: #f0f4ff;
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .callout.callout-success {
+      border-left-color: #198754;
+      background-color: #f0faf4;
+    }
+    .callout.callout-warning {
+      border-left-color: #fd7e14;
+      background-color: #fff8f0;
+    }
+
+    /* Before / After comparison */
+    .compare-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="mb-5">
+    <a href="ejemplo-perfil-dinamic.html" class="text-secondary small">&larr; Volver al ejemplo</a>
+    <h1 class="fw-bold mt-2">De HTML estático a JavaScript dinámico</h1>
+    <p class="text-secondary mb-0">
+      Guía paso a paso que explica cómo transformar una página con datos
+      escritos a mano en una página que carga sus datos desde un archivo JSON
+      usando clases de JavaScript (TypeScript compilado).
+    </p>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 1 — El problema                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">1</span>
+      <h2 class="step-heading mb-0">El problema: datos mezclados con presentación</h2>
+    </div>
+
+    <p>
+      En la versión estática, el nombre del estudiante, su cédula y sus cursos
+      están escritos directamente en el HTML. Para mostrar otro estudiante
+      habría que editar el archivo HTML manualmente.
+    </p>
+
+    <div class="compare-label text-danger">Versión estática — datos fijos en el HTML</div>
+    <pre><code><span class="op">&lt;</span><span class="tp">h1</span><span class="op">&gt;</span>Ana María Suarez<span class="op">&lt;/</span><span class="tp">h1</span><span class="op">&gt;</span>
+
+<span class="op">&lt;</span><span class="tp">tr</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tp">td</span><span class="op">&gt;</span>Código<span class="op">&lt;/</span><span class="tp">td</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tp">td</span><span class="op">&gt;</span>10234320<span class="op">&lt;/</span><span class="tp">td</span><span class="op">&gt;</span>    <span class="cm">&lt;!-- dato fijo --&gt;</span>
+<span class="op">&lt;/</span><span class="tp">tr</span><span class="op">&gt;</span></code></pre>
+
+    <div class="callout callout-warning mt-3">
+      <strong>Problema:</strong> Si hay 30 estudiantes necesitamos 30 archivos HTML
+      diferentes, o editar el mismo archivo cada vez. Los datos y la presentación
+      están <em>acoplados</em>.
+    </div>
+
+    <p class="mt-3">
+      La solución es <strong>separar los datos de la presentación</strong>:
+      los datos van en un archivo JSON y el HTML queda como una
+      <em>plantilla vacía</em> que JavaScript rellena.
+    </p>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 2 — El archivo JSON                                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">2</span>
+      <h2 class="step-heading mb-0">El archivo de datos — <code>student.json</code></h2>
+    </div>
+
+    <p>
+      <strong>JSON</strong> (JavaScript Object Notation) es un formato de texto
+      para representar datos estructurados. Los navegadores y Node.js pueden
+      leerlo directamente.
+    </p>
+
+    <pre><code><span class="op">{</span>
+  <span class="st">"name"</span><span class="op">:</span>     <span class="st">"Ana María Suarez"</span><span class="op">,</span>
+  <span class="st">"code"</span><span class="op">:</span>     <span class="st">"10234320"</span><span class="op">,</span>
+  <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"12221122"</span><span class="op">,</span>
+  <span class="st">"age"</span><span class="op">:</span>      <span class="nm">25</span><span class="op">,</span>
+  <span class="st">"address"</span><span class="op">:</span>  <span class="st">"Calle falsa 123"</span><span class="op">,</span>
+  <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"018002500"</span><span class="op">,</span>
+  <span class="st">"courses"</span><span class="op">:</span> <span class="op">[</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Ingeniería de SW"</span><span class="op">,</span>     <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Pablo Picasso"</span>    <span class="op">},</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Futbol I"</span><span class="op">,</span>             <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Juan Piña"</span>        <span class="op">},</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Algoritmos Genéticos"</span><span class="op">,</span>  <span class="st">"professor"</span><span class="op">:</span> <span class="st">"María de la Rosa"</span>  <span class="op">}</span>
+  <span class="op">]</span>
+<span class="op">}</span></code></pre>
+
+    <div class="callout mt-3">
+      <strong>Nota:</strong> los nombres de los campos (<code>name</code>,
+      <code>idNumber</code>, etc.) están en inglés. Esta es una convención
+      habitual en proyectos de software: los datos viajan en inglés y la
+      interfaz los muestra en el idioma del usuario.
+    </div>
+
+    <p class="mt-3">
+      El campo <code>courses</code> es un <strong>arreglo</strong> de objetos.
+      Cada objeto tiene dos campos: <code>name</code> y <code>professor</code>.
+      Esto nos permite mostrar cualquier cantidad de cursos sin cambiar el HTML.
+    </p>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 3 — Las clases                                                    -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">3</span>
+      <h2 class="step-heading mb-0">Las clases — <code>Course</code> y <code>Person</code></h2>
+    </div>
+
+    <p>
+      Una <strong>clase</strong> es una plantilla que define la estructura de
+      un objeto. El <strong>constructor</strong> es la función que se ejecuta
+      cuando creamos una nueva instancia con <code>new</code>.
+    </p>
+
+    <h5 class="fw-bold mt-4 mb-2">Clase <code>Course</code></h5>
+    <p>Representa un curso con su nombre y su profesor.</p>
+    <pre><code><span class="cm">// TypeScript (src/person.ts)</span>
+<span class="kw">class</span> <span class="tp">Course</span> <span class="op">{</span>
+  <span class="nm">name</span><span class="op">:</span>      <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">professor</span><span class="op">:</span> <span class="tp">string</span><span class="op">;</span>
+
+  <span class="kw">constructor</span><span class="op">(</span><span class="nm">name</span><span class="op">:</span> <span class="tp">string</span><span class="op">,</span> <span class="nm">professor</span><span class="op">:</span> <span class="tp">string</span><span class="op">) {</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">name</span>      <span class="op">=</span> <span class="nm">name</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">professor</span> <span class="op">=</span> <span class="nm">professor</span><span class="op">;</span>
+  <span class="op">}</span>
+<span class="op">}</span></code></pre>
+
+    <h5 class="fw-bold mt-4 mb-2">Clase <code>Person</code></h5>
+    <p>
+      Representa al estudiante. El atributo <code>courses</code> es un
+      arreglo de objetos <code>Course</code> — no de texto plano sino de
+      instancias de la clase.
+    </p>
+    <pre><code><span class="cm">// TypeScript (src/person.ts)</span>
+<span class="kw">class</span> <span class="tp">Person</span> <span class="op">{</span>
+  <span class="nm">name</span><span class="op">:</span>     <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">code</span><span class="op">:</span>     <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">idNumber</span><span class="op">:</span> <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">age</span><span class="op">:</span>      <span class="tp">number</span><span class="op">;</span>
+  <span class="nm">address</span><span class="op">:</span>  <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">phone</span><span class="op">:</span>    <span class="tp">string</span><span class="op">;</span>
+  <span class="nm">courses</span><span class="op">:</span>  <span class="tp">Course</span><span class="op">[];</span>   <span class="cm">// arreglo de objetos Course</span>
+
+  <span class="kw">constructor</span><span class="op">(</span><span class="nm">name</span><span class="op">,</span> <span class="nm">code</span><span class="op">,</span> <span class="nm">idNumber</span><span class="op">,</span> <span class="nm">age</span><span class="op">,</span> <span class="nm">address</span><span class="op">,</span> <span class="nm">phone</span><span class="op">,</span> <span class="nm">courses</span><span class="op">) {</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">name</span>     <span class="op">=</span> <span class="nm">name</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">code</span>     <span class="op">=</span> <span class="nm">code</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">idNumber</span> <span class="op">=</span> <span class="nm">idNumber</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">age</span>      <span class="op">=</span> <span class="nm">age</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">address</span>  <span class="op">=</span> <span class="nm">address</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">phone</span>    <span class="op">=</span> <span class="nm">phone</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">courses</span>  <span class="op">=</span> <span class="nm">courses</span><span class="op">;</span>
+  <span class="op">}</span>
+<span class="op">}</span></code></pre>
+
+    <div class="callout callout-success mt-3">
+      <strong>¿Por qué clases y no objetos simples?</strong><br>
+      Las clases permiten verificar el tipo con <code>instanceof</code>,
+      agregar métodos más adelante, y dejan claro en el código qué forma
+      tiene cada dato. En TypeScript además el compilador detecta errores
+      si intentamos usar un atributo que no existe.
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 4 — loadPerson                                                    -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">4</span>
+      <h2 class="step-heading mb-0">Cargar los datos — <code>loadPerson()</code></h2>
+    </div>
+
+    <p>
+      Esta función hace tres cosas: <strong>pide</strong> el archivo JSON al
+      servidor, <strong>convierte</strong> el texto en objetos JavaScript, y
+      <strong>construye</strong> instancias de nuestras clases.
+    </p>
+
+    <pre><code><span class="kw">async function</span> <span class="nm">loadPerson</span><span class="op">(</span><span class="nm">url</span><span class="op">) {</span>
+
+  <span class="cm">// 1. Pide el archivo al servidor y espera la respuesta</span>
+  <span class="kw">const</span> <span class="nm">response</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">fetch</span><span class="op">(</span><span class="nm">url</span><span class="op">);</span>
+
+  <span class="cm">// 2. Convierte el cuerpo de la respuesta de texto JSON a objeto JS</span>
+  <span class="kw">const</span> <span class="nm">data</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">response</span><span class="op">.</span><span class="nm">json</span><span class="op">();</span>
+
+  <span class="cm">// 3. Por cada elemento del arreglo JSON crea un objeto Course</span>
+  <span class="kw">const</span> <span class="nm">courses</span> <span class="op">=</span> <span class="nm">data</span><span class="op">.</span><span class="nm">courses</span><span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">c</span> <span class="op">=&gt;</span> <span class="kw">new</span> <span class="tp">Course</span><span class="op">(</span><span class="nm">c</span><span class="op">.</span><span class="nm">name</span><span class="op">,</span> <span class="nm">c</span><span class="op">.</span><span class="nm">professor</span><span class="op">));</span>
+
+  <span class="cm">// 4. Crea y devuelve el objeto Person con todos los datos</span>
+  <span class="kw">return new</span> <span class="tp">Person</span><span class="op">(</span>
+    <span class="nm">data</span><span class="op">.</span><span class="nm">name</span><span class="op">,</span> <span class="nm">data</span><span class="op">.</span><span class="nm">code</span><span class="op">,</span> <span class="nm">data</span><span class="op">.</span><span class="nm">idNumber</span><span class="op">,</span>
+    <span class="nm">data</span><span class="op">.</span><span class="nm">age</span><span class="op">,</span>  <span class="nm">data</span><span class="op">.</span><span class="nm">address</span><span class="op">,</span> <span class="nm">data</span><span class="op">.</span><span class="nm">phone</span><span class="op">,</span>
+    <span class="nm">courses</span>
+  <span class="op">);</span>
+<span class="op">}</span></code></pre>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+          <p class="fw-bold mb-2"><code>async</code> / <code>await</code></p>
+          <p class="small mb-0">
+            <code>fetch</code> no devuelve los datos inmediatamente — hace
+            una petición de red que tarda un tiempo indeterminado.
+            <code>async</code> marca la función como asincrónica y
+            <code>await</code> pausa la ejecución hasta que la promesa se
+            resuelve, sin bloquear el navegador.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+          <p class="fw-bold mb-2"><code>.map()</code></p>
+          <p class="small mb-0">
+            Transforma cada elemento de un arreglo aplicando una función.
+            Aquí convierte cada objeto plano del JSON
+            <code>{ name, professor }</code> en una instancia real de
+            <code>Course</code>. Devuelve un nuevo arreglo sin modificar
+            el original.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 5 — El HTML vacío                                                 -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">5</span>
+      <h2 class="step-heading mb-0">El HTML como plantilla vacía</h2>
+    </div>
+
+    <p>
+      Los elementos que muestran datos ahora tienen un <code>id</code> y
+      comienzan vacíos. JavaScript los encontrará por ese <code>id</code>
+      y les inyectará el contenido.
+    </p>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="compare-label text-danger">Antes — dato fijo</div>
+        <pre><code><span class="op">&lt;</span><span class="tp">h1</span> <span class="nm">class</span><span class="op">=</span><span class="st">"fw-bold mb-4"</span><span class="op">&gt;</span>
+  Ana María Suarez
+<span class="op">&lt;/</span><span class="tp">h1</span><span class="op">&gt;</span>
+
+<span class="op">&lt;</span><span class="tp">tbody</span><span class="op">&gt;</span>
+  <span class="op">&lt;</span><span class="tp">tr</span><span class="op">&gt;&lt;</span><span class="tp">td</span><span class="op">&gt;</span>Código<span class="op">&lt;/</span><span class="tp">td</span><span class="op">&gt;</span>
+      <span class="op">&lt;</span><span class="tp">td</span><span class="op">&gt;</span>10234320<span class="op">&lt;/</span><span class="tp">td</span><span class="op">&gt;&lt;/</span><span class="tp">tr</span><span class="op">&gt;</span>
+  <span class="cm">&lt;!-- … --&gt;</span>
+<span class="op">&lt;/</span><span class="tp">tbody</span><span class="op">&gt;</span></code></pre>
+      </div>
+      <div class="col-md-6">
+        <div class="compare-label text-success">Después — plantilla con id</div>
+        <pre><code><span class="op">&lt;</span><span class="tp">h1</span> <span class="nm">id</span><span class="op">=</span><span class="st">"student-name"</span>
+    <span class="nm">class</span><span class="op">=</span><span class="st">"fw-bold mb-4"</span><span class="op">&gt;</span>
+<span class="op">&lt;/</span><span class="tp">h1</span><span class="op">&gt;</span>
+
+<span class="op">&lt;</span><span class="tp">tbody</span> <span class="nm">id</span><span class="op">=</span><span class="st">"datos-tbody"</span><span class="op">&gt;</span>
+  <span class="cm">&lt;!-- JavaScript inserta aquí --&gt;</span>
+<span class="op">&lt;/</span><span class="tp">tbody</span><span class="op">&gt;</span></code></pre>
+      </div>
+    </div>
+
+    <div class="callout mt-3">
+      El HTML ya no tiene datos: solo tiene <strong>estructura</strong>
+      (dónde van las cosas) e <strong>identificadores</strong>
+      (cómo las encuentra JavaScript).
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 6 — renderPerson                                                  -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">6</span>
+      <h2 class="step-heading mb-0">Renderizar en el DOM — <code>renderPerson()</code></h2>
+    </div>
+
+    <p>
+      El DOM (Document Object Model) es la representación en memoria del HTML
+      de la página. <code>document.getElementById()</code> busca un elemento
+      por su <code>id</code> y devuelve una referencia a él para poder
+      modificarlo.
+    </p>
+
+    <pre><code><span class="kw">function</span> <span class="nm">renderPerson</span><span class="op">(</span><span class="nm">person</span><span class="op">) {</span>
+
+  <span class="cm">// textContent reemplaza el texto del elemento (sin interpretar HTML)</span>
+  <span class="nm">document</span><span class="op">.</span><span class="nm">getElementById</span><span class="op">(</span><span class="st">'student-name'</span><span class="op">).</span><span class="nm">textContent</span> <span class="op">=</span> <span class="nm">person</span><span class="op">.</span><span class="nm">name</span><span class="op">;</span>
+
+  <span class="cm">// innerHTML reemplaza el contenido HTML completo del elemento</span>
+  <span class="kw">const</span> <span class="nm">datosTbody</span> <span class="op">=</span> <span class="nm">document</span><span class="op">.</span><span class="nm">getElementById</span><span class="op">(</span><span class="st">'datos-tbody'</span><span class="op">);</span>
+  <span class="nm">datosTbody</span><span class="op">.</span><span class="nm">innerHTML</span> <span class="op">=</span>
+    <span class="nm">row</span><span class="op">(</span><span class="st">'Código'</span><span class="op">,</span>    <span class="nm">person</span><span class="op">.</span><span class="nm">code</span><span class="op">)</span>     <span class="op">+</span>
+    <span class="nm">row</span><span class="op">(</span><span class="st">'Cédula'</span><span class="op">,</span>    <span class="nm">person</span><span class="op">.</span><span class="nm">idNumber</span><span class="op">)</span> <span class="op">+</span>
+    <span class="nm">row</span><span class="op">(</span><span class="st">'Edad'</span><span class="op">,</span>      <span class="nm">person</span><span class="op">.</span><span class="nm">age</span> <span class="op">+</span> <span class="st">' Años'</span><span class="op">)</span> <span class="op">+</span>
+    <span class="nm">row</span><span class="op">(</span><span class="st">'Dirección'</span><span class="op">,</span> <span class="nm">person</span><span class="op">.</span><span class="nm">address</span><span class="op">)</span>  <span class="op">+</span>
+    <span class="nm">row</span><span class="op">(</span><span class="st">'Teléfono'</span><span class="op">,</span>  <span class="nm">person</span><span class="op">.</span><span class="nm">phone</span><span class="op">);</span>
+
+  <span class="cm">// .map() convierte cada Course en un string de HTML, .join() los une</span>
+  <span class="kw">const</span> <span class="nm">coursesTbody</span> <span class="op">=</span> <span class="nm">document</span><span class="op">.</span><span class="nm">getElementById</span><span class="op">(</span><span class="st">'courses-tbody'</span><span class="op">);</span>
+  <span class="nm">coursesTbody</span><span class="op">.</span><span class="nm">innerHTML</span> <span class="op">=</span> <span class="nm">person</span><span class="op">.</span><span class="nm">courses</span>
+    <span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">c</span> <span class="op">=&gt;</span> <span class="nm">courseRow</span><span class="op">(</span><span class="nm">c</span><span class="op">.</span><span class="nm">name</span><span class="op">,</span> <span class="nm">c</span><span class="op">.</span><span class="nm">professor</span><span class="op">))</span>
+    <span class="op">.</span><span class="nm">join</span><span class="op">(</span><span class="st">''</span><span class="op">);</span>
+<span class="op">}</span>
+
+<span class="cm">// Helpers: construyen el HTML de cada fila como texto</span>
+<span class="kw">function</span> <span class="nm">row</span><span class="op">(</span><span class="nm">label</span><span class="op">,</span> <span class="nm">value</span><span class="op">) {</span>
+  <span class="kw">return</span> <span class="st">'&lt;tr class="border-top"&gt;'</span> <span class="op">+</span>
+           <span class="st">'&lt;td class="text-secondary"&gt;'</span> <span class="op">+</span> <span class="nm">label</span> <span class="op">+</span> <span class="st">'&lt;/td&gt;'</span> <span class="op">+</span>
+           <span class="st">'&lt;td&gt;'</span> <span class="op">+</span> <span class="nm">value</span> <span class="op">+</span> <span class="st">'&lt;/td&gt;'</span> <span class="op">+</span>
+         <span class="st">'&lt;/tr&gt;'</span><span class="op">;</span>
+<span class="op">}</span></code></pre>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+          <p class="fw-bold mb-1"><code>textContent</code> vs <code>innerHTML</code></p>
+          <p class="small mb-0">
+            Usa <code>textContent</code> cuando el valor es texto puro
+            (nombre, número). Usa <code>innerHTML</code> cuando necesitas
+            insertar etiquetas HTML. <code>textContent</code> es más
+            seguro porque no interpreta etiquetas.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="border rounded p-3 h-100">
+          <p class="fw-bold mb-1"><code>.map().join('')</code></p>
+          <p class="small mb-0">
+            <code>.map()</code> transforma cada curso en un string HTML.
+            El resultado es un arreglo de strings.
+            <code>.join('')</code> los concatena en un solo string
+            (sin separador) para asignarlo a <code>innerHTML</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 7 — type="module" y el arranque                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">7</span>
+      <h2 class="step-heading mb-0">El arranque — <code>type="module"</code></h2>
+    </div>
+
+    <p>
+      La etiqueta <code>&lt;script&gt;</code> tiene el atributo
+      <code>type="module"</code>. Esto cambia dos comportamientos
+      importantes respecto a un script normal:
+    </p>
+
+    <pre><code><span class="op">&lt;</span><span class="tp">script</span> <span class="nm">type</span><span class="op">=</span><span class="st">"module"</span><span class="op">&gt;</span>
+
+  <span class="cm">// ... clases, loadPerson, renderPerson ...</span>
+
+  <span class="cm">// Arranca todo: carga los datos y luego renderiza</span>
+  <span class="nm">loadPerson</span><span class="op">(</span><span class="st">'data/student.json'</span><span class="op">)</span>
+    <span class="op">.</span><span class="nm">then</span><span class="op">(</span><span class="nm">person</span> <span class="op">=&gt; {</span>
+      <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="st">'Cargado:'</span><span class="op">,</span> <span class="nm">person</span><span class="op">);</span>  <span class="cm">// verificación</span>
+      <span class="nm">renderPerson</span><span class="op">(</span><span class="nm">person</span><span class="op">);</span>
+    <span class="op">})</span>
+    <span class="op">.</span><span class="nm">catch</span><span class="op">(</span><span class="nm">err</span> <span class="op">=&gt;</span> <span class="nm">console</span><span class="op">.</span><span class="nm">error</span><span class="op">(</span><span class="nm">err</span><span class="op">));</span>
+
+<span class="op">&lt;/</span><span class="tp">script</span><span class="op">&gt;</span></code></pre>
+
+    <div class="table-responsive mt-3">
+      <table class="table table-bordered bg-white mb-0">
+        <thead class="table-dark">
+          <tr><th>Característica</th><th><code>type="module"</code></th><th>Script normal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Espera al DOM</td>
+            <td>Sí — corre después de que el HTML está listo</td>
+            <td>No — puede correr antes de que existan los elementos</td>
+          </tr>
+          <tr>
+            <td>Scope</td>
+            <td>Las variables son locales al módulo</td>
+            <td>Las variables se agregan al objeto global <code>window</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-3">
+      <code>.then()</code> recibe la función a ejecutar cuando
+      <code>loadPerson</code> termina. Si ocurre un error (archivo no
+      encontrado, JSON inválido), <code>.catch()</code> lo captura.
+    </p>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASO 8 — Flujo completo                                                -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="step-badge">8</span>
+      <h2 class="step-heading mb-0">El flujo completo</h2>
+    </div>
+
+    <p>Cuando el navegador carga la página, ocurre esto en orden:</p>
+
+    <div class="bg-white border rounded p-4">
+      <div class="d-flex flex-column gap-0">
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-badge" style="background:#6c757d; min-width:32px;">1</div>
+          <div class="border rounded p-3 flex-grow-1">
+            <strong>Navegador carga <code>ejemplo-perfil-dinamic.html</code></strong><br>
+            <span class="text-secondary small">
+              Construye el DOM con el HTML estático. Los <code>&lt;tbody&gt;</code>
+              están vacíos. El <code>&lt;h1&gt;</code> no tiene texto.
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center"><div style="width:2px; height:24px; background:#dee2e6;"></div></div>
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-badge" style="background:#6c757d; min-width:32px;">2</div>
+          <div class="border rounded p-3 flex-grow-1">
+            <strong>Ejecuta el <code>&lt;script type="module"&gt;</code></strong><br>
+            <span class="text-secondary small">
+              Define las clases <code>Course</code> y <code>Person</code>,
+              define <code>loadPerson</code> y <code>renderPerson</code>,
+              luego llama a <code>loadPerson('data/student.json')</code>.
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center"><div style="width:2px; height:24px; background:#dee2e6;"></div></div>
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-badge" style="background:#6c757d; min-width:32px;">3</div>
+          <div class="border rounded p-3 flex-grow-1">
+            <strong><code>fetch</code> pide <code>data/student.json</code> al servidor</strong><br>
+            <span class="text-secondary small">
+              El navegador hace una petición HTTP. El servidor responde
+              con el texto del archivo JSON.
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center"><div style="width:2px; height:24px; background:#dee2e6;"></div></div>
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-badge" style="background:#6c757d; min-width:32px;">4</div>
+          <div class="border rounded p-3 flex-grow-1">
+            <strong><code>response.json()</code> convierte el texto en objeto JS</strong><br>
+            <span class="text-secondary small">
+              <code>.map()</code> crea los objetos <code>Course</code>.
+              <code>new Person(...)</code> construye el objeto final.
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center"><div style="width:2px; height:24px; background:#dee2e6;"></div></div>
+
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-badge" style="background:#198754; min-width:32px;">5</div>
+          <div class="border rounded p-3 flex-grow-1">
+            <strong><code>renderPerson(person)</code> actualiza el DOM</strong><br>
+            <span class="text-secondary small">
+              <code>getElementById</code> localiza cada contenedor y
+              <code>textContent</code> / <code>innerHTML</code> insertan
+              el contenido. La página muestra los datos del estudiante.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── Pie ───────────────────────────────────────────────────────────────── -->
+  <div class="border-top pt-4 d-flex justify-content-between align-items-center">
+    <a href="ejemplo-perfil-dinamic.html" class="text-secondary small">
+      &larr; Ver la página dinámica
+    </a>
+    <a href="ejemplo-perfil.html" class="text-secondary small">
+      Ver la versión estática &rarr;
+    </a>
+  </div>
+
+</div>
+</body>
+</html>

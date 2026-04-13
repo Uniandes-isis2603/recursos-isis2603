@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de Pestañas</title>
+  <style>
+    .tab-nav { 
+      display: flex; 
+      gap: 4px; 
+      border-bottom: 2px solid #ddd; 
+      margin-bottom: 24px; 
+    }
+    .tab-btn { 
+      padding: 8px 18px; 
+      border: none; 
+      background: none; 
+      color: #666; 
+      cursor: pointer; 
+      border-bottom: 2px solid transparent; 
+      margin-bottom: -2px; 
+    }
+    .tab-btn:hover { color: #333; }
+    .tab-btn.active { 
+      color: #0e7a5a; 
+      border-bottom-color: #0e7a5a; 
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card { 
+      border: 1px solid #ddd; 
+      padding: 20px; 
+      border-radius: 8px; 
+      max-width: 600px; 
+      margin: 20px auto; 
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Prueba de Pestañas</h2>
+  
+  <div class="tab-nav">
+    <button class="tab-btn active" data-panel="test-1">Pestaña 1</button>
+    <button class="tab-btn" data-panel="test-2">Pestaña 2</button>
+    <button class="tab-btn" data-panel="test-3">Pestaña 3</button>
+  </div>
+
+  <div id="test-1" class="tab-panel active">
+    <h3>Contenido de la Pestaña 1</h3>
+    <p>Este es el contenido de la primera pestaña.</p>
+  </div>
+
+  <div id="test-2" class="tab-panel">
+    <h3>Contenido de la Pestaña 2</h3>
+    <p>Este es el contenido de la segunda pestaña.</p>
+  </div>
+
+  <div id="test-3" class="tab-panel">
+    <h3>Contenido de la Pestaña 3</h3>
+    <p>Este es el contenido de la tercera pestaña.</p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('DOMContentLoaded ejecutado');
+  
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    console.log('Botón encontrado:', btn.dataset.panel);
+    
+    btn.addEventListener('click', function () {
+      console.log('Click en botón:', btn.dataset.panel);
+      
+      var card = btn.closest('.card');
+      card.querySelectorAll('.tab-btn').forEach(function (b) { 
+        b.classList.remove('active'); 
+      });
+      card.querySelectorAll('.tab-panel').forEach(function (p) { 
+        p.classList.remove('active'); 
+      });
+      
+      btn.classList.add('active');
+      var targetPanel = document.getElementById(btn.dataset.panel);
+      console.log('Panel target:', targetPanel);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

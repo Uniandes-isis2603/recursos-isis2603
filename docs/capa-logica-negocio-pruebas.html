@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pruebas Unitarias — Spring Boot</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-primary: #ffffff;
@@ -46,77 +46,53 @@
   ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
 
   /* ─── Header ─── */
-  .hero {
-    position: relative;
-    padding: 80px 40px 60px;
+  header {
+    background: #1c1814;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      rgba(255,255,255,.015) 0 11px
+    );
+    color: #fff;
     text-align: center;
-    overflow: hidden;
+    padding: 64px 24px 56px;
+    position: relative;
   }
-
-  .hero::before {
-    content: '';
+  .hdr-content { position: relative; }
+  .hdr-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin: 0 0 16px;
+    color: #faf8f4;
+  }
+  header h1 em { font-style: italic; color: #f6c87a; }
+  .hdr-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,.55);
+  }
+  .back-link {
     position: absolute;
-    top: -50%;
-    left: -20%;
-    width: 140%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 20%, var(--glow-green) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 60%, var(--glow-blue) 0%, transparent 50%);
-    pointer-events: none;
-    animation: heroGlow 8s ease-in-out infinite alternate;
+    top: 16px; left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.45);
+    text-decoration: none;
   }
-
-  @keyframes heroGlow {
-    0% { opacity: 0.6; transform: scale(1); }
-    100% { opacity: 1; transform: scale(1.05); }
-  }
-
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.1rem, 2vw, 1.3rem);
-    font-weight: 800;
-    position: relative;
-    z-index: 1;
-    background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 12px;
-  }
-
-  .hero .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    position: relative;
-    z-index: 1;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .badge-row {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-    position: relative;
-    z-index: 1;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-
-  .badge.spring { background: var(--accent-green-dim); color: var(--accent-green); }
-  .badge.java { background: var(--accent-amber-dim); color: var(--accent-amber); }
-  .badge.jpa { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
 
 
   /* ─── Content Area ─── */
@@ -140,7 +116,7 @@
   }
 
   .section-header h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'DM Serif Display', serif;
     font-size: 1.9rem;
     font-weight: 700;
     margin-bottom: 8px;
@@ -387,7 +363,7 @@
   }
 
   @media (max-width: 640px) {
-    .hero { padding: 50px 20px 40px; }
+    .hero { padding: 32px 20px 28px; }
     .content-area { padding: 24px 16px 60px; }
     .card { padding: 20px; }
     .nav-tab { padding: 8px 12px; font-size: 0.8rem; }
@@ -396,17 +372,14 @@
 </head>
 <body>
 
-<!-- ═══════ HERO ═══════ -->
-<div class="hero">
-  <h1>Universidad de los Andes</h1>
-  <p class="subtitle">ISIS2603 Desarrollo de SW en equipos</p>
-  <p class="subtitle">Ingeniería de Sistemas y Computación · Recursos para ayuda al aprendizaje</p>
-  <div class="badge-row">
-    <span class="badge spring">☘ Spring Boot</span>
-    <span class="badge java">♦ Java</span>
-    <span class="badge jpa">◈ JPA</span>
+<header>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Pruebas Unitarias</div>
+    <h1>Pruebas con <em>JUnit</em></h1>
+    <div class="hdr-sub">Spring Boot · Mockito · Testing de la capa de servicios</div>
   </div>
-</div>
+</header>
 
 <div class="content-area">
 
@@ -1118,6 +1091,8 @@ book.<span class="mth">setPages</span>(<span class="num">863</span>);
 
 <div class="footer">
   Curso de Desarrollo de Software — Pruebas Unitarias con Spring Boot
+  <br><br>
+  Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic
 </div>
 
 <script>

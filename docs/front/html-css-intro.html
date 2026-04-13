@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML y CSS — Fundamentos · ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══ TOKENS ══════════════════════════════════════════ */
+    :root {
+      --bg:        #f2efe9;
+      --surface:   #faf8f4;
+      --border:    #ddd8d0;
+      --border2:   #ece8e0;
+      --ink:       #1c1814;
+      --ink-mid:   #4a4440;
+      --ink-soft:  #8c847c;
+      --layer:     #0e7a5a;
+      --layer-bg:  #e6f5f0;
+      --layer-bdr: #9dd9c5;
+      --shadow:    0 4px 20px rgba(28,24,20,.09);
+      --radius:    12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ══ HEADER ══════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      color: #e8e0d8;
+      text-align: center;
+      padding: 48px 24px 40px;
+      position: relative;
+    }
+
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--layer-bdr);
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: #f2efe9;
+      margin-bottom: 10px;
+    }
+
+    .hdr-sub {
+      font-size: 14px;
+      color: rgba(232,224,216,.6);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: .5px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--layer-bdr);
+      text-decoration: none;
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      opacity: .75;
+      transition: opacity .15s;
+    }
+    .back-link:hover { opacity: 1; }
+
+    /* ══ TOP-LEVEL TABS ══════════════════════════════════ */
+    .top-tab-nav {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      gap: 0;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .top-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .5px;
+      padding: 14px 22px;
+      border: none;
+      background: none;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+
+    .top-tab-btn:hover { color: var(--ink-mid); }
+
+    .top-tab-btn.active {
+      color: var(--layer);
+      border-bottom-color: var(--layer);
+    }
+
+    .top-tab-panel { display: none; }
+    .top-tab-panel.active { display: block; }
+
+    /* ══ LAYOUT ══════════════════════════════════════════ */
+    .main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ══ CARDS ═══════════════════════════════════════════ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .card p { margin-bottom: 12px; color: var(--ink-mid); }
+    .card p:last-child { margin-bottom: 0; }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--border2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      line-height: 1.65;
+      margin-bottom: 16px;
+      white-space: pre;
+    }
+
+    /* ══ DEMO GRID ═══════════════════════════════════════ */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .demo-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+    }
+
+    .demo-frame {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    /* ══ DOM TREE ════════════════════════════════════════ */
+    .dom-tree {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      line-height: 2;
+      white-space: pre;
+    }
+
+    .dom-el   { color: #9dd9c5; }
+    .dom-attr { color: #f6c87a; }
+    .dom-val  { color: rgba(255,255,255,.55); }
+    .tree-dim { color: rgba(255,255,255,.22); }
+
+    /* ══ CALLOUTS ════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .callout p { margin: 0; }
+
+    .callout-info {
+      background: #e8eefb;
+      border-left: 4px solid #1d4ed8;
+    }
+    .callout-info .callout-icon { color: #1d4ed8; }
+
+    .callout-tip {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+    }
+    .callout-tip .callout-icon { color: var(--layer); }
+
+    .callout-warning {
+      background: #fef4e6;
+      border-left: 4px solid #b45309;
+    }
+    .callout-warning .callout-icon { color: #b45309; }
+
+    /* ══ INNER TABS ══════════════════════════════════════ */
+    .inner-tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .inner-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border: none;
+      background: none;
+      color: var(--ink-soft);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+      letter-spacing: .5px;
+    }
+
+    .inner-tab-btn:hover { color: var(--ink-mid); }
+
+    .inner-tab-btn.active {
+      color: var(--layer);
+      border-bottom-color: var(--layer);
+    }
+
+    .inner-tab-panel { display: none; }
+    .inner-tab-panel.active { display: block; }
+
+    /* ══ H3 ══════════════════════════════════════════════ */
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 20px 0 10px;
+    }
+
+    /* ══ QUIZ ════════════════════════════════════════════ */
+    .quiz-question {
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      background: var(--bg);
+    }
+
+    .quiz-q-text {
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .quiz-opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: var(--surface);
+      transition: border-color .15s, background .15s;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .quiz-opt:hover { border-color: var(--layer-bdr); }
+
+    .quiz-marker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-soft);
+    }
+
+    .quiz-opt.quiz-correct { border-color: #16a34a; background: #f0fdf4; }
+    .quiz-opt.quiz-correct .quiz-marker { background: #16a34a; color: white; }
+    .quiz-opt.quiz-wrong   { border-color: #dc2626; background: #fef2f2; }
+    .quiz-opt.quiz-wrong   .quiz-marker { background: #dc2626; color: white; }
+
+    .quiz-feedback {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .quiz-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: .3px;
+    }
+
+    .quiz-btn-primary { background: var(--layer); color: white; }
+    .quiz-btn-ghost   { background: var(--border2); color: var(--ink-mid); }
+
+    #quiz-score-display {
+      display: none;
+      margin-top: 16px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* ══ FOOTER ══════════════════════════════════════════ */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+      letter-spacing: .5px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ══ RESPONSIVE ══════════════════════════════════════ */
+    @media (max-width: 640px) {
+      .main {
+        padding: 24px 16px 48px;
+      }
+
+      .card {
+        padding: 20px 16px;
+      }
+
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .top-tab-nav {
+        padding: 0 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .top-tab-btn {
+        padding: 12px 14px;
+        font-size: 11px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .dom-tree {
+        overflow-x: auto;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="index-front.html">&#8592; Inicio</a>
+  <div class="hdr-tag">ISIS2603 · Front-end</div>
+  <h1>HTML y CSS</h1>
+  <div class="hdr-sub">Fundamentos · Desarrollo de Software en Equipos</div>
+</header>
+
+<!-- ══ TOP-LEVEL TAB NAV ══════════════════════════════ -->
+<nav class="top-tab-nav">
+  <button class="top-tab-btn active"
+    onclick="document.querySelectorAll('.top-tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.top-tab-panel').forEach(function(p){p.style.display='none'});this.classList.add('active');document.getElementById('panel-estructura').style.display='block'">
+    Estructura básica</button>
+  <button class="top-tab-btn"
+    onclick="document.querySelectorAll('.top-tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.top-tab-panel').forEach(function(p){p.style.display='none'});this.classList.add('active');document.getElementById('panel-elementos').style.display='block'">
+    Elementos HTML</button>
+  <button class="top-tab-btn"
+    onclick="document.querySelectorAll('.top-tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.top-tab-panel').forEach(function(p){p.style.display='none'});this.classList.add('active');document.getElementById('panel-css').style.display='block'">
+    Estilos CSS</button>
+  <button class="top-tab-btn"
+    onclick="document.querySelectorAll('.top-tab-btn').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.top-tab-panel').forEach(function(p){p.style.display='none'});this.classList.add('active');document.getElementById('panel-quiz').style.display='block'">
+    Quiz</button>
+</nav>
+
+<!-- ══ PANEL: Estructura básica ══════════════════════ -->
+<div id="panel-estructura" class="top-tab-panel active">
+  <div class="main">
+
+    <div class="card">
+      <h2>1.1 Estructura básica</h2>
+      <p>HTML usa <strong>marcas (tags)</strong> que definen el significado semántico del contenido.
+        Cada marca abre <code>&lt;tag&gt;</code> y cierra <code>&lt;/tag&gt;</code>. Las marcas
+        vacías se escriben como <code>&lt;br/&gt;</code> o <code>&lt;img/&gt;</code>.</p>
+      <p>La estructura de un documento HTML es <strong>arborescente</strong>: cada elemento es un
+        nodo, y los nodos se contienen unos dentro de otros formando el
+        <strong>DOM</strong> (Document Object Model).</p>
+
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Código HTML</div>
+          <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8"/&gt;
+    &lt;title&gt;Título de la Página&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Encabezado nivel 1&lt;/h1&gt;
+    &lt;p&gt;Un párrafo de texto.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Árbol DOM</div>
+          <div class="dom-tree"><span class="dom-el">html</span>
+<span class="tree-dim">├──</span> <span class="dom-el">head</span>
+<span class="tree-dim">│ ├──</span> <span class="dom-el">meta</span> <span class="dom-attr">charset</span>=<span class="dom-val">"UTF-8"</span>
+<span class="tree-dim">│ └──</span> <span class="dom-el">title</span> <span class="dom-val">"Título de la Página"</span>
+<span class="tree-dim">└──</span> <span class="dom-el">body</span>
+<span class="tree-dim">  ├──</span> <span class="dom-el">h1</span> <span class="dom-val">"Encabezado nivel 1"</span>
+<span class="tree-dim">  └──</span> <span class="dom-el">p</span> <span class="dom-val">"Un párrafo de texto."</span></div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">INFO</span>
+        <p><strong>&lt;head&gt;</strong>: metadata, título de la página, estilos CSS y scripts.
+          Su contenido no es visible en la página.</p>
+      </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">INFO</span>
+        <p><strong>&lt;body&gt;</strong>: todo el contenido visible — títulos, párrafos,
+          imágenes, tablas, formularios.</p>
+      </div>
+
+      <h3>Resultado en el navegador</h3>
+      <iframe class="demo-frame" style="height:110px"
+        srcdoc="<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body style='font-family:Arial;padding:16px;font-size:15px'><h1>Encabezado nivel 1</h1><p>Un párrafo de texto.</p>">
+      </iframe>
+    </div>
+
+    <div class="card">
+      <h2>1.2 Valores y atributos</h2>
+      <p>Un elemento HTML tiene un <strong>valor</strong> (el contenido entre las marcas) y puede tener
+        <strong>atributos</strong> que configuran su comportamiento. El valor de los atributos
+        <em>siempre va entre comillas</em>.</p>
+      <pre><span style="color:#9dd9c5">&lt;a</span> <span style="color:#f6c87a">href</span>=<span style="color:#e8e0d8">"https://www.w3schools.com"</span><span style="color:#9dd9c5">&gt;</span>Enlace a w3schools<span style="color:#9dd9c5">&lt;/a&gt;</span>
+   ↑                                               ↑
+atributo "href" con su valor          valor del elemento &lt;a&gt;</pre>
+
+    </div><!-- /card 1.2 -->
+
+  </div>
+</div>
+
+<!-- ══ PANEL: Elementos HTML ═════════════════════════ -->
+<div id="panel-elementos" class="top-tab-panel">
+  <div class="main">
+
+    <!-- TABLA -->
+    <div class="card">
+      <h2>Tabla</h2>
+      <p><code>&lt;table&gt;</code> define una tabla. <code>&lt;tr&gt;</code> es una fila (table row).
+        <code>&lt;th&gt;</code> es celda de encabezado y <code>&lt;td&gt;</code> celda de datos.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Código</div>
+          <pre>&lt;table&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Nombre&lt;/th&gt;
+    &lt;th&gt;Apellido&lt;/th&gt;
+    &lt;th&gt;Usuario&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;María&lt;/td&gt;
+    &lt;td&gt;Díaz&lt;/td&gt;
+    &lt;td&gt;maria.diaz&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Juan&lt;/td&gt;
+    &lt;td&gt;Castro&lt;/td&gt;
+    &lt;td&gt;juan.castro&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado (sin CSS aún)</div>
+          <iframe class="demo-frame" style="height:140px"
+            srcdoc="<html><body style='padding:12px;font-family:Arial;font-size:14px'><table><tr><th>Nombre</th><th>Apellido</th><th>Usuario</th></tr><tr><td>María</td><td>Díaz</td><td>maria.diaz</td></tr><tr><td>Juan</td><td>Castro</td><td>juan.castro</td></tr><tr><td>Ernesto</td><td>Vélez</td><td>ernesto.velez</td></tr></table>">
+          </iframe>
+        </div>
+      </div>
+      <div class="callout callout-tip">
+        <span class="callout-icon">TIP</span>
+        <p>Sin CSS la tabla casi no tiene estilo visual. Lo verás cambiar radicalmente en la sección de CSS.</p>
+      </div>
+    </div>
+
+    <!-- IMAGEN -->
+    <div class="card">
+      <h2>Imagen</h2>
+      <p><code>&lt;img&gt;</code> incrusta una imagen. <code>src</code> es la URL o ruta local.
+        <code>alt</code> es el texto alternativo para accesibilidad. <code>width</code> y
+        <code>height</code> definen el tamaño en píxeles.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Código</div>
+          <pre>&lt;img
+  src="https://picsum.photos/400/250"
+  alt="Paisaje de ejemplo"
+  width="400"
+  height="250"
+/&gt;</pre>
+          <div class="callout callout-info" style="margin-top:12px">
+            <span class="callout-icon">INFO</span>
+            <p>La barra al final <code>/&gt;</code> cierra la etiqueta <code>img</code>,
+              que es un elemento vacío (no tiene contenido entre marcas).</p>
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">Resultado</div>
+          <iframe class="demo-frame" style="height:200px"
+            srcdoc="<html><body style='padding:12px;font-family:Arial'><img src='https://picsum.photos/400/250' alt='Paisaje de ejemplo' width='100%' style='border-radius:4px'/>">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENLACE -->
+    <div class="card">
+      <h2>Enlace</h2>
+      <p><code>&lt;a&gt;</code> crea un enlace. El atributo <code>href</code> define el destino.
+        Con <code>target="_blank"</code> el enlace se abre en una nueva pestaña.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Código</div>
+          <pre>&lt;!-- Enlace en la misma pestaña --&gt;
+&lt;a href="https://developer.mozilla.org"&gt;
+  MDN Web Docs
+&lt;/a&gt;
+
+&lt;!-- Abre en nueva pestaña --&gt;
+&lt;a href="https://www.w3schools.com"
+   target="_blank"&gt;
+  W3Schools &#8599;
+&lt;/a&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado</div>
+          <iframe class="demo-frame" style="height:130px"
+            srcdoc="<html><body style='padding:18px;font-family:Arial;font-size:15px;line-height:2.2'><a href='https://developer.mozilla.org'>MDN Web Docs</a><br><a href='https://www.w3schools.com' target='_blank'>W3Schools ↗</a>">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="card">
+      <h2>Formulario</h2>
+      <p><code>&lt;form&gt;</code> agrupa campos de entrada. Cada <code>&lt;input&gt;</code> tiene
+        <code>type</code> (text, email, submit…), <code>name</code> y opcionalmente <code>value</code>
+        como valor por defecto. <code>&lt;br/&gt;</code> inserta un salto de línea.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Código</div>
+          <pre>&lt;form&gt;
+  Ciudad:
+  &lt;br/&gt;&lt;br/&gt;
+  &lt;input type="text"
+         name="ciudad"
+         value="Bogotá"&gt;
+  &lt;br/&gt;&lt;br/&gt;
+  Zipcode:
+  &lt;br/&gt;&lt;br/&gt;
+  &lt;input type="text"
+         name="zipcode"
+         value="1101001"&gt;
+  &lt;br/&gt;&lt;br/&gt;
+  &lt;input type="submit"
+         value="Enviar"&gt;
+&lt;/form&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado (sin CSS)</div>
+          <iframe class="demo-frame" style="height:210px"
+            srcdoc="<html><body style='padding:16px;font-family:Arial;font-size:14px'><form>Ciudad:<br/><br/><input type='text' name='ciudad' value='Bogotá'><br/><br/>Zipcode:<br/><br/><input type='text' name='zipcode' value='1101001'><br/><br/><input type='submit' value='Enviar'></form>">
+          </iframe>
+        </div>
+      </div>
+      <div class="callout callout-warning">
+        <span class="callout-icon">OJO</span>
+        <p>Este formulario muestra la estructura HTML. El comportamiento (qué hacer al hacer
+          click en Enviar) se define con JavaScript o con un framework como Angular.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PANEL: Estilos CSS ════════════════════════════ -->
+<div id="panel-css" class="top-tab-panel">
+  <div class="main">
+
+    <!-- 2.1 Definir estilos -->
+    <div class="card">
+      <h2>2.1 Definir los estilos</h2>
+      <p>CSS funciona con <strong>reglas</strong>. Cada regla tiene un <strong>selector</strong>
+        (a qué elemento aplica) y un bloque de <strong>declaraciones</strong> con pares
+        <code>propiedad: valor</code> separados por <code>;</code>.</p>
+      <pre>selector {
+  propiedad: valor;
+  otra-propiedad: otro-valor;
+}</pre>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">INFO</span>
+        <p>Los estilos se pueden definir dentro del HTML en la etiqueta <code>&lt;style&gt;</code>
+          dentro del <code>&lt;head&gt;</code>. La <strong>mejor práctica</strong> es separarlos
+          en un archivo <code>.css</code> externo y enlazarlo con
+          <code>&lt;link rel="stylesheet" href="style.css"&gt;</code>.</p>
+      </div>
+
+      <h3>Antes y después: el mismo HTML, sin CSS y con CSS</h3>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">Sin CSS</div>
+          <iframe class="demo-frame" style="height:200px"
+            srcdoc="<html><body style='padding:14px;font-size:14px'><h1>Mi primera página</h1><p>Un párrafo de ejemplo.</p><table><tr><th>Nombre</th><th>Apellido</th></tr><tr><td>Ana</td><td>Garcia</td></tr><tr><td>Luis</td><td>Rodriguez</td></tr></table>">
+          </iframe>
+        </div>
+        <div>
+          <div class="demo-label">Con CSS</div>
+          <iframe class="demo-frame" style="height:200px"
+            srcdoc="<html><head><style>body{background-color:lightyellow;padding:14px;font-size:14px}h1{color:navy;text-align:center}p{font-family:Georgia,serif;color:#444}table{border-collapse:collapse;width:100%}td,th{border:1px solid #bbb;padding:6px 10px}</style></head><body><h1>Mi primera página</h1><p>Un párrafo de ejemplo.</p><table><tr><th>Nombre</th><th>Apellido</th></tr><tr><td>Ana</td><td>Garcia</td></tr><tr><td>Luis</td><td>Rodriguez</td></tr></table>">
+          </iframe>
+        </div>
+      </div>
+
+      <div class="demo-label" style="margin-top:16px">El CSS aplicado en la versión derecha</div>
+      <pre>body {
+  background-color: lightyellow;
+}
+
+h1 {
+  color: navy;
+  text-align: center;
+}
+
+p {
+  font-family: Georgia, serif;
+  color: #444;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #bbb;
+  padding: 6px 10px;
+}</pre>
+
+      <div class="callout callout-tip">
+        <span class="callout-icon">TIP</span>
+        <p>Con unas pocas reglas CSS el mismo HTML pasa de texto plano a una página con jerarquía
+          visual clara. En la sección 2.2 verás cómo los <strong>selectores</strong> permiten
+          apuntar a elementos específicos.</p>
+      </div>
+    </div><!-- /card 2.1 -->
+
+    <!-- 2.2 Selectores -->
+    <div class="card">
+      <h2>2.2 Aplicar los estilos — Selectores</h2>
+      <p>El <strong>selector</strong> determina a qué elementos HTML aplica cada regla CSS.
+        Los tres tipos fundamentales son:</p>
+
+      <!-- Selector de elemento -->
+      <h3>Selector de elemento</h3>
+      <p>Aplica a <em>todos</em> los elementos con esa etiqueta. No requiere cambios en el HTML.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">CSS</div>
+          <pre>/* Aplica a TODAS las tablas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: #f0f8ff;
+}
+
+th, td {
+  border: 2px solid steelblue;
+  padding: 8px 12px;
+}
+
+th {
+  background: steelblue;
+  color: white;
+}</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado</div>
+          <iframe class="demo-frame" style="height:170px"
+            srcdoc="<html><head><style>body{padding:12px;font-family:Arial;font-size:13px}table{border-collapse:collapse;width:100%;background:#f0f8ff}th,td{border:2px solid steelblue;padding:8px 12px}th{background:steelblue;color:white}</style></head><body><table><tr><th>Nombre</th><th>Apellido</th><th>Usuario</th></tr><tr><td>Maria</td><td>Diaz</td><td>maria.diaz</td></tr><tr><td>Juan</td><td>Castro</td><td>juan.castro</td></tr></table>">
+          </iframe>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border2);margin:24px 0">
+
+      <!-- Selector por ID -->
+      <h3>Selector por ID (#)</h3>
+      <p>El selector <strong>id</strong> se escribe con <code>#</code> en el CSS y se aplica con
+        <code>id="nombre"</code> en el HTML. Identifica un elemento <strong>único</strong> en la
+        página.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">CSS</div>
+          <pre>/* Selector #id — único en la página */
+#titulotabla {
+  color: darkred;
+  font-weight: bold;
+  font-family: Times, serif;
+  font-size: 14px;
+  font-style: italic;
+}</pre>
+          <div class="demo-label" style="margin-top:14px">HTML</div>
+          <pre>&lt;!-- Solo este th tiene el id --&gt;
+&lt;th id="titulotabla"&gt;
+  Nombre
+&lt;/th&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado</div>
+          <iframe class="demo-frame" style="height:170px"
+            srcdoc="<html><head><style>body{padding:12px;font-family:Arial;font-size:13px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #bbb;padding:8px 12px}#titulotabla{color:darkred;font-weight:bold;font-family:Times,serif;font-size:14px;font-style:italic}</style></head><body><table><tr><th id='titulotabla'>Nombre</th><th>Apellido</th><th>Usuario</th></tr><tr><td>Maria</td><td>Diaz</td><td>maria.diaz</td></tr><tr><td>Juan</td><td>Castro</td><td>juan.castro</td></tr></table>">
+          </iframe>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--border2);margin:24px 0">
+
+      <!-- Selector por clase -->
+      <h3>Selector por clase (.)</h3>
+      <p>El selector <strong>class</strong> se escribe con <code>.</code> en el CSS y se aplica con
+        <code>class="nombre"</code> en el HTML. Se puede reutilizar en múltiples elementos y se
+        pueden combinar varias clases en un mismo elemento.</p>
+      <div class="demo-grid">
+        <div>
+          <div class="demo-label">CSS</div>
+          <pre>/* Selector .class — reutilizable */
+.centrado {
+  text-align: center;
+}
+
+.colorazul {
+  color: steelblue;
+  font-weight: bold;
+}
+
+p.resaltado {
+  background: lightyellow;
+  padding: 8px 12px;
+  border-radius: 4px;
+}</pre>
+          <div class="demo-label" style="margin-top:14px">HTML</div>
+          <pre>&lt;!-- Combinando dos clases --&gt;
+&lt;p class="centrado colorazul"&gt;
+  Centrado y azul.
+&lt;/p&gt;
+&lt;p class="resaltado"&gt;
+  Solo resaltado.
+&lt;/p&gt;
+&lt;p&gt;Sin clases.&lt;/p&gt;</pre>
+        </div>
+        <div>
+          <div class="demo-label">Resultado</div>
+          <iframe class="demo-frame" style="height:170px"
+            srcdoc="<html><head><style>body{padding:16px;font-family:Arial;font-size:14px;line-height:2}.centrado{text-align:center}.colorazul{color:steelblue;font-weight:bold}p.resaltado{background:lightyellow;padding:8px 12px;border-radius:4px}</style></head><body><p class='centrado colorazul'>Centrado y azul.</p><p class='resaltado'>Solo resaltado.</p><p>Sin clases.</p>">
+          </iframe>
+        </div>
+      </div>
+
+    </div><!-- /card 2.2 -->
+
+  </div>
+</div>
+
+<!-- ══ PANEL: Quiz ══════════════════════════════════ -->
+<div id="panel-quiz" class="top-tab-panel">
+  <div class="main">
+    <div class="card">
+      <h2>Quiz — HTML y CSS</h2>
+      <p>Haz clic en la respuesta que consideres correcta. La retroalimentación es inmediata.</p>
+
+      <!-- Q1 -->
+      <div class="quiz-question" data-ans="2" data-explain='["La etiqueta html es el elemento raíz del documento pero siempre va después del DOCTYPE","head contiene metadatos como el título y los estilos, no es la primera línea del archivo","","body contiene el contenido visible, aparece dentro de html hacia el final del documento"]'>
+        <div class="quiz-q-text">1. ¿Cuál es la primera línea obligatoria de todo documento HTML?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>&lt;html&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>&lt;head&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>&lt;!DOCTYPE html&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>&lt;body&gt;</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-question" data-ans="1" data-explain='["head contiene metadatos: título, estilos y scripts. No se muestra directamente en la página","","meta es una etiqueta dentro de head que describe propiedades del documento como el juego de caracteres","title define el texto de la pestaña del navegador, no el contenido visible en la página"]'>
+        <div class="quiz-q-text">2. ¿Qué sección del HTML contiene el contenido visible de la página?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>&lt;head&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>&lt;body&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>&lt;meta&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>&lt;title&gt;</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-question" data-ans="3" data-explain='["Esa es la sintaxis de elemento vacío de XML o JSX. En HTML las etiquetas de cierre usan barra al inicio: /nombre","Los corchetes son sintaxis de BBCode que se usa en foros, no de HTML. HTML usa los signos menor y mayor","No existe la etiqueta close en HTML. El cierre siempre es barra diagonal después del menor: /nombre",""]'>
+        <div class="quiz-q-text">3. ¿Cómo se escribe la etiqueta de <strong>cierre</strong> para <code>&lt;h1&gt;</code>?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>&lt;h1/&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>[/h1]</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>&lt;close h1&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>&lt;/h1&gt;</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-question" data-ans="2" data-explain='["td define una celda de datos dentro de una fila ya existente, no la fila en sí","th define una celda de encabezado dentro de una fila, pero no es la fila misma","","row no existe en HTML estándar. Los navegadores la tratarían como una etiqueta desconocida"]'>
+        <div class="quiz-q-text">4. ¿Qué etiqueta define una <strong>fila</strong> en una tabla HTML?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>&lt;td&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>&lt;th&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>&lt;tr&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>&lt;row&gt;</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-question" data-ans="3" data-explain='["src se usa en img, script e iframe para indicar la fuente del recurso, no en la etiqueta a","url no es un atributo HTML. Es una función de CSS que aparece por ejemplo en background: url(...)","link no existe como atributo de a. La etiqueta link existe pero se usa en head para enlazar hojas de estilo",""]'>
+        <div class="quiz-q-text">5. ¿Qué atributo de <code>&lt;a&gt;</code> define la URL de destino del enlace?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>src</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>url</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>link</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>href</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="quiz-question" data-ans="1" data-explain='["open no es un atributo válido para a. Existe open en details para mostrar su contenido, pero no abre pestañas","","window no es un atributo HTML. El comportamiento de ventana en a se controla con el atributo target","new no existe como atributo en HTML. Los comportamientos de navegación se configuran con target"]'>
+        <div class="quiz-q-text">6. ¿Qué atributo hace que un enlace se abra en una <strong>nueva pestaña</strong>?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>open="new"</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>target="_blank"</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>window="tab"</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>new="true"</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="quiz-question" data-ans="1" data-explain='["El selector no lleva dos puntos al final y la separación entre propiedad y valor en CSS es : no =","","CSS no usa paréntesis para delimitar bloques de reglas. Los paréntesis se usan en funciones como rgb() o url()","El símbolo @ es el prefijo de at-rules de CSS como @media o @import, no se usa para selectores normales"]'>
+        <div class="quiz-q-text">7. ¿Cuál es la sintaxis correcta de una regla CSS?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>selector: { propiedad = valor }</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>selector { propiedad: valor; }</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>selector( propiedad: valor; )</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>@selector { propiedad: valor }</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="quiz-question" data-ans="2" data-explain='["El símbolo # es el selector de ID que apunta a un único elemento con ese id. Para clases se usa el punto","El asterisco * es el selector universal que selecciona todos los elementos. No sirve como prefijo de clase","","El símbolo @ introduce at-rules de CSS como @media o @keyframes, no selectores de clase"]'>
+        <div class="quiz-q-text">8. ¿Cómo se define un selector de <strong>clase</strong> en CSS?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>#miClase { ... }</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>*miClase { ... }</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>.miClase { ... }</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>@miClase { ... }</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="quiz-question" data-ans="3" data-explain='[".p es un selector de clase que aplica solo a elementos con class igual a p, no a la etiqueta p","#p es un selector de ID que aplica solo al elemento único con id igual a p, no a todas las etiquetas p","*p no es sintaxis CSS válida. El selector universal * va solo o en combinadores, no pegado a un nombre de etiqueta",""]'>
+        <div class="quiz-q-text">9. Para que <strong>todos los <code>&lt;p&gt;</code></strong> sean de color rojo, ¿cuál regla es correcta?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span><code>.p { color: red; }</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span><code>#p { color: red; }</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span><code>*p { color: red; }</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span><code>p { color: red; }</code></span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="quiz-question" data-ans="2" data-explain='["El CSS en línea con style mezcla contenido y presentación, dificulta el mantenimiento y no permite reutilizar estilos","Un style en el body funciona pero mezcla estructura y presentación; además puede causar un destello de contenido sin estilos","","El CSS sí puede separarse del HTML usando archivos .css externos enlazados con la etiqueta link en el head"]'>
+        <div class="quiz-q-text">10. ¿Cuál es la <strong>mejor práctica</strong> para definir estilos CSS en un proyecto?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" data-oi="0" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">A</span><span>En cada etiqueta con <code>style="..."</code></span></div>
+          <div class="quiz-opt" data-oi="1" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">B</span><span>En un <code>&lt;style&gt;</code> al final del <code>&lt;body&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="2" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">C</span><span>En un archivo <code>.css</code> separado enlazado con <code>&lt;link&gt;</code></span></div>
+          <div class="quiz-opt" data-oi="3" onclick="var q=this.closest('.quiz-question');var ans=parseInt(q.getAttribute('data-ans'));var oi=parseInt(this.getAttribute('data-oi'));q.querySelectorAll('.quiz-opt').forEach(function(o){o.className='quiz-opt'});var fb=q.querySelector('.quiz-feedback');if(oi===ans){this.className='quiz-opt quiz-correct';fb.textContent='\u2713 \u00a1Correcto!';fb.style.color='#16a34a';fb.style.background='#f0fdf4';fb.style.border='1px solid #86efac';fb.style.display='block'}else{this.className='quiz-opt quiz-wrong';fb.textContent='\u2717 Incorrecto \u2014 '+JSON.parse(q.getAttribute('data-explain'))[oi];fb.style.color='#dc2626';fb.style.background='#fef2f2';fb.style.border='1px solid #fca5a5';fb.style.display='block'}"><span class="quiz-marker">D</span><span>No se puede separar del HTML</span></div>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="quiz-actions">
+        <button class="quiz-btn quiz-btn-primary"
+          onclick="var qs=document.querySelectorAll('#panel-quiz .quiz-question');var score=0;var unanswered=0;qs.forEach(function(q){if(q.querySelector('.quiz-correct'))score++;else if(!q.querySelector('.quiz-wrong'))unanswered++;});var sd=document.getElementById('quiz-score-display');if(unanswered>0){sd.textContent='Faltan '+unanswered+' pregunta(s) por responder.';sd.style.color='#b45309';sd.style.background='#fef4e6';sd.style.border='2px solid #fcd34d';sd.style.display='block'}else{var msg=score===10?'\u00a1Perfecto, dominas el tema!':score>=7?'Muy bien \u2014 sigue practicando.':'Repasa las secciones y vuelve a intentarlo.';sd.textContent=score+'/10 correctas \u2014 '+msg;sd.style.color=score>=7?'#0e7a5a':'#b45309';sd.style.background=score>=7?'#e6f5f0':'#fef4e6';sd.style.border=score>=7?'2px solid #9dd9c5':'2px solid #fcd34d';sd.style.display='block'}">
+          Ver mi puntaje
+        </button>
+        <button class="quiz-btn quiz-btn-ghost"
+          onclick="document.querySelectorAll('#panel-quiz .quiz-opt').forEach(function(o){o.className='quiz-opt'});document.querySelectorAll('#panel-quiz .quiz-feedback').forEach(function(f){f.style.display='none';f.textContent=''});document.getElementById('quiz-score-display').style.display='none'">
+          Reiniciar quiz
+        </button>
+      </div>
+      <div id="quiz-score-display"></div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+</footer>
+
+<script>
+  window.topTab = function(btn, panelId) {
+    document.querySelectorAll('.top-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.top-tab-panel').forEach(function(p) { p.style.display = 'none'; });
+    btn.classList.add('active');
+    document.getElementById(panelId).style.display = 'block';
+  };
+</script>
+
+</body>
+</html>

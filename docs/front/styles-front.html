@@ -1,0 +1,923 @@
+ok<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de Estilos — Frontend Angular – ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════════
+       TOKENS — copiar tal cual en cada artefacto
+       ══════════════════════════════════════════════ */
+    :root {
+      /* Superficies */
+      --bg:          #f2efe9;
+      --surface:     #faf8f4;
+      --surface2:    #ffffff;
+      --border:      #ddd8d0;
+      --border2:     #ece8e0;
+
+      /* Tipografía */
+      --ink:         #1c1814;
+      --ink-mid:     #4a4440;
+      --ink-soft:    #8c847c;
+
+      /* Capa Frontend / API REST (verde) */
+      --layer:     #0e7a5a;
+      --layer-bg:  #e6f5f0;
+      --layer-bdr: #9dd9c5;
+
+      /* Sombras y forma */
+      --shadow-sm:   0 1px 4px rgba(28,24,20,.06);
+      --shadow:      0 4px 20px rgba(28,24,20,.09);
+      --shadow-lg:   0 8px 40px rgba(28,24,20,.12);
+      --radius:      12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══════════════════════════════════════════════
+       HEADER CANÓNICO
+       ══════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content {
+      position: relative;
+      text-align: center;
+      max-width: 900px;
+    }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,.35); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: rgba(255,255,255,.38);
+      text-decoration: none; letter-spacing: 1.5px; transition: color .2s;
+    }
+    .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
+
+    /* ══════════════════════════════════════════════
+       TIPOGRAFÍA BASE
+       ══════════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--ink); margin-bottom: 16px;
+      border-left: 4px solid var(--layer); padding-left: 16px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px; font-weight: 600;
+      color: var(--ink-mid); margin: 24px 0 10px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 16px; }
+
+    /* ══════════════════════════════════════════════
+       CONTENEDOR PRINCIPAL
+       ══════════════════════════════════════════════ */
+    .container { max-width: 1100px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══════════════════════════════════════════════
+       CARD BASE
+       ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer);
+      margin-bottom: 24px;
+    }
+    .card-flat {
+      background: var(--layer-bg);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      border: 1px solid var(--layer-bdr);
+      margin-bottom: 16px;
+    }
+
+    /* ══════════════════════════════════════════════
+       CÓDIGO
+       ══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.6;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* ══════════════════════════════════════════════
+       TAB NAVIGATION
+       ══════════════════════════════════════════════ */
+    .tab-nav {
+      display: flex; gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      padding: 8px 18px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+      letter-spacing: .5px;
+    }
+    .tab-btn:hover { color: var(--ink-mid); }
+    .tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ══════════════════════════════════════════════
+       BADGES — HTTP methods y etiquetas
+       ══════════════════════════════════════════════ */
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 4px;
+      display: inline-block;
+    }
+    .badge-get    { background: #e6f5f0; color: #0e7a5a; border: 1px solid #9dd9c5; }
+    .badge-post   { background: #e8eefb; color: #1d4ed8; border: 1px solid #93aef0; }
+    .badge-put    { background: #fef4e6; color: #b45309; border: 1px solid #f6c87a; }
+    .badge-delete { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .badge-patch  { background: #f5f3ff; color: #7c3aed; border: 1px solid #c4b5fd; }
+    .badge-layer  { background: var(--layer-bg); color: var(--layer); border: 1px solid var(--layer-bdr); }
+
+    /* ══════════════════════════════════════════════
+       STATUS CODES
+       ══════════════════════════════════════════════ */
+    .status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 9px; border-radius: 20px;
+      display: inline-block;
+    }
+    .status-2xx { background: #e6f5f0; color: #0e7a5a; }
+    .status-3xx { background: #e8eefb; color: #1d4ed8; }
+    .status-4xx { background: #fef4e6; color: #b45309; }
+    .status-5xx { background: #fef2f2; color: #b91c1c; }
+
+    /* ══════════════════════════════════════════════
+       CALLOUTS — tip · info · warning
+       ══════════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; flex-shrink: 0; margin-top: 3px;
+    }
+    .callout p { margin: 0; }
+    .callout-tip     { background: var(--layer-bg); border-left: 4px solid var(--layer); }
+    .callout-tip     .callout-icon { color: var(--layer); }
+    .callout-info    { background: #e8eefb; border-left: 4px solid #1d4ed8; }
+    .callout-info    .callout-icon { color: #1d4ed8; }
+    .callout-warning { background: #fef4e6; border-left: 4px solid #b45309; }
+    .callout-warning .callout-icon { color: #b45309; }
+
+    /* ══════════════════════════════════════════════
+       TABLA CANÓNICA
+       ══════════════════════════════════════════════ */
+    .tbl {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 20px; font-size: 14px;
+    }
+    .tbl th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 10px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .tbl td {
+      padding: 12px 16px; color: var(--ink-mid);
+      border-bottom: 1px solid var(--border2);
+      vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--layer-bg); }
+
+    /* ══════════════════════════════════════════════
+       LAYOUTS
+       ══════════════════════════════════════════════ */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px; margin-bottom: 24px;
+    }
+    .two-col-wide {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px; margin-bottom: 24px;
+    }
+
+    /* ══════════════════════════════════════════════
+       COMMAND BOX — Angular CLI
+       ══════════════════════════════════════════════ */
+    .cmd-box {
+      background: var(--ink);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .cmd-prompt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--layer-bdr); flex-shrink: 0;
+    }
+    .cmd-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: #e8e0d8;
+      flex: 1; word-break: break-all;
+    }
+    .cmd-copy {
+      background: none; border: 1px solid rgba(255,255,255,.18);
+      border-radius: 6px; padding: 4px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: rgba(255,255,255,.4);
+      cursor: pointer; transition: all .15s; flex-shrink: 0;
+    }
+    .cmd-copy:hover { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.4); }
+    .cmd-copy.copied { color: var(--layer-bdr); border-color: var(--layer-bdr); }
+
+    /* ══════════════════════════════════════════════
+       STEP INDICATOR
+       ══════════════════════════════════════════════ */
+    .steps {
+      display: flex; gap: 0; margin-bottom: 28px;
+    }
+    .step-item {
+      flex: 1; text-align: center; position: relative;
+    }
+    .step-item::after {
+      content: '';
+      position: absolute; top: 15px; left: 50%; right: -50%;
+      height: 2px; background: var(--border); z-index: 0;
+    }
+    .step-item:last-child::after { display: none; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface2); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 700; color: var(--ink-soft);
+      position: relative; z-index: 1; transition: all .2s;
+    }
+    .step-item.active .step-num {
+      background: var(--layer); border-color: var(--layer);
+      color: #fff; box-shadow: 0 0 0 4px var(--layer-bg);
+    }
+    .step-item.done .step-num {
+      background: var(--layer-bg); border-color: var(--layer); color: var(--layer);
+    }
+    .step-item.done::after { background: var(--layer-bdr); }
+    .step-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--ink-soft); letter-spacing: .5px;
+    }
+    .step-item.active .step-label { color: var(--layer); font-weight: 600; }
+
+    /* ══════════════════════════════════════════════
+       ARTIFACT GRID — índice de artefactos
+       ══════════════════════════════════════════════ */
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px; margin-top: 8px;
+    }
+    .artifact-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border2);
+      text-decoration: none; display: block;
+      transition: box-shadow .2s, transform .15s;
+    }
+    .artifact-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .artifact-card-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--layer); margin-bottom: 8px;
+    }
+    .artifact-card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px; color: var(--ink);
+      line-height: 1.3; margin-bottom: 6px;
+    }
+    .artifact-card-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+    .artifact-card-placeholder {
+      border: 2px dashed var(--border); background: none; box-shadow: none;
+    }
+    .artifact-card-placeholder:hover { box-shadow: none; transform: none; }
+    .artifact-card-placeholder .artifact-card-title { color: var(--ink-soft); }
+
+    /* ══════════════════════════════════════════════
+       FOOTER CANÓNICO
+       ══════════════════════════════════════════════ */
+    footer {
+      margin-top: 60px; padding: 24px;
+      text-align: center; border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: .5px; margin: 0;
+    }
+    footer span { color: var(--layer); }
+
+    /* ══════════════════════════════════════════════
+       SECTION DIVIDER (uso interno de esta guía)
+       ══════════════════════════════════════════════ */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--ink-soft); margin: 32px 0 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Color swatches — solo para esta guía */
+    .swatch-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .swatch { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+    .swatch-box { width: 56px; height: 40px; border-radius: 8px; border: 1px solid var(--border); }
+    .swatch-name { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ink-soft); text-align: center; }
+
+    /* ══════════════════════════════════════════════
+       MOBILE
+       ══════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header  { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card   { padding: 20px 16px; }
+      .two-col, .two-col-wide { grid-template-columns: 1fr; }
+      .steps  { flex-direction: column; gap: 8px; }
+      .step-item::after { display: none; }
+      .artifact-grid { grid-template-columns: 1fr; }
+      .tab-btn { padding: 6px 12px; font-size: 11px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Frontend · Angular 17+</div>
+    <h1>Guía de <em>Estilos</em> — Front</h1>
+    <div class="hdr-sub">tokens · componentes · patrones · índice de artefactos</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="content">
+
+    <!-- INTRO ══════════════════════════════════════ -->
+    <div class="card">
+      <h2>¿Qué es este archivo?</h2>
+      <p>Esta página centraliza el sistema de diseño del módulo <strong>Frontend Angular</strong>. Contiene todos los tokens de CSS, los componentes visuales y los patrones HTML que los artefactos deben reutilizar para mantener consistencia.</p>
+      <p>Para crear un nuevo artefacto: parte de <code>../\_template.html</code>, activa la paleta <strong>verde API REST</strong> (<code>--layer: #0e7a5a</code>), y copia los componentes que necesites de las secciones de abajo.</p>
+      <div class="callout callout-tip">
+        <span class="callout-icon">TIP</span>
+        <p>El <code>back-link</code> de cada artefacto debe apuntar a <code>index-front.html</code> para volver a este índice, no a <code>../index.html</code>.</p>
+      </div>
+    </div>
+
+    <!-- 1 · TOKENS ══════════════════════════════════ -->
+    <div class="section-label">1 · Tokens de diseño</div>
+
+    <div class="card">
+      <h2>Paleta de colores</h2>
+      <h3>Superficies y tipografía</h3>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-box" style="background:#f2efe9"></div><div class="swatch-name">--bg</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#faf8f4"></div><div class="swatch-name">--surface</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#ffffff"></div><div class="swatch-name">--surface2</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#ddd8d0"></div><div class="swatch-name">--border</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#1c1814"></div><div class="swatch-name">--ink</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#4a4440"></div><div class="swatch-name">--ink-mid</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#8c847c"></div><div class="swatch-name">--ink-soft</div></div>
+      </div>
+      <h3>Capa Frontend / API REST (verde)</h3>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-box" style="background:#0e7a5a"></div><div class="swatch-name">--layer</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#e6f5f0"></div><div class="swatch-name">--layer-bg</div></div>
+        <div class="swatch"><div class="swatch-box" style="background:#9dd9c5"></div><div class="swatch-name">--layer-bdr</div></div>
+      </div>
+      <pre>:root {
+  --bg: #f2efe9;       --surface: #faf8f4;    --surface2: #ffffff;
+  --border: #ddd8d0;   --border2: #ece8e0;
+  --ink: #1c1814;      --ink-mid: #4a4440;    --ink-soft: #8c847c;
+
+  /* Capa Frontend / API REST */
+  --layer:     #0e7a5a;
+  --layer-bg:  #e6f5f0;
+  --layer-bdr: #9dd9c5;
+
+  --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+  --shadow:    0 4px 20px rgba(28,24,20,.09);
+  --shadow-lg: 0 8px 40px rgba(28,24,20,.12);
+  --radius: 12px;
+}</pre>
+    </div>
+
+    <!-- 2 · TIPOGRAFÍA ══════════════════════════════ -->
+    <div class="section-label">2 · Tipografía</div>
+
+    <div class="card">
+      <h2>Jerarquía de títulos</h2>
+      <p>Tres familias tipográficas: <code>DM Serif Display</code> para h1/h2, <code>DM Sans</code> para h3/body, <code>JetBrains Mono</code> para código y metadatos.</p>
+
+      <div style="background:var(--bg); border-radius:var(--radius); padding:24px 28px; margin-bottom:20px;">
+        <div style="font-family:'DM Serif Display',serif; font-size:clamp(28px,3.5vw,42px); color:#faf8f4; background:var(--ink); padding:16px 20px; border-radius:8px; margin-bottom:14px; line-height:1.1;">
+          h1 — DM Serif Display · <em style="font-style:italic; color:#9dd9c5">em en accent color</em>
+        </div>
+        <h2 style="margin-bottom:14px;">h2 — DM Serif Display · borde izquierdo layer</h2>
+        <h3 style="margin-top:0;">h3 — DM Sans · peso 600 · ink-mid</h3>
+        <p>Párrafo — DM Sans 15px · line-height 1.8 · ink-mid. Para énfasis usa <strong>negrita</strong> o <code>código inline</code>.</p>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); margin:0;">metadatos · tags · subtítulos — JetBrains Mono 12px · ink-soft</p>
+      </div>
+
+      <pre>h2 { font-family: 'DM Serif Display', serif; font-size: 26px;
+     border-left: 4px solid var(--layer); padding-left: 16px; }
+h3 { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; }
+p  { font-size: 15px; line-height: 1.8; color: var(--ink-mid); }</pre>
+    </div>
+
+    <!-- 3 · CARDS ══════════════════════════════════ -->
+    <div class="section-label">3 · Cards</div>
+
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:0">.card — con borde layer</h3>
+        <div class="card" style="margin-bottom:0">
+          <h2>Sección principal</h2>
+          <p>Fondo blanco, sombra, borde izquierdo verde. Uso principal del artefacto.</p>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-top:0">.card-flat — fondo tinted</h3>
+        <div class="card-flat" style="margin-bottom:0">
+          <h3 style="margin-top:0">Información secundaria</h3>
+          <p>Fondo <code>--layer-bg</code>, borde <code>--layer-bdr</code>. Para tips o notas de contexto.</p>
+        </div>
+      </div>
+    </div>
+
+    <pre>&lt;div class="card"&gt;          &lt;!-- sección principal --&gt;
+  &lt;h2&gt;Título&lt;/h2&gt;
+  &lt;p&gt;...&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="card-flat"&gt;     &lt;!-- nota secundaria --&gt;
+  &lt;h3&gt;Nota&lt;/h3&gt;
+  &lt;p&gt;...&lt;/p&gt;
+&lt;/div&gt;</pre>
+
+    <!-- 4 · CÓDIGO ══════════════════════════════════ -->
+    <div class="section-label">4 · Código</div>
+
+    <div class="card">
+      <h2>Bloques de código</h2>
+      <p>Código inline: <code>HttpClient</code>, <code>@Component</code>, <code>inject()</code>. Fondo <code>--surface</code>, color <code>--layer</code>.</p>
+      <p>Bloques <code>&lt;pre&gt;</code>: fondo oscuro <code>#1c1814</code>, texto claro. Scroll horizontal automático.</p>
+      <pre>// TypeScript — Angular 17+ standalone component
+import { Component, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-album-list',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    @for (album of albums(); track album.id) {
+      &lt;div&gt;{{ album.titulo }}&lt;/div&gt;
+    }
+    @empty { &lt;p&gt;Sin álbumes.&lt;/p&gt; }
+  `
+})
+export class AlbumListComponent {
+  private http = inject(HttpClient);
+  albums = signal&lt;Album[]&gt;([]);
+}</pre>
+    </div>
+
+    <!-- 5 · TABS ══════════════════════════════════ -->
+    <div class="section-label">5 · Navegación por pestañas</div>
+
+    <div class="card">
+      <h2>Tab navigation</h2>
+      <p>Para tutoriales con múltiples archivos o pasos. Usa <code>.tab-nav</code> + <code>.tab-btn</code> con clase <code>.active</code> y paneles <code>.tab-panel</code>.</p>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(event,'tab-ts')">TypeScript</button>
+        <button class="tab-btn" onclick="switchTab(event,'tab-html')">Template</button>
+        <button class="tab-btn" onclick="switchTab(event,'tab-svc')">Service</button>
+      </div>
+      <div id="tab-ts" class="tab-panel active">
+        <pre>// album-list.component.ts
+albums = signal&lt;Album[]&gt;([]);
+private svc = inject(AlbumService);
+
+ngOnInit() {
+  this.svc.getAll().subscribe(data => this.albums.set(data));
+}</pre>
+      </div>
+      <div id="tab-html" class="tab-panel">
+        <pre>&lt;!-- album-list.component.html --&gt;
+@for (album of albums(); track album.id) {
+  &lt;app-album-card [album]="album" /&gt;
+}
+@empty {
+  &lt;p&gt;No hay álbumes.&lt;/p&gt;
+}</pre>
+      </div>
+      <div id="tab-svc" class="tab-panel">
+        <pre>// album.service.ts
+@Injectable({ providedIn: 'root' })
+export class AlbumService {
+  private http = inject(HttpClient);
+  getAll() { return this.http.get&lt;Album[]&gt;('/api/albums'); }
+}</pre>
+      </div>
+
+      <pre>&lt;div class="tab-nav"&gt;
+  &lt;button class="tab-btn active" onclick="switchTab(event,'panel1')"&gt;Tab 1&lt;/button&gt;
+  &lt;button class="tab-btn"        onclick="switchTab(event,'panel2')"&gt;Tab 2&lt;/button&gt;
+&lt;/div&gt;
+&lt;div id="panel1" class="tab-panel active"&gt;...&lt;/div&gt;
+&lt;div id="panel2" class="tab-panel"&gt;...&lt;/div&gt;</pre>
+    </div>
+
+    <!-- 6 · BADGES ══════════════════════════════════ -->
+    <div class="section-label">6 · Badges y etiquetas</div>
+
+    <div class="card">
+      <h2>HTTP Method badges</h2>
+      <p>Para identificar los endpoints del API REST que consume el frontend Angular.</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; align-items:center;">
+        <span class="badge badge-get">GET</span>
+        <span class="badge badge-post">POST</span>
+        <span class="badge badge-put">PUT</span>
+        <span class="badge badge-delete">DELETE</span>
+        <span class="badge badge-patch">PATCH</span>
+        <span class="badge badge-layer">Frontend</span>
+      </div>
+      <h3>HTTP Status codes</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; align-items:center;">
+        <span class="status status-2xx">200 OK</span>
+        <span class="status status-2xx">201 Created</span>
+        <span class="status status-3xx">304 Not Modified</span>
+        <span class="status status-4xx">400 Bad Request</span>
+        <span class="status status-4xx">404 Not Found</span>
+        <span class="status status-5xx">500 Server Error</span>
+      </div>
+      <pre>&lt;span class="badge badge-get"&gt;GET&lt;/span&gt;
+&lt;span class="badge badge-post"&gt;POST&lt;/span&gt;
+&lt;span class="badge badge-put"&gt;PUT&lt;/span&gt;
+&lt;span class="badge badge-delete"&gt;DELETE&lt;/span&gt;
+&lt;span class="status status-2xx"&gt;200 OK&lt;/span&gt;
+&lt;span class="status status-4xx"&gt;404 Not Found&lt;/span&gt;</pre>
+    </div>
+
+    <!-- 7 · CALLOUTS ════════════════════════════════ -->
+    <div class="section-label">7 · Callouts informativos</div>
+
+    <div class="card">
+      <h2>Cajas informativas</h2>
+      <div class="callout callout-tip">
+        <span class="callout-icon">TIP</span>
+        <p>Usa <code>inject()</code> en lugar de constructor injection en Angular 17+. Es más limpio con standalone components y no requiere declarar el tipo en el constructor.</p>
+      </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">INFO</span>
+        <p>Los standalone components importan sus dependencias directamente en el array <code>imports</code> del decorador <code>@Component</code>, sin necesidad de un <code>NgModule</code>.</p>
+      </div>
+      <div class="callout callout-warning">
+        <span class="callout-icon">OJO</span>
+        <p>Recuerda agregar <code>provideHttpClient()</code> en <code>app.config.ts</code> para que <code>HttpClient</code> esté disponible. Sin esto, la inyección falla en tiempo de ejecución.</p>
+      </div>
+      <pre>&lt;div class="callout callout-tip"&gt;
+  &lt;span class="callout-icon"&gt;TIP&lt;/span&gt;
+  &lt;p&gt;Mensaje...&lt;/p&gt;
+&lt;/div&gt;
+&lt;!-- Variantes: callout-tip · callout-info · callout-warning --&gt;</pre>
+    </div>
+
+    <!-- 8 · TABLA ══════════════════════════════════ -->
+    <div class="section-label">8 · Tablas</div>
+
+    <div class="card">
+      <h2>Tabla canónica</h2>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Clase / Componente</th>
+            <th>Archivo</th>
+            <th>Responsabilidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AlbumListComponent</code></td>
+            <td><code>album-list/</code></td>
+            <td>Lista álbumes — consume <span class="badge badge-get" style="font-size:9px">GET</span> /albums</td>
+          </tr>
+          <tr>
+            <td><code>AlbumService</code></td>
+            <td><code>services/album.service.ts</code></td>
+            <td>Encapsula todas las llamadas HTTP al API REST</td>
+          </tr>
+          <tr>
+            <td><code>AlbumFormComponent</code></td>
+            <td><code>album-form/</code></td>
+            <td>Formulario reactivo para crear/editar álbumes</td>
+          </tr>
+        </tbody>
+      </table>
+      <pre>&lt;table class="tbl"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;&lt;th&gt;Columna A&lt;/th&gt;&lt;th&gt;Columna B&lt;/th&gt;&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;...&lt;/td&gt;&lt;td&gt;...&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</pre>
+    </div>
+
+    <!-- 9 · CMD BOX ════════════════════════════════ -->
+    <div class="section-label">9 · Comandos Angular CLI</div>
+
+    <div class="card">
+      <h2>Command box</h2>
+      <p>Para mostrar comandos de terminal. El botón copia el texto al portapapeles.</p>
+      <div class="cmd-box">
+        <span class="cmd-prompt">$</span>
+        <span class="cmd-text">ng new my-app --standalone --routing --style=css</span>
+        <button class="cmd-copy" onclick="copyCmd(this)">COPIAR</button>
+      </div>
+      <div class="cmd-box">
+        <span class="cmd-prompt">$</span>
+        <span class="cmd-text">ng generate component features/album-list --standalone</span>
+        <button class="cmd-copy" onclick="copyCmd(this)">COPIAR</button>
+      </div>
+      <div class="cmd-box">
+        <span class="cmd-prompt">$</span>
+        <span class="cmd-text">ng generate service services/album</span>
+        <button class="cmd-copy" onclick="copyCmd(this)">COPIAR</button>
+      </div>
+      <pre>&lt;div class="cmd-box"&gt;
+  &lt;span class="cmd-prompt"&gt;$&lt;/span&gt;
+  &lt;span class="cmd-text"&gt;ng generate component features/mi-comp --standalone&lt;/span&gt;
+  &lt;button class="cmd-copy" onclick="copyCmd(this)"&gt;COPIAR&lt;/button&gt;
+&lt;/div&gt;</pre>
+    </div>
+
+    <!-- 10 · STEPS ═════════════════════════════════ -->
+    <div class="section-label">10 · Indicador de pasos</div>
+
+    <div class="card">
+      <h2>Step indicator</h2>
+      <p>Para tutoriales multi-etapa. Clases: <code>done</code> (completado), <code>active</code> (actual), sin clase (pendiente).</p>
+      <div class="steps">
+        <div class="step-item done">
+          <div class="step-num">✓</div>
+          <div class="step-label">Proyecto</div>
+        </div>
+        <div class="step-item done">
+          <div class="step-num">✓</div>
+          <div class="step-label">Servicio</div>
+        </div>
+        <div class="step-item active">
+          <div class="step-num">3</div>
+          <div class="step-label">Componente</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-label">Template</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-label">Prueba</div>
+        </div>
+      </div>
+      <pre>&lt;div class="steps"&gt;
+  &lt;div class="step-item done"&gt;
+    &lt;div class="step-num"&gt;✓&lt;/div&gt;
+    &lt;div class="step-label"&gt;Proyecto&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="step-item active"&gt;
+    &lt;div class="step-num"&gt;3&lt;/div&gt;
+    &lt;div class="step-label"&gt;Componente&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="step-item"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Clases adicionales por item: done · active · (sin clase = pendiente) --&gt;</pre>
+    </div>
+
+    <!-- 11 · LAYOUTS ════════════════════════════════ -->
+    <div class="section-label">11 · Layouts de columnas</div>
+
+    <div class="card">
+      <h2>Two-column layouts</h2>
+      <h3>.two-col — mitades iguales (1fr : 1fr)</h3>
+      <div class="two-col" style="margin-bottom:12px;">
+        <div class="card-flat" style="margin-bottom:0; min-height:56px; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft)">Columna 1</span>
+        </div>
+        <div class="card-flat" style="margin-bottom:0; min-height:56px; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft)">Columna 2</span>
+        </div>
+      </div>
+      <h3>.two-col-wide — código + nota (2fr : 1fr)</h3>
+      <div class="two-col-wide">
+        <div class="card-flat" style="margin-bottom:0; min-height:56px; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft)">Código · 2fr</span>
+        </div>
+        <div class="card-flat" style="margin-bottom:0; min-height:56px; display:flex; align-items:center; justify-content:center;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft)">Nota · 1fr</span>
+        </div>
+      </div>
+      <pre>&lt;div class="two-col"&gt;        &lt;!-- 1:1 --&gt;
+  &lt;div&gt;...&lt;/div&gt; &lt;div&gt;...&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="two-col-wide"&gt;   &lt;!-- 2:1, código + explicación --&gt;
+  &lt;div&gt;...&lt;/div&gt; &lt;div&gt;...&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- En mobile (&lt;640px) ambos colapsan a 1 columna automáticamente --&gt;</pre>
+    </div>
+
+    <!-- 12 · HEADER / FOOTER HTML ══════════════════ -->
+    <div class="section-label">12 · Header y footer canónicos — HTML</div>
+
+    <div class="card">
+      <h2>HTML del header</h2>
+      <p>Copiar tal cual. Reemplazar solo los textos en corchetes. El <code>back-link</code> apunta a este índice.</p>
+      <pre>&lt;header&gt;
+  &lt;a href="index-front.html" class="back-link"&gt;← Front&lt;/a&gt;
+  &lt;div class="hdr-content"&gt;
+    &lt;div class="hdr-tag"&gt;ISIS2603 · Frontend · Angular 17+&lt;/div&gt;
+    &lt;h1&gt;[Título del &lt;em&gt;artefacto&lt;/em&gt;]&lt;/h1&gt;
+    &lt;div class="hdr-sub"&gt;[concepto · otro concepto · contexto]&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</pre>
+      <h2>HTML del footer</h2>
+      <pre>&lt;footer&gt;
+  &lt;p&gt;ISIS2603 · Desarrollo de Software en Equipos · Uniandes&lt;/p&gt;
+  &lt;p style="margin-top:6px"&gt;
+    Construido con la ayuda de
+    &lt;span&gt;Claude&lt;/span&gt; &amp;amp; &lt;span&gt;Claude Code&lt;/span&gt; · Anthropic
+  &lt;/p&gt;
+&lt;/footer&gt;</pre>
+      <h2>JS helpers (copiar al final de cada artefacto)</h2>
+      <pre>&lt;script&gt;
+  // Tab navigation
+  function switchTab(e, panelId) {
+    const card = e.target.closest('.card, .container');
+    card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // Copy command
+  function copyCmd(btn) {
+    const text = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'OK ✓'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPIAR'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+&lt;/script&gt;</pre>
+    </div>
+
+    <!-- ÍNDICE DE ARTEFACTOS ════════════════════════ -->
+    <div class="section-label">Artefactos del módulo Frontend</div>
+
+    <div class="artifact-grid">
+      <a href="html-css-intro.html" class="artifact-card">
+        <div class="artifact-card-tag">Fundamentos</div>
+        <div class="artifact-card-title">HTML y CSS</div>
+        <div class="artifact-card-desc">Estructura, etiquetas, selectores CSS, playground interactivo y quiz</div>
+      </a>
+      <a href="http-client-intro.html" class="artifact-card artifact-card-placeholder">
+        <div class="artifact-card-tag">próximamente</div>
+        <div class="artifact-card-title">HttpClient — Intro</div>
+        <div class="artifact-card-desc">Conectar Angular al API REST con HttpClient y provideHttpClient()</div>
+      </a>
+      <a href="componentes-lista.html" class="artifact-card artifact-card-placeholder">
+        <div class="artifact-card-tag">próximamente</div>
+        <div class="artifact-card-title">Componente lista</div>
+        <div class="artifact-card-desc">Patrón smart/dumb, listar entidades con @for y @if, señales</div>
+      </a>
+      <a href="formulario-reactivo.html" class="artifact-card artifact-card-placeholder">
+        <div class="artifact-card-tag">próximamente</div>
+        <div class="artifact-card-title">Formulario reactivo</div>
+        <div class="artifact-card-desc">FormBuilder, Validators, envío al API con POST y PUT</div>
+      </a>
+      <a href="servicios-inyeccion.html" class="artifact-card artifact-card-placeholder">
+        <div class="artifact-card-tag">próximamente</div>
+        <div class="artifact-card-title">Servicios e inyección</div>
+        <div class="artifact-card-desc">@Injectable, providedIn, inject() en standalone components</div>
+      </a>
+      <a href="routing-navegacion.html" class="artifact-card artifact-card-placeholder">
+        <div class="artifact-card-tag">próximamente</div>
+        <div class="artifact-card-title">Routing y navegación</div>
+        <div class="artifact-card-desc">Routes, routerLink, ActivatedRoute, parámetros de URL</div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+  <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic</p>
+</footer>
+
+<script>
+  // Tab navigation — scope to the nearest .card parent
+  function switchTab(e, panelId) {
+    const card = e.target.closest('.card');
+    card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // Copy command
+  function copyCmd(btn) {
+    const text = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'OK ✓'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'COPIAR'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+</script>
+
+</body>
+</html>

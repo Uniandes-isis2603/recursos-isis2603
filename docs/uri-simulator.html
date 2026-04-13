@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulador de URIs – Conceptos REST</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream: #faf7f2;
@@ -30,7 +30,7 @@
 
   body {
     background: var(--cream);
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'DM Sans', sans-serif;
     color: var(--ink);
     min-height: 100vh;
     padding: 0 0 80px;
@@ -39,50 +39,52 @@
   /* HEADER */
   header {
     background: var(--ink);
-    color: var(--cream);
-    padding: 40px 48px 36px;
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      rgba(255,255,255,.015) 0 11px
+    );
+    color: #faf7f2;
+    text-align: center;
+    padding: 64px 24px 56px;
     position: relative;
-    overflow: hidden;
   }
-  header::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.15;
-  }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: 30%;
-    width: 300px; height: 150px;
-    border-radius: 50%;
-    background: var(--teal);
-    opacity: 0.12;
-  }
-  .header-tag {
-    font-family: 'Space Mono', monospace;
+  .hdr-content { position: relative; }
+  .hdr-tag {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
+    color: rgba(250,247,242,.35);
+    margin-bottom: 16px;
   }
   header h1 {
-    font-size: clamp(18px, 2vw, 22px);
-    font-weight: 700;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 400;
     line-height: 1.1;
-    margin-bottom: 10px;
+    margin: 0 0 16px;
     position: relative;
   }
-  header p {
-    font-family: 'Space Mono', monospace;
+  header h1 em { font-style: italic; color: #f6c87a; }
+  .hdr-sub {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
+    letter-spacing: 1.5px;
     color: rgba(250,247,242,0.90);
     position: relative;
   }
+  .back-link {
+    position: absolute;
+    top: 16px; left: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(250,247,242,.45);
+    text-decoration: none;
+  }
+  .back-link:hover, .back-link:focus { color: rgba(250,247,242,.85); }
 
   /* SYNTAX BAR */
   .syntax-section {
@@ -94,7 +96,6 @@
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 2px;
-    color: var(--ink-light);
     text-transform: uppercase;
     margin-bottom: 8px;
     color: rgba(250,247,242,0.90);
@@ -441,10 +442,12 @@
 <body>
 
 <header>
-  <div class="header-tag">Universidad de los Andes</div>
-  <div class="header-tag">ISIS2603 Desarrollo de SW en equipos</div>
-  <h1>Ingeniería de Sistemas y Computación</h1>
-  <p>Recursos para ayuda al aprendizaje</p>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Conceptos REST</div>
+    <h1>Simulador de <em>URIs</em></h1>
+    <div class="hdr-sub">Estructura y semántica de URLs en servicios web</div>
+  </div>
 </header>
 
 <div class="syntax-section">
@@ -633,6 +636,8 @@
 
   <div class="footer-badge">
     ISIS2603 · Universidad de los Andes · <span>Conceptos REST</span>
+    <br><br>
+    Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic
   </div>
 </main>
 

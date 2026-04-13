@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Título del artefacto] – ISIS2603</title>
+  <!--
+    PLANTILLA CANÓNICA – ISIS2603
+    ════════════════════════════════════════════════════════
+    Copia este archivo para crear un nuevo artefacto.
+    1. Reemplaza todos los textos entre [corchetes].
+    2. Elige el color de capa (ver sección PALETA DE CAPAS).
+    3. Agrega tu CSS específico en la sección "TU CSS AQUÍ".
+    4. Añade el artefacto en docs/index.html (capa correcta).
+    ════════════════════════════════════════════════════════
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════════
+       TOKENS — no modificar, copiar tal cual
+       ══════════════════════════════════════════════ */
+    :root {
+      /* Superficies */
+      --bg:          #f2efe9;
+      --surface:     #faf8f4;
+      --surface2:    #ffffff;
+      --border:      #ddd8d0;
+      --border2:     #ece8e0;
+
+      /* Tipografía */
+      --ink:         #1c1814;
+      --ink-mid:     #4a4440;
+      --ink-soft:    #8c847c;
+
+      /* ── PALETA DE CAPAS ──────────────────────────
+         Descomenta solo la capa de este artefacto.
+         ─────────────────────────────────────────── */
+
+      /* Capa API REST (verde) */
+      /* --layer:     #0e7a5a;
+         --layer-bg:  #e6f5f0;
+         --layer-bdr: #9dd9c5; */
+
+      /* Capa Lógica de Negocio (azul) */
+      /* --layer:     #1d4ed8;
+         --layer-bg:  #e8eefb;
+         --layer-bdr: #93aef0; */
+
+      /* Capa Persistencia (ámbar) */
+      /* --layer:     #b45309;
+         --layer-bg:  #fef4e6;
+         --layer-bdr: #f6c87a; */
+
+      /* Sombras y forma */
+      --shadow-sm:   0 1px 4px rgba(28,24,20,.06);
+      --shadow:      0 4px 20px rgba(28,24,20,.09);
+      --shadow-lg:   0 8px 40px rgba(28,24,20,.12);
+      --radius:      12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══════════════════════════════════════════════
+       HEADER CANÓNICO — no modificar
+       ══════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content {
+      position: relative;
+      text-align: center;
+      max-width: 900px;
+    }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,.35); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr, #f6c87a); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: rgba(255,255,255,.38);
+      text-decoration: none; letter-spacing: 1.5px; transition: color .2s;
+    }
+    .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
+
+    /* ══════════════════════════════════════════════
+       TIPOGRAFÍA BASE — ajusta según necesites
+       ══════════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--ink); margin-bottom: 16px;
+      border-left: 4px solid var(--layer, #b45309); padding-left: 16px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px; font-weight: 600;
+      color: var(--ink-mid); margin: 24px 0 10px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 16px; }
+
+    /* ══════════════════════════════════════════════
+       CONTENEDOR PRINCIPAL — ajusta según necesites
+       ══════════════════════════════════════════════ */
+    .container { max-width: 1100px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══════════════════════════════════════════════
+       CARD BASE — ajusta según necesites
+       ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer, #b45309);
+      margin-bottom: 24px;
+    }
+
+    /* ══════════════════════════════════════════════
+       CÓDIGO — ajusta según necesites
+       ══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer, #b45309);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.6;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    /* ══════════════════════════════════════════════
+       MOBILE — no modificar el breakpoint base
+       ══════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header  { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card   { padding: 20px 16px; }
+    }
+
+    /* ══════════════════════════════════════════════
+       TU CSS AQUÍ
+       Agrega los estilos específicos de tu artefacto
+       debajo de esta línea.
+       ══════════════════════════════════════════════ */
+
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · [Capa: API REST | Lógica de Negocio | Persistencia]</div>
+    <h1>[Título del <em>artefacto</em>]</h1>
+    <div class="hdr-sub">[Subtítulo breve · concepto clave · otro concepto]</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="content">
+
+    <!-- Tu contenido aquí -->
+    <div class="card">
+      <h2>Sección de ejemplo</h2>
+      <p>Reemplaza este contenido con el del artefacto.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Tu JavaScript aquí
+</script>
+
+</body>
+</html>
