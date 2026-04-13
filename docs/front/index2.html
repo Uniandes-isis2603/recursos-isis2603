@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bootstrap Básico — Artefacto de Enseñanza</title>
+  <meta name="description"
+    content="Artefacto de enseñanza interactivo sobre Bootstrap: grilla, estilos y componentes adaptativos." />
+
+  <style>
+    /* ============================================================
+   base.css — Custom properties, reset, typography
+   ============================================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
+
+    :root {
+      /* Surfaces */
+      --c-bg: #f2efe9;
+      --c-surface: #faf8f4;
+      --c-surface2: #ffffff;
+      --c-border: #ddd8d0;
+      --c-border2: #ece8e0;
+
+      /* Layer accent — verde */
+      --c-accent: #0e7a5a;
+      --c-accent2: #9dd9c5;
+      --c-layer-bg: #e6f5f0;
+
+      /* Section accents */
+      --c-theory: #0e7a5a;
+      --c-practice: #0e7a5a;
+      --c-eval: #b45309;
+      --c-feedback: #0e7a5a;
+
+      /* Typography */
+      --c-text: #1c1814;
+      --c-muted: #8c847c;
+      --c-subtle: #4a4440;
+
+      /* Fonts */
+      --font-display: 'DM Serif Display', serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-code: 'JetBrains Mono', monospace;
+
+      /* Spacing */
+      --gap-xs: 4px;
+      --gap-sm: 8px;
+      --gap-md: 16px;
+      --gap-lg: 32px;
+      --gap-xl: 64px;
+
+      /* Radius */
+      --r-sm: 6px;
+      --r-md: 12px;
+      --r-lg: 20px;
+      --r-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 4px rgba(28, 24, 20, .06);
+      --shadow: 0 4px 20px rgba(28, 24, 20, .09);
+      --shadow-lg: 0 8px 40px rgba(28, 24, 20, .12);
+
+      /* Transitions */
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --dur: 220ms;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--c-bg);
+      color: var(--c-text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--font-display);
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: clamp(20px, 3vw, 26px);
+      border-left: 4px solid var(--c-accent);
+      padding-left: 16px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--c-subtle);
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--c-subtle);
+      margin-bottom: 16px;
+    }
+
+    code,
+    pre {
+      font-family: var(--font-code);
+    }
+
+    code {
+      font-size: 13px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--c-accent);
+    }
+
+    pre {
+      font-family: var(--font-code);
+      font-size: 13px;
+      line-height: 1.6;
+      background: var(--c-text);
+      color: #e8e0d8;
+      border-radius: var(--r-md);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    a {
+      color: var(--c-accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    input,
+    textarea {
+      font-family: var(--font-body);
+    }
+
+    ::selection {
+      background: var(--c-accent);
+      color: #fff;
+    }
+
+    /* ============================================================
+   layout.css — Page structure, navigation, section layout
+   ============================================================ */
+
+    #app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    #site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--c-text);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      padding: 0 var(--gap-lg);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap-md);
+      overflow: hidden;
+    }
+
+    #site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg,
+          transparent, transparent 60px,
+          rgba(255, 255, 255, .025) 60px, rgba(255, 255, 255, .025) 61px);
+      pointer-events: none;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-sm);
+      position: relative;
+    }
+
+    .header-brand h1 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: #faf8f4;
+      font-style: italic;
+    }
+
+    .header-brand .badge {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--c-layer-bg);
+      color: var(--c-accent);
+      border: 1px solid var(--c-accent2);
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    #tab-nav {
+      display: flex;
+      gap: 4px;
+      position: relative;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .45);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+      white-space: nowrap;
+      position: relative;
+      letter-spacing: .5px;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .tab-btn:hover {
+      color: rgba(255, 255, 255, .8);
+    }
+
+    .tab-btn.active {
+      color: var(--c-accent2);
+      border-bottom-color: var(--c-accent2);
+    }
+
+    .tab-btn .tab-icon {
+      font-size: 0.9rem;
+    }
+
+    #progress-bar-wrap {
+      width: 100%;
+      height: 3px;
+      background: var(--c-border2);
+    }
+
+    #progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--c-accent), var(--c-accent2));
+      transition: width 0.5s var(--ease);
+      width: 0%;
+    }
+
+    #main-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: var(--gap-xl) var(--gap-lg);
+      width: 100%;
+    }
+
+    .section-panel {
+      display: none;
+      animation: fadeUp 0.35s var(--ease) both;
+    }
+
+    .section-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header {
+      margin-bottom: var(--gap-lg);
+      padding-bottom: var(--gap-md);
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .section-header .section-tag {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin-bottom: var(--gap-sm);
+      display: block;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--c-text);
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .section-header p {
+      color: var(--c-muted);
+      margin-top: 6px;
+      font-size: 0.95rem;
+      margin-bottom: 0;
+    }
+
+    #site-footer {
+      margin-top: 60px;
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid var(--c-border);
+    }
+
+    #site-footer p {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--c-muted);
+      letter-spacing: .5px;
+      margin: 0;
+      line-height: 1.8;
+    }
+
+    #site-footer span {
+      color: var(--c-accent);
+    }
+
+    @media (max-width: 640px) {
+      #site-header {
+        padding: 0 var(--gap-md);
+        flex-direction: column;
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        gap: 10px;
+      }
+
+      #tab-nav {
+        width: 100%;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      #tab-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      #main-content {
+        padding: var(--gap-lg) var(--gap-md);
+      }
+
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* ============================================================
+   components.css — UI components
+   ============================================================ */
+
+    /* Theory Cards */
+    .theory-card {
+      background: var(--c-surface2);
+      border-radius: var(--r-md);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--c-accent);
+      margin-bottom: var(--gap-md);
+      transition: box-shadow var(--dur) var(--ease);
+    }
+
+    .theory-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .theory-card.advanced {
+      border-left-color: var(--c-eval);
+    }
+
+    .card-badge-advanced {
+      font-family: var(--font-code);
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--c-eval);
+      background: #fef4e6;
+      border: 1px solid #f6c87a;
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-left: auto;
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    .theory-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-sm);
+      margin-bottom: var(--gap-md);
+    }
+
+    .theory-card-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .theory-card-header h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--c-text);
+    }
+
+    .theory-card p {
+      color: var(--c-subtle);
+      font-size: 0.93rem;
+      line-height: 1.8;
+      margin-bottom: var(--gap-md);
+    }
+
+    .theory-card p strong {
+      color: var(--c-text);
+      font-weight: 600;
+    }
+
+    .theory-card code {
+      font-size: 13px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--c-accent);
+    }
+
+    .highlight-box {
+      background: var(--c-layer-bg);
+      border: 1px solid var(--c-accent2);
+      border-left: 4px solid var(--c-accent);
+      border-radius: var(--r-md);
+      padding: var(--gap-md);
+      font-size: 0.88rem;
+      color: var(--c-subtle);
+      display: flex;
+      gap: var(--gap-sm);
+      align-items: flex-start;
+    }
+
+    .highlight-box::before {
+      content: '💡';
+      flex-shrink: 0;
+    }
+
+    /* Code Blocks */
+    .code-block-wrap {
+      margin-top: var(--gap-md);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      border: 1px solid var(--c-border);
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--c-surface);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .code-block-lang {
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .copy-btn {
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--c-border);
+      transition: all var(--dur) var(--ease);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      color: var(--c-text);
+      border-color: var(--c-border2);
+    }
+
+    .copy-btn.copied {
+      color: var(--c-accent);
+      border-color: var(--c-accent2);
+    }
+
+    .code-block-wrap pre {
+      background: var(--c-text);
+      padding: var(--gap-md);
+      overflow-x: auto;
+      margin: 0;
+      border-radius: 0;
+    }
+
+    .code-block-wrap pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.83rem;
+      color: #e8e0d8;
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    /* Theory Callout */
+    .theory-callout {
+      display: flex;
+      gap: var(--gap-sm);
+      align-items: flex-start;
+      background: var(--c-layer-bg);
+      border: 1px solid var(--c-accent2);
+      border-left: 4px solid var(--c-accent);
+      border-radius: var(--r-md);
+      padding: var(--gap-md);
+      margin-top: var(--gap-md);
+      font-size: 0.88rem;
+      color: var(--c-subtle);
+      line-height: 1.7;
+    }
+
+    .theory-callout-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .theory-callout code {
+      font-size: 0.8rem;
+      background: rgba(14, 122, 90, .1);
+      border-color: var(--c-accent2);
+      color: var(--c-accent);
+    }
+
+    /* Theory Table */
+    .theory-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--gap-md);
+      font-size: 0.85rem;
+    }
+
+    .theory-table th {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--c-muted);
+      background: var(--c-surface);
+      padding: 9px 14px;
+      text-align: left;
+      border-bottom: 2px solid var(--c-border);
+    }
+
+    .theory-table td {
+      padding: 10px 14px;
+      color: var(--c-subtle);
+      border-bottom: 1px solid var(--c-border2);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .theory-table td:first-child {
+      white-space: nowrap;
+      width: 1%;
+    }
+
+    .theory-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .theory-table tr:hover td {
+      background: var(--c-layer-bg);
+    }
+
+    .theory-table code {
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    /* Grid Visualizer */
+    .grid-demo {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      padding: var(--gap-md);
+      margin-top: var(--gap-md);
+    }
+
+    .grid-demo-label {
+      font-size: 0.75rem;
+      color: var(--c-muted);
+      font-family: var(--font-code);
+      margin-bottom: var(--gap-sm);
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .demo-col {
+      height: 36px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #fff;
+      transition: all 0.3s var(--ease);
+    }
+
+    /* Grid Illustration */
+    .grid-illus {
+      margin-top: var(--gap-md);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .grid-illus-title {
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-top: var(--gap-md);
+      border-top: 1px solid var(--c-border);
+    }
+
+    .grid-illus-row-label {
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      margin-bottom: 6px;
+    }
+
+    .grid-illus-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .gi-cell {
+      background: var(--c-surface2);
+      border: 1px solid var(--c-border);
+      border-top: 3px solid var(--c-accent);
+      border-radius: var(--r-sm);
+      padding: 12px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .gi-cell strong {
+      font-size: 0.82rem;
+      color: var(--c-text);
+      font-family: var(--font-body);
+    }
+
+    .gi-cell p {
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .gi-sidebar {
+      border-top-color: var(--c-accent2);
+    }
+
+    .gi-muted {
+      background: var(--c-surface);
+      border-top-color: var(--c-border);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gi-tag {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--c-accent);
+      background: var(--c-layer-bg);
+      border: 1px solid var(--c-accent2);
+      border-radius: 4px;
+      padding: 1px 6px;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    .gi-muted .gi-tag {
+      color: var(--c-muted);
+      background: var(--c-surface);
+      border-color: var(--c-border);
+    }
+
+    .gi-muted-label {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      color: var(--c-muted);
+    }
+
+    .gi-img-placeholder {
+      background: rgba(14, 122, 90, .07);
+      border: 1px dashed var(--c-accent2);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      font-family: var(--font-code);
+      text-align: center;
+      padding: 8px;
+    }
+
+    .gi-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    .gi-table th {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--c-muted);
+      background: var(--c-surface);
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--c-border);
+    }
+
+    .gi-table td {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      color: var(--c-subtle);
+      border-bottom: 1px solid var(--c-border2);
+      vertical-align: top;
+    }
+
+    .gi-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .gi-table code {
+      font-size: 11px;
+    }
+
+    /* Practice Exercises */
+    .exercise-card {
+      background: var(--c-surface2);
+      border-radius: var(--r-md);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--c-accent);
+      margin-bottom: var(--gap-md);
+    }
+
+    .exercise-num {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      color: var(--c-accent);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .exercise-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--c-text);
+      margin: 8px 0;
+    }
+
+    .exercise-card .description {
+      color: var(--c-subtle);
+      font-size: 0.9rem;
+      margin-bottom: var(--gap-md);
+    }
+
+    .code-exercise {
+      background: var(--c-text);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      padding: var(--gap-md);
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: #e8e0d8;
+      margin-bottom: var(--gap-md);
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .fill-blank {
+      display: inline-block;
+      background: rgba(14, 122, 90, 0.1);
+      border: 1px solid var(--c-accent);
+      border-radius: var(--r-sm);
+      padding: 1px 6px;
+      min-width: 120px;
+    }
+
+    .fill-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--c-accent);
+      font-family: var(--font-code);
+      font-size: 0.82rem;
+      width: 100%;
+      min-width: 100px;
+    }
+
+    .fill-input.correct {
+      color: var(--c-accent);
+    }
+
+    .fill-input.incorrect {
+      color: #b91c1c;
+    }
+
+    .exercise-actions {
+      display: flex;
+      gap: var(--gap-sm);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-check {
+      background: var(--c-accent);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: var(--r-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all var(--dur) var(--ease);
+    }
+
+    .btn-check:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    .btn-hint {
+      background: transparent;
+      border: 1px solid var(--c-border);
+      color: var(--c-muted);
+      padding: 8px 16px;
+      border-radius: var(--r-full);
+      font-size: 0.82rem;
+      transition: all var(--dur) var(--ease);
+    }
+
+    .btn-hint:hover {
+      color: var(--c-text);
+      border-color: var(--c-border2);
+    }
+
+    .exercise-feedback {
+      margin-top: var(--gap-md);
+      padding: var(--gap-md);
+      border-radius: var(--r-md);
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .exercise-feedback.show {
+      display: block;
+    }
+
+    .exercise-feedback.correct-fb {
+      background: var(--c-layer-bg);
+      border: 1px solid var(--c-accent2);
+      color: var(--c-accent);
+      border-left: 4px solid var(--c-accent);
+    }
+
+    .exercise-feedback.wrong-fb {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-left: 4px solid #b91c1c;
+      color: #b91c1c;
+    }
+
+    /* Exercise Preview */
+    .exercise-preview {
+      margin-top: var(--gap-md);
+      border: 1px solid var(--c-accent2);
+      border-radius: var(--r-md);
+      overflow: hidden;
+    }
+
+    .preview-label {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--c-accent);
+      background: var(--c-layer-bg);
+      padding: 6px 14px;
+      margin: 0;
+      border-bottom: 1px solid var(--c-accent2);
+    }
+
+    .preview-frame {
+      width: 100%;
+      border: none;
+      display: block;
+      min-height: 60px;
+      background: #fff;
+    }
+
+    /* Quiz / Evaluation */
+    .quiz-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .quiz-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--c-surface2);
+      border: 1px solid var(--c-border);
+      transition: all 0.3s var(--ease);
+    }
+
+    .quiz-dot.answered {
+      background: var(--c-eval);
+      border-color: var(--c-eval);
+    }
+
+    .quiz-dot.current {
+      background: transparent;
+      border-color: var(--c-eval);
+      box-shadow: 0 0 0 3px rgba(180, 83, 9, .15);
+    }
+
+    .question-card {
+      background: var(--c-surface2);
+      border-radius: var(--r-md);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--c-eval);
+      margin-bottom: var(--gap-md);
+    }
+
+    .question-num {
+      font-family: var(--font-code);
+      font-size: 0.68rem;
+      color: var(--c-eval);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: var(--gap-md);
+      line-height: 1.5;
+      color: var(--c-text);
+    }
+
+    .options-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: var(--gap-sm);
+      padding: 12px 16px;
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      cursor: pointer;
+      transition: all var(--dur) var(--ease);
+      font-size: 0.92rem;
+      color: var(--c-subtle);
+      background: var(--c-surface);
+    }
+
+    .option-item:hover:not(.disabled) {
+      border-color: var(--c-eval);
+      background: #fef4e6;
+    }
+
+    .option-item.selected {
+      border-color: var(--c-eval);
+      background: #fef4e6;
+    }
+
+    .option-item.correct-ans {
+      border-color: var(--c-accent);
+      background: var(--c-layer-bg);
+      color: var(--c-accent);
+    }
+
+    .option-item.wrong-ans {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .option-item.disabled {
+      cursor: default;
+    }
+
+    .option-letter {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--c-surface2);
+      border: 1px solid var(--c-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--c-muted);
+    }
+
+    .question-explanation {
+      margin-top: var(--gap-md);
+      padding: var(--gap-md);
+      background: var(--c-surface);
+      border-radius: var(--r-md);
+      border-left: 3px solid var(--c-eval);
+      font-size: 0.87rem;
+      color: var(--c-subtle);
+      display: none;
+    }
+
+    .question-explanation.show {
+      display: block;
+    }
+
+    .question-explanation.wrong-explanation {
+      border-left-color: #b91c1c;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--gap-md);
+    }
+
+    .btn-nav {
+      background: var(--c-surface2);
+      border: 1px solid var(--c-border);
+      color: var(--c-subtle);
+      padding: 9px 22px;
+      border-radius: var(--r-full);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all var(--dur) var(--ease);
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      border-color: var(--c-border2);
+      background: var(--c-surface);
+      color: var(--c-text);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-nav.primary {
+      background: var(--c-eval);
+      border-color: var(--c-eval);
+      color: #fff;
+    }
+
+    .btn-nav.primary:hover:not(:disabled) {
+      opacity: 0.88;
+      background: var(--c-eval);
+    }
+
+    /* Score display */
+    #score-panel {
+      text-align: center;
+      padding: var(--gap-xl) 0;
+      display: none;
+    }
+
+    #score-panel.show {
+      display: block;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--c-eval);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--gap-lg);
+      background: #fef4e6;
+    }
+
+    .score-number {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--c-eval);
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      font-family: var(--font-code);
+      margin-top: 4px;
+    }
+
+    .score-message {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--c-text);
+      margin-bottom: 8px;
+    }
+
+    .score-sub {
+      color: var(--c-muted);
+      font-size: 0.9rem;
+      margin-bottom: var(--gap-lg);
+    }
+
+    .btn-retry {
+      background: var(--c-eval);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: var(--r-full);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all var(--dur) var(--ease);
+    }
+
+    .btn-retry:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================================
+   theme.css — Section accents + syntax highlighting
+   ============================================================ */
+
+    [data-section="theory"] .section-tag {
+      color: var(--c-accent);
+    }
+
+    [data-section="theory"] .section-header {
+      border-color: var(--c-accent2);
+    }
+
+    [data-section="practice"] .section-tag {
+      color: var(--c-accent);
+    }
+
+    [data-section="practice"] .section-header {
+      border-color: var(--c-accent2);
+    }
+
+    [data-section="evaluation"].section-tag {
+      color: var(--c-eval);
+    }
+
+    [data-section="evaluation"].section-header {
+      border-color: #f6c87a;
+    }
+
+    .demo-col:nth-child(odd) {
+      background: rgba(14, 122, 90, 0.55);
+    }
+
+    .demo-col:nth-child(even) {
+      background: rgba(14, 122, 90, 0.35);
+    }
+
+    .kw {
+      color: #7c3aed;
+    }
+
+    .str {
+      color: #0e7a5a;
+    }
+
+    .tag {
+      color: #1d4ed8;
+    }
+
+    .attr {
+      color: #b45309;
+    }
+
+    .val {
+      color: #b91c1c;
+    }
+
+    .cm {
+      color: #8c847c;
+      font-style: italic;
+    }
+
+    /* Mobile components */
+    @media (max-width: 640px) {
+
+      .theory-card,
+      .exercise-card,
+      .question-card {
+        padding: 20px 16px;
+      }
+
+      .code-block-wrap pre {
+        padding: 12px;
+      }
+
+      .fill-blank {
+        min-width: 80px;
+      }
+
+      .fill-input {
+        min-width: 70px;
+      }
+
+      .quiz-nav {
+        gap: var(--gap-sm);
+      }
+
+      .btn-nav {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+      }
+
+      .score-circle {
+        width: 100px;
+        height: 100px;
+      }
+
+      .score-number {
+        font-size: 1.8rem;
+      }
+
+      .grid-illus-row {
+        flex-direction: column;
+      }
+
+      .gi-cell {
+        flex: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+
+    <!-- Header -->
+    <header id="site-header">
+      <div class="header-brand">
+        <h1>Bootstrap Básico</h1>
+        <span class="badge">Desarrollo Web</span>
+      </div>
+
+      <nav id="tab-nav" aria-label="Secciones del artefacto">
+        <button class="tab-btn" data-tab="theory">
+          <span class="tab-icon">📖</span> Teoría
+        </button>
+        <button class="tab-btn" data-tab="practice">
+          <span class="tab-icon">✏️</span> Práctica
+        </button>
+        <button class="tab-btn" data-tab="evaluation">
+          <span class="tab-icon">📝</span> Evaluación
+        </button>
+      </nav>
+    </header>
+
+    <!-- Progress bar -->
+    <div id="progress-bar-wrap" aria-hidden="true">
+      <div id="progress-bar"></div>
+    </div>
+
+    <!-- Main -->
+    <main id="main-content">
+
+      <!-- Theory -->
+      <section class="section-panel" data-section="theory" id="section-theory" aria-labelledby="theory-heading">
+        <div class="section-header">
+          <span class="section-tag">01 — Teoría</span>
+          <h2 id="theory-heading">Fundamentos de Bootstrap</h2>
+          <p>Conceptos clave sobre el framework, el sistema de grilla y los estilos CSS.</p>
+        </div>
+        <div id="theory-content">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Practice -->
+      <section class="section-panel" data-section="practice" id="section-practice" aria-labelledby="practice-heading">
+        <div class="section-header">
+          <span class="section-tag">02 — Práctica</span>
+          <h2 id="practice-heading">Completa el código</h2>
+          <p>Rellena los espacios en blanco con las clases Bootstrap correctas.</p>
+        </div>
+        <div id="practice-content">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Evaluation -->
+      <section class="section-panel" data-section="evaluation" id="section-evaluation" aria-labelledby="eval-heading">
+        <div class="section-header">
+          <span class="section-tag">03 — Evaluación</span>
+          <h2 id="eval-heading">Pon a prueba tu conocimiento</h2>
+          <p>Responde las preguntas de selección múltiple. Recibirás retroalimentación inmediata.</p>
+        </div>
+        <div id="quiz-dots" class="quiz-progress" aria-hidden="true"></div>
+        <div id="quiz-content">
+          <!-- Populated by JS -->
+        </div>
+        <output id="score-panel" aria-live="polite"></output>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer id="site-footer">
+    <p>ISIS2603 · Universidad de los Andes · Artefactos de enseñanza/aprendizaje para Desarrollo de Software</p>
+    <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic
+    </p>
+  </footer>
+
+
+  <script>
+    // ============================================================
+    // Datos embebidos — equivalentes a los 3 archivos JSON
+    // ============================================================
+
+    const THEORY_DATA = {
+      "sections": [
+        {
+          "id": "intro",
+          "title": "¿Qué es Bootstrap?",
+          "body": "Bootstrap es un framework de código abierto para construir sitios web y aplicaciones web <strong>adaptativas (responsives)</strong> a partir de HTML, CSS y JavaScript. Fue desarrollado originalmente por un equipo en Twitter y permite que las aplicaciones se vean bien en cualquier dispositivo, especialmente en teléfonos.",
+          "highlight": "Bootstrap contiene estilos predefinidos para botones, tablas, formularios, barras de navegación y componentes avanzados de interfaz.",
+          "icon": "⚡"
+        },
+        {
+          "id": "grid",
+          "title": "La Grilla Bootstrap",
+          "body": "El sistema de grilla de Bootstrap organiza zonas de la pantalla usando <strong>contenedores, filas y columnas</strong>. Está implementada con Flexbox y es completamente adaptativa. La grilla se compone de un máximo de <strong>12 columnas</strong> y tantas filas como se necesiten.",
+          "highlight": "Los contenedores (.container o .container-fluid) son obligatorios cuando se usa el sistema de grilla.",
+          "icon": "📐",
+          "code": "<div class=\"container-fluid\">\n  <div class=\"row\">\n    <div class=\"col\">Columna 1</div>\n    <div class=\"col\">Columna 2</div>\n    <div class=\"col\">Columna 3</div>\n  </div>\n</div>"
+        },
+        {
+          "id": "columns",
+          "title": "Columnas de Distintos Tamaños",
+          "body": "Para columnas de <strong>distintos tamaños</strong>, se indica cuántos espacios (de los 12 disponibles) ocupará cada columna. Por ejemplo, <code>col-6</code> ocupa la mitad, <code>col-4</code> un tercio, y <code>col-10</code> diez doceavos del ancho total.",
+          "highlight": "La suma de los valores de las columnas en una fila debe ser igual a 12 para un diseño perfecto.",
+          "icon": "📏",
+          "code": "<div class=\"row\">\n  <div class=\"col-2\">Pequeña</div>\n  <div class=\"col-8\">Grande</div>\n  <div class=\"col-2\">Pequeña</div>\n</div>"
+        },
+        {
+          "id": "styles",
+          "title": "Estilos Bootstrap",
+          "body": "Bootstrap aplica estilos visuales a los elementos HTML mediante clases CSS. Por ejemplo, <code>class=\"table\"</code> mejora el aspecto de una tabla, <code>class=\"btn btn-success\"</code> crea un botón verde, y <code>class=\"thead-dark\"</code> da un encabezado oscuro a una tabla.",
+          "highlight": "Solo incluyendo el link al CSS de Bootstrap en el &lt;head&gt;, todos los estilos quedan disponibles inmediatamente.",
+          "callout": "En proyectos con <strong>Angular o React</strong>, Bootstrap no se enlaza desde un CDN — se instala como dependencia con <code>npm install bootstrap</code> y se importa en el archivo de estilos global del proyecto:<br><br><code>// styles.css (Angular) o index.css (React)<br>@import 'bootstrap/dist/css/bootstrap.min.css';</code>",
+          "icon": "🎨",
+          "code": "<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css\">"
+        },
+        {
+          "id": "layout-real",
+          "title": "La grilla en acción: esta misma página",
+          "body": "El layout que estás viendo ahora mismo se puede construir con Bootstrap. La barra de navegación usa <code>navbar</code>, el contenido central usa <code>container</code> con una fila centrada mediante <code>justify-content-center</code>, y la columna principal limita el ancho con <code>col-md-10</code>. Las tarjetas usan <code>card</code> con <code>border-start</code> para el borde izquierdo de color.",
+          "highlight": "En Bootstrap, centrar contenido horizontalmente se logra con row + justify-content-center + una columna col-md-N.",
+          "icon": "🗂️",
+          "advanced": true,
+          "code": "\x3C!-- Barra de navegación (ancho completo) --\x3E\n<nav class=\"navbar navbar-dark bg-dark px-4 d-flex justify-content-between\">\n  <span class=\"navbar-brand fw-bold\">Bootstrap Básico</span>\n  <div class=\"d-flex gap-3\">\n    <button class=\"btn btn-link text-white\">Teoría</button>\n    <button class=\"btn btn-link text-secondary\">Práctica</button>\n    <button class=\"btn btn-link text-secondary\">Evaluación</button>\n  </div>\n</nav>\n\n\x3C!-- Contenido centrado con la grilla --\x3E\n<div class=\"container py-5\">\n  <div class=\"row justify-content-center\">\n    <div class=\"col-12 col-md-10\">\n\n      \x3C!-- Encabezado de sección --\x3E\n      <div class=\"mb-4 pb-3 border-bottom\">\n        <small class=\"text-success font-monospace text-uppercase\">01 — Teoría</small>\n        <h2 class=\"fw-bold mt-1\">Fundamentos de Bootstrap</h2>\n        <p class=\"text-muted\">Conceptos clave sobre el framework.</p>\n      </div>\n\n      \x3C!-- Tarjeta de contenido --\x3E\n      <div class=\"card shadow-sm border-0 border-start border-4 border-success\">\n        <div class=\"card-body p-4\">\n          <h5 class=\"card-title\">⚡ ¿Qué es Bootstrap?</h5>\n          <p class=\"card-text text-muted\">Bootstrap es un framework...</p>\n          <div class=\"p-3 rounded bg-success bg-opacity-10 border border-success\">\n            💡 Bootstrap contiene estilos predefinidos para botones...\n          </div>\n        </div>\n      </div>\n\n    </div>\n  </div>\n</div>",
+          "table": [
+            { "class": "navbar navbar-dark bg-dark", "desc": "Barra de navegación con fondo oscuro (#212529) y texto claro adaptado automáticamente." },
+            { "class": "px-4", "desc": "Padding horizontal de 1.5 rem a izquierda y derecha (utility de espaciado)." },
+            { "class": "d-flex justify-content-between", "desc": "Activa Flexbox y distribuye los hijos en los dos extremos de la fila." },
+            { "class": "navbar-brand fw-bold", "desc": "Estilo de marca del navbar; fw-bold aplica font-weight: 700." },
+            { "class": "btn btn-link text-white / text-secondary", "desc": "Botón con apariencia de enlace de texto; text-white o text-secondary controlan el color." },
+            { "class": "d-flex gap-3", "desc": "Flexbox con separación de 1 rem entre los botones del menú." },
+            { "class": "container py-5", "desc": "Contenedor centrado de ancho máximo fijo; py-5 añade padding vertical de 3 rem." },
+            { "class": "row justify-content-center", "desc": "Fila de la grilla que centra horizontalmente sus columnas hijas." },
+            { "class": "col-12 col-md-10", "desc": "Columna de ancho completo en móvil; en pantallas ≥ 768 px ocupa 10 de 12 espacios." },
+            { "class": "mb-4 pb-3 border-bottom", "desc": "Margen inferior de 1.5 rem, padding inferior de 1 rem y línea divisoria debajo." },
+            { "class": "text-success font-monospace text-uppercase", "desc": "Texto en verde Bootstrap, tipografía monoespaciada y letras en mayúsculas." },
+            { "class": "fw-bold mt-1", "desc": "Negrita y margen superior de 0.25 rem para separar el título de la etiqueta." },
+            { "class": "text-muted", "desc": "Color de texto atenuado (gris #6c757d), para información secundaria." },
+            { "class": "card shadow-sm border-0", "desc": "Componente tarjeta con sombra sutil y sin borde por defecto." },
+            { "class": "border-start border-4 border-success", "desc": "Agrega un borde izquierdo de 4 px en color verde; combinación habitual para resaltar tarjetas." },
+            { "class": "card-body p-4", "desc": "Área de contenido interna de la tarjeta; p-4 añade un padding uniforme de 1.5 rem." },
+            { "class": "card-title / card-text", "desc": "Clases semánticas de la tarjeta: card-title para el título, card-text para el párrafo de contenido." },
+            { "class": "p-3 rounded bg-success bg-opacity-10 border border-success", "desc": "Caja de aviso: padding, bordes redondeados, fondo verde al 10 % de opacidad y borde verde." }
+          ]
+        },
+        {
+          "id": "flexbox",
+          "title": "Bootstrap y Flexbox",
+          "body": "El sistema de grilla de Bootstrap <strong>está construido sobre Flexbox</strong>: no son tecnologías separadas. Cuando escribes <code>.row</code>, Bootstrap aplica internamente <code>display: flex; flex-wrap: wrap</code>, por lo que obtienes todo el comportamiento de Flexbox automáticamente. Cada columna (<code>.col</code>, <code>.col-4</code>, etc.) es un flex item — Bootstrap traduce el número de columna a <code>flex-basis</code> con porcentajes fijos. Un <code>.col-4</code> equivale a <code>flex: 0 0 33.33%</code>, y un <code>.col</code> sin número equivale a <code>flex: 1 0 0%</code>, por eso las columnas iguales reparten el espacio automáticamente.",
+          "highlight": "La grilla de 12 columnas es Flexbox con nombres fijos. col-4 = flex-basis 33.33 %, col-6 = 50 %, col-12 = 100 %.",
+          "icon": "📦",
+          "advanced": true,
+          "callout": "Además de la grilla, Bootstrap expone Flexbox directamente con clases utilitarias: <code>d-flex</code>, <code>justify-content-between</code>, <code>align-items-center</code>, <code>gap-3</code>. En frameworks como <strong>Angular o React</strong> estas clases se aplican a cualquier componente para alinear elementos dentro de tarjetas, navbars o botones — sin escribir CSS propio."
+        }
+      ]
+    };
+
+    const QUESTIONS_DATA = {
+      "questions": [
+        {
+          "id": "q1",
+          "text": "¿Cuántas columnas como máximo soporta la grilla de Bootstrap?",
+          "type": "multiple",
+          "options": ["6", "10", "12", "16"],
+          "correct": 2,
+          "explanation": "La grilla Bootstrap está basada en 12 columnas. Este número fue elegido porque es divisible por 1, 2, 3, 4, 6 y 12, dando mucha flexibilidad de diseño.",
+          "wrongExplanations": [
+            "6 no es la base del sistema — aunque es divisible entre varios números, Bootstrap necesitaba más divisores para ofrecer mayor flexibilidad de diseño.",
+            "10 no fue elegido porque no es divisible entre 3, lo que limitaría layouts de tres columnas iguales. Bootstrap priorizó la divisibilidad matemática.",
+            null,
+            "16 permitiría más divisiones pero haría el sistema más complejo de usar. Bootstrap optó por 12 como equilibrio entre flexibilidad y simplicidad."
+          ]
+        },
+        {
+          "id": "q2",
+          "text": "¿Qué clase se usa para un contenedor que ocupa todo el ancho de la pantalla?",
+          "type": "multiple",
+          "options": ["container", "container-fluid", "container-full", "row-fluid"],
+          "correct": 1,
+          "explanation": "container-fluid crea un contenedor de ancho completo (100%). La clase container, en cambio, tiene un ancho máximo que varía según el tamaño de la pantalla.",
+          "wrongExplanations": [
+            "container tiene un ancho máximo que varía por breakpoint (sm, md, lg…). No ocupa siempre el 100% del ancho — para eso existe otra clase.",
+            null,
+            "container-full no existe en Bootstrap. Es un nombre intuitivo pero incorrecto — revisa la documentación oficial de clases de contenedor.",
+            "row-fluid era una clase de Bootstrap 2, ya eliminada. row define una fila de la grilla, no un contenedor de ancho completo."
+          ]
+        },
+        {
+          "id": "q3",
+          "text": "¿Qué tecnología CSS usa Bootstrap internamente para implementar su grilla?",
+          "type": "multiple",
+          "options": ["CSS Grid", "Flexbox", "Float", "Inline-block"],
+          "correct": 1,
+          "explanation": "Bootstrap 4 migró a Flexbox para implementar su grilla, lo que permite un control mucho más preciso del alineamiento y distribución de espacio.",
+          "wrongExplanations": [
+            "CSS Grid es una tecnología distinta de Flexbox. Bootstrap no la usa para su sistema de grilla — aunque ambas sirven para layout, Bootstrap eligió Flexbox por su soporte amplio cuando se desarrolló Bootstrap 4.",
+            null,
+            "Float fue la técnica usada en Bootstrap 3 y anteriores. Bootstrap 4 la abandonó completamente en favor de otra tecnología con mejor soporte para alineamiento.",
+            "Inline-block nunca fue la base del sistema de grilla de Bootstrap. Tiene limitaciones importantes para layouts complejos y no permite el control de alineamiento que Bootstrap necesita."
+          ]
+        },
+        {
+          "id": "q4",
+          "text": "Si una fila tiene tres columnas con clases col-4, col-4 y col-4, ¿qué ocurre?",
+          "type": "multiple",
+          "options": [
+            "Se desbordan porque suman 12 y Bootstrap solo acepta 11",
+            "Tres columnas iguales que llenan el ancho completo (4+4+4=12)",
+            "La tercera columna cae a la siguiente línea",
+            "Bootstrap ignora la tercera columna"
+          ],
+          "correct": 1,
+          "explanation": "4+4+4=12, que es exactamente el total de la grilla. El resultado son tres columnas del mismo tamaño que juntas ocupan el 100% del ancho disponible.",
+          "wrongExplanations": [
+            "Bootstrap acepta exactamente 12 columnas por fila — esa es la base del sistema. La suma correcta es 4+4+4=12, que no produce desbordamiento.",
+            null,
+            "Las columnas solo caen a la siguiente línea cuando la suma supera 12. Aquí 4+4+4=12 es exactamente el límite, así que las tres caben en la misma fila.",
+            "Bootstrap no ignora columnas. Las renderiza todas — solo cuando la suma supera 12 hay un salto automático a la siguiente línea."
+          ]
+        },
+        {
+          "id": "q5",
+          "text": "¿Qué clase de Bootstrap aplica un estilo visual mejorado a una tabla HTML?",
+          "type": "multiple",
+          "options": ["table-bootstrap", "table", "bt-table", "bootstrap-table"],
+          "correct": 1,
+          "explanation": "La clase table de Bootstrap transforma una tabla HTML básica en una tabla elegante con bordes, padding y hover states. Es uno de los estilos más simples y usados.",
+          "wrongExplanations": [
+            "table-bootstrap no existe en Bootstrap. Las clases para tablas sí comienzan con table-, pero el nombre completo es diferente y más corto.",
+            null,
+            "bt-table no existe en Bootstrap. El prefijo bt- no forma parte de la convención de nombres del framework.",
+            "bootstrap-table es el nombre de una librería externa e independiente de Bootstrap. La clase oficial del framework es más corta y directa."
+          ]
+        },
+        {
+          "id": "q6",
+          "text": "¿Cuál es el propósito de la clase img-fluid en Bootstrap?",
+          "type": "multiple",
+          "options": [
+            "Aplica un filtro de color a la imagen",
+            "Carga la imagen de forma diferida (lazy loading)",
+            "Hace que la imagen se adapte al tamaño de su contenedor",
+            "Convierte la imagen a escala de grises"
+          ],
+          "correct": 2,
+          "explanation": "img-fluid aplica max-width: 100% y height: auto a la imagen, lo que hace que se redimensione proporcionalmente para caber en su contenedor en cualquier pantalla.",
+          "wrongExplanations": [
+            "img-fluid no altera colores ni aplica filtros visuales. Para filtros CSS se usaría la propiedad filter de CSS, que Bootstrap no gestiona con esta clase.",
+            "El lazy loading se controla con el atributo HTML loading=\"lazy\", no con clases CSS. img-fluid solo afecta el tamaño de la imagen, no su momento de carga.",
+            null,
+            "img-fluid no aplica ningún efecto visual sobre los colores. Para escala de grises se usaría filter: grayscale(100%) en CSS propio."
+          ]
+        }
+      ]
+    };
+
+    const EXERCISES_DATA = {
+      "exercises": [
+        {
+          "id": "ex1",
+          "title": "Grilla de 12 columnas iguales",
+          "description": "Completa el código para crear una fila con 12 columnas iguales dentro de un container-fluid.",
+          "starter": "<div class=\"___\">\n  <div class=\"___\">\n    <div class=\"___\">1</div>\n    <div class=\"col\">2</div>\n    <div class=\"col\">3</div>\n    <div class=\"col\">4</div>\n    <div class=\"col\">5</div>\n    <div class=\"col\">6</div>\n    <div class=\"col\">7</div>\n    <div class=\"col\">8</div>\n    <div class=\"col\">9</div>\n    <div class=\"col\">10</div>\n    <div class=\"col\">11</div>\n    <div class=\"col\">12</div>\n  </div>\n</div>",
+          "blanks": [
+            { "id": "b1", "answer": "container-fluid", "hint": "Contenedor que ocupa todo el ancho" },
+            { "id": "b2", "answer": "row", "hint": "Clase que define una fila en la grilla" },
+            { "id": "b3", "answer": "col", "hint": "Columna de igual tamaño" }
+          ],
+          "explanation": "container-fluid crea un contenedor de ancho completo. row define la fila. col divide el espacio equitativamente entre todas las columnas hijas."
+        },
+        {
+          "id": "ex2",
+          "title": "Columna de 10 espacios",
+          "description": "Crea una fila con tres columnas: la del medio ocupa 10 de los 12 espacios disponibles.",
+          "starter": "<div class=\"row\">\n  <div class=\"col\">I</div>\n  <div class=\"___\">Centro grande</div>\n  <div class=\"col\">D</div>\n</div>",
+          "blanks": [
+            { "id": "b1", "answer": "col-10", "hint": "col- seguido del número de espacios" }
+          ],
+          "explanation": "col-10 indica que esa columna ocupa 10 de los 12 espacios. Las otras dos columnas con solo col se reparten el espacio restante (1 espacio cada una). Suma: 1 + 10 + 1 = 12."
+        },
+        {
+          "id": "ex3",
+          "title": "Botones con estilos Bootstrap",
+          "description": "Aplica los estilos correctos para crear un botón rojo de eliminar y un botón verde de agregar.",
+          "starter": "<button class=\"btn ___\">Eliminar</button>\n<button class=\"btn ___\">Agregar</button>",
+          "blanks": [
+            { "id": "b1", "answer": "btn-danger", "hint": "Bootstrap usa 'danger' para acciones de riesgo (rojo)" },
+            { "id": "b2", "answer": "btn-success", "hint": "Bootstrap usa 'success' para acciones positivas (verde)" }
+          ],
+          "explanation": "Bootstrap define colores semánticos: btn-danger (rojo), btn-success (verde), btn-primary (azul), btn-warning (amarillo), btn-secondary (gris)."
+        }
+      ]
+    };
+    // ============================================================
+    // engine.js — navegación por tabs y barra de progreso
+    // ============================================================
+
+    const TABS = ['theory', 'practice', 'evaluation'];
+
+    const state = {
+      currentTab: 'theory',
+      progress: { theory: false, practice: false, evaluation: false }
+    };
+
+    function setProgress(percent) {
+      const bar = document.getElementById('progress-bar');
+      if (bar) bar.style.width = percent + '%';
+    }
+
+    function updateProgress() {
+      const completed = Object.values(state.progress).filter(Boolean).length;
+      setProgress((completed / TABS.length) * 100);
+    }
+
+    function navigateTo(tab) {
+      if (!TABS.includes(tab)) return;
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+
+      document.querySelectorAll('.section-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.section === tab);
+      });
+
+      state.currentTab = tab;
+
+      if (!state.progress[tab]) {
+        state.progress[tab] = true;
+        updateProgress();
+      }
+    }
+
+    function initNavigation() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => navigateTo(btn.dataset.tab));
+      });
+    }
+
+    // ============================================================
+    // theory.js — renderiza tarjetas de teoría desde THEORY_DATA
+    // ============================================================
+
+    function highlight(code) {
+      return code
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replace(/"([^"]*)"/g, '"<span class="str">$1</span>"')
+        .replace(/\b(class|href|rel|src|alt|type|onclick|style)\b/g, '<span class="attr">$1</span>')
+        .replace(/(&lt;\/?)([\w-]+)/g, '$1<span class="tag">$2</span>');
+    }
+
+    function copyCode(btn, code) {
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = '✓ Copiado';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copiar';
+          btn.classList.remove('copied');
+        }, 1800);
+      });
+    }
+
+    function buildGridDemo() {
+      return `
+    <div class="grid-demo">
+      <div class="grid-demo-label">Visualizador de Grilla — arrastra el slider para ajustar columnas</div>
+      <div id="grid-preview"></div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+        <label style="font-size:0.78rem;color:var(--c-muted);font-family:var(--font-code)">Columnas:</label>
+        <input type="range" id="col-slider" min="1" max="12" value="4"
+               style="flex:1;accent-color:var(--c-theory)">
+        <span id="col-label" style="font-family:var(--font-code);font-size:0.78rem;color:var(--c-accent2);min-width:60px">col-4 × 3</span>
+      </div>
+    </div>
+
+    <div class="grid-illus">
+      <div class="grid-illus-title">Tres filas con distribuciones distintas</div>
+
+      <div>
+        <div class="grid-illus-row-label"><code>.col-4 + .col-4 + .col-4</code> — tres columnas iguales (4 + 4 + 4 = 12)</div>
+        <div class="grid-illus-row">
+          <div class="gi-cell" style="flex:4">
+            <span class="gi-tag">col-4</span>
+            <strong>Artículo A</strong>
+            <p>Texto introductorio del primer bloque de contenido. Ocupa un tercio del ancho.</p>
+          </div>
+          <div class="gi-cell" style="flex:4">
+            <span class="gi-tag">col-4</span>
+            <strong>Artículo B</strong>
+            <p>Los tres bloques tienen el mismo ancho y se alinean automáticamente.</p>
+          </div>
+          <div class="gi-cell" style="flex:4">
+            <span class="gi-tag">col-4</span>
+            <strong>Artículo C</strong>
+            <p>Ideal para tarjetas, galerías o listas de características.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="grid-illus-row-label"><code>.col-8 + .col-4</code> — contenido principal y barra lateral (8 + 4 = 12)</div>
+        <div class="grid-illus-row">
+          <div class="gi-cell" style="flex:8">
+            <span class="gi-tag">col-8</span>
+            <strong>Contenido principal</strong>
+            <p>Área amplia para texto, código o el cuerpo principal de la página. Ocupa dos tercios del ancho disponible.</p>
+            <div class="gi-img-placeholder" style="height:56px">📝 Texto largo, tabla o sección de contenido</div>
+          </div>
+          <div class="gi-cell gi-sidebar" style="flex:4">
+            <span class="gi-tag">col-4</span>
+            <strong>Barra lateral</strong>
+            <p>Espacio secundario para menú, metadatos o imagen.</p>
+            <div class="gi-img-placeholder" style="height:72px">🖼️ Imagen</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="grid-illus-row-label"><code>.col-2 + .col-8 + .col-2</code> — tabla centrada con márgenes (2 + 8 + 2 = 12)</div>
+        <div class="grid-illus-row">
+          <div class="gi-cell gi-muted" style="flex:2">
+            <span class="gi-tag">col-2</span>
+            <span class="gi-muted-label">margen</span>
+          </div>
+          <div class="gi-cell" style="flex:8">
+            <span class="gi-tag">col-8</span>
+            <strong>Tabla de clases de columna</strong>
+            <table class="gi-table">
+              <thead>
+                <tr><th>Clase</th><th>Espacios</th><th>Uso típico</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>col-4</code></td><td>4 / 12</td><td>Tarjetas en grupos de 3</td></tr>
+                <tr><td><code>col-6</code></td><td>6 / 12</td><td>Dos columnas iguales</td></tr>
+                <tr><td><code>col-8</code></td><td>8 / 12</td><td>Contenido + barra lateral</td></tr>
+                <tr><td><code>col-12</code></td><td>12 / 12</td><td>Ancho completo</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="gi-cell gi-muted" style="flex:2">
+            <span class="gi-tag">col-2</span>
+            <span class="gi-muted-label">margen</span>
+          </div>
+        </div>
+      </div>
+
+    </div>`;
+    }
+
+    function renderGridDemo() {
+      const slider = document.getElementById('col-slider');
+      const label = document.getElementById('col-label');
+      const preview = document.getElementById('grid-preview');
+      if (!slider || !preview) return;
+
+      function update() {
+        const span = parseInt(slider.value);
+        const count = Math.floor(12 / span);
+        const remainder = 12 % span;
+        const colLabel = span === 12 ? 'col-12' : 'col-' + span;
+
+        let cols = Array.from({ length: count }, () =>
+          `<div class="demo-col" style="flex:${span}">${colLabel}</div>`
+        );
+        if (remainder > 0) {
+          cols.push(`<div class="demo-col" style="flex:${remainder};opacity:0.4">${remainder}</div>`);
+        }
+        preview.innerHTML = `<div class="demo-row">${cols.join('')}</div>`;
+
+        let suffix;
+        if (span === 1) suffix = '× 12';
+        else if (span === 12) suffix = '';
+        else suffix = `× ${count}${remainder ? ' + col-' + remainder : ''}`;
+        label.textContent = `col-${span} ${suffix}`;
+      }
+
+      slider.addEventListener('input', update);
+      update();
+    }
+
+    function buildCard(item) {
+      const codeBlock = item.code ? `
+    <div class="code-block-wrap">
+      <div class="code-block-header">
+        <span class="code-block-lang">HTML</span>
+        <button class="copy-btn" data-code="${encodeURIComponent(item.code)}">Copiar</button>
+      </div>
+      <pre><code>${highlight(item.code)}</code></pre>
+    </div>` : '';
+
+      const gridViz = item.id === 'grid' ? buildGridDemo() : '';
+
+      const advancedBadge = item.advanced
+        ? `<span class="card-badge-advanced">Avanzado</span>` : '';
+
+      const calloutBlock = item.callout ? `
+    <div class="theory-callout">
+      <span class="theory-callout-icon">🌐</span>
+      <div>${item.callout}</div>
+    </div>` : '';
+
+      const tableBlock = item.table ? `
+    <table class="theory-table">
+      <thead>
+        <tr><th>Clase / Atributo</th><th>Qué hace</th></tr>
+      </thead>
+      <tbody>
+        ${item.table.map(row => `
+        <tr>
+          <td><code>${row.class}</code></td>
+          <td>${row.desc}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : '';
+
+      return `
+    <div class="theory-card${item.advanced ? ' advanced' : ''}">
+      <div class="theory-card-header">
+        <span class="theory-card-icon">${item.icon}</span>
+        <h3>${item.title}</h3>
+        ${advancedBadge}
+      </div>
+      <p>${item.body}</p>
+      <div class="highlight-box">${item.highlight}</div>
+      ${codeBlock}
+      ${calloutBlock}
+      ${tableBlock}
+      ${gridViz}
+    </div>`;
+    }
+
+    function initTheory() {
+      const container = document.getElementById('theory-content');
+      if (!container) return;
+
+      container.innerHTML = THEORY_DATA.sections.map(buildCard).join('');
+
+      container.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () =>
+          copyCode(btn, decodeURIComponent(btn.dataset.code))
+        );
+      });
+
+      setTimeout(renderGridDemo, 50);
+    }
+
+    // ============================================================
+    // practice.js — ejercicios fill-in-the-blank desde EXERCISES_DATA
+    // ============================================================
+
+    function buildExercise(ex, idx) {
+      let codeHtml = ex.starter
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+      ex.blanks.forEach((blank, i) => {
+        codeHtml = codeHtml.replace(
+          '___',
+          `<span class="fill-blank"><input
+          class="fill-input"
+          data-blank="${i}"
+          data-answer="${blank.answer}"
+          data-hint="${blank.hint}"
+          placeholder="?"
+          autocomplete="off"
+          spellcheck="false"
+       /></span>`
+        );
+      });
+
+      return `
+    <div class="exercise-card" id="ex-${ex.id}">
+      <span class="exercise-num">Ejercicio ${idx + 1}</span>
+      <h3>${ex.title}</h3>
+      <p class="description">${ex.description}</p>
+      <div class="code-exercise">${codeHtml}</div>
+      <div class="exercise-actions">
+        <button class="btn-check" data-ex="${ex.id}">Verificar</button>
+        <button class="btn-hint"  data-ex="${ex.id}">Pista</button>
+        <button class="btn-reset" data-ex="${ex.id}"
+                style="background:transparent;border:1px solid var(--c-border);color:var(--c-muted);
+                       padding:8px 14px;border-radius:999px;font-size:0.8rem;transition:all 0.2s">
+          Reiniciar
+        </button>
+      </div>
+      <div class="exercise-feedback" id="fb-${ex.id}"></div>
+    </div>`;
+    }
+
+    function buildPreviewHtml(ex) {
+      let html = ex.starter;
+      ex.blanks.forEach(blank => { html = html.replace('___', blank.answer); });
+      return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; margin: 0; }
+    [class*="col"] {
+      outline: 1px dashed #9dd9c5;
+      background: #f0faf6;
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-family: monospace;
+      color: #0e7a5a;
+    }
+    .btn { margin-right: 8px; }
+  <\x2Fstyle>
+<\x2Fhead>
+<body>${html}<\x2Fbody>
+<\x2Fhtml>`;
+    }
+
+    function showPreview(exId, exercises) {
+      const ex = exercises.find(e => e.id === exId);
+      const card = document.getElementById(`ex-${exId}`);
+      if (!ex || !card) return;
+
+      let wrap = card.querySelector('.exercise-preview');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.className = 'exercise-preview';
+        card.appendChild(wrap);
+      }
+
+      const iframe = document.createElement('iframe');
+      iframe.className = 'preview-frame';
+      iframe.style.overflow = 'hidden';
+      iframe.srcdoc = buildPreviewHtml(ex);
+      iframe.addEventListener('load', () => {
+        const h = iframe.contentDocument?.body?.scrollHeight;
+        if (h) iframe.style.height = (h + 8) + 'px';
+      });
+
+      wrap.innerHTML = '<p class="preview-label">Vista previa del resultado</p>';
+      wrap.appendChild(iframe);
+    }
+
+    function checkExercise(exId, exercises) {
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return;
+
+      const card = document.getElementById(`ex-${exId}`);
+      const fbEl = document.getElementById(`fb-${exId}`);
+      const inputs = card.querySelectorAll('.fill-input');
+      let allCorrect = true;
+
+      inputs.forEach(inp => {
+        const userVal = inp.value.trim().toLowerCase();
+        const correct = inp.dataset.answer.toLowerCase();
+        inp.classList.remove('correct', 'incorrect');
+        if (userVal === correct) {
+          inp.classList.add('correct');
+        } else {
+          inp.classList.add('incorrect');
+          allCorrect = false;
+        }
+      });
+
+      fbEl.className = 'exercise-feedback show ' + (allCorrect ? 'correct-fb' : 'wrong-fb');
+      fbEl.innerHTML = allCorrect
+        ? `<strong>✓ Correcto.</strong> ${ex.explanation}`
+        : `<strong>Revisa las respuestas.</strong> Algunos valores no son correctos. Usa el botón "Pista" si necesitas ayuda.`;
+
+      if (allCorrect) showPreview(exId, exercises);
+    }
+
+    function showHint(exId, exercises) {
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return;
+
+      const card = document.getElementById(`ex-${exId}`);
+      const inputs = card.querySelectorAll('.fill-input');
+      let hints = [];
+
+      inputs.forEach((inp, i) => {
+        if (inp.value.trim() === '') hints.push(`Blank ${i + 1}: ${ex.blanks[i].hint}`);
+      });
+
+      if (hints.length === 0) {
+        hints = ex.blanks.map((b, i) => `Blank ${i + 1}: ${b.hint}`);
+      }
+
+      const fbEl = document.getElementById(`fb-${exId}`);
+      fbEl.className = 'exercise-feedback show';
+      fbEl.style.background = 'rgba(108,99,255,0.08)';
+      fbEl.style.border = '1px solid rgba(108,99,255,0.25)';
+      fbEl.style.color = 'var(--c-accent2)';
+      fbEl.innerHTML = '<strong>💡 Pistas:</strong><br>' + hints.join('<br>');
+    }
+
+    function resetExercise(exId) {
+      const card = document.getElementById(`ex-${exId}`);
+      const fbEl = document.getElementById(`fb-${exId}`);
+      const inputs = card.querySelectorAll('.fill-input');
+
+      inputs.forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'incorrect');
+      });
+
+      fbEl.className = 'exercise-feedback';
+      fbEl.style = '';
+      fbEl.innerHTML = '';
+    }
+
+    function initPractice() {
+      const container = document.getElementById('practice-content');
+      if (!container) return;
+
+      const { exercises } = EXERCISES_DATA;
+      container.innerHTML = exercises.map((ex, i) => buildExercise(ex, i)).join('');
+
+      container.addEventListener('click', e => {
+        const checkBtn = e.target.closest('.btn-check');
+        const hintBtn = e.target.closest('.btn-hint');
+        const resetBtn = e.target.closest('.btn-reset');
+
+        if (checkBtn) checkExercise(checkBtn.dataset.ex, exercises);
+        if (hintBtn) showHint(hintBtn.dataset.ex, exercises);
+        if (resetBtn) resetExercise(resetBtn.dataset.ex);
+      });
+
+      container.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const inp = e.target.closest('.fill-input');
+          if (inp) {
+            const card = inp.closest('.exercise-card');
+            const exId = card.id.replace('ex-', '');
+            checkExercise(exId, exercises);
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // evaluation.js — quiz de selección múltiple desde QUESTIONS_DATA
+    // ============================================================
+
+    const quizState = {
+      questions: [],
+      answers: {},
+      revealed: {},
+      current: 0
+    };
+
+    function buildDots(count) {
+      return Array.from({ length: count }, (_, i) =>
+        `<div class="quiz-dot" id="dot-${i}"></div>`
+      ).join('');
+    }
+
+    function updateDots() {
+      quizState.questions.forEach((_, i) => {
+        const dot = document.getElementById(`dot-${i}`);
+        if (!dot) return;
+        dot.className = 'quiz-dot' +
+          (quizState.revealed[i] ? ' answered' :
+            i === quizState.current ? ' current' : '');
+      });
+    }
+
+    function renderQuestion(idx) {
+      const q = quizState.questions[idx];
+      const total = quizState.questions.length;
+      const revealed = quizState.revealed[idx];
+      const selected = quizState.answers[idx];
+      const letters = ['A', 'B', 'C', 'D'];
+
+      const options = q.options.map((opt, oi) => {
+        let cls = 'option-item';
+        if (selected === oi) cls += ' selected';
+        if (revealed && oi === q.correct) cls += ' correct-ans';
+        if (revealed && selected === oi && oi !== q.correct) cls += ' wrong-ans';
+        if (revealed) cls += ' disabled';
+
+        return `<li class="${cls}" data-opt="${oi}">
+      <span class="option-letter">${letters[oi]}</span>
+      ${opt}
+    </li>`;
+      }).join('');
+
+      let explanationText = '';
+      let explanationClass = 'question-explanation';
+      if (revealed) {
+        const isCorrect = selected === q.correct;
+        explanationText = isCorrect
+          ? `✓ ${q.explanation}`
+          : `✗ ${q.wrongExplanations?.[selected] ?? 'Respuesta incorrecta.'}`;
+        if (!isCorrect) explanationClass += ' wrong-explanation';
+        explanationClass += ' show';
+      }
+
+      const navDisabledPrev = idx === 0 ? 'disabled' : '';
+      const navLabelNext = idx === total - 1
+        ? (Object.keys(quizState.revealed).length === total ? 'Ver resultados' : 'Finalizar')
+        : 'Siguiente →';
+
+      return `
+    <div class="question-card">
+      <span class="question-num">Pregunta ${idx + 1} de ${total}</span>
+      <p class="question-text">${q.text}</p>
+      <ul class="options-list" id="options-list">${options}</ul>
+      <div class="${explanationClass}">${explanationText}</div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-nav" id="btn-prev" ${navDisabledPrev}>← Anterior</button>
+      <button class="btn-nav primary" id="btn-next">${navLabelNext}</button>
+    </div>`;
+    }
+
+    function showScore() {
+      const container = document.getElementById('quiz-content');
+      const score = document.getElementById('score-panel');
+      const correct = quizState.questions.filter((q, i) =>
+        quizState.answers[i] === q.correct
+      ).length;
+      const total = quizState.questions.length;
+      const pct = Math.round((correct / total) * 100);
+
+      const msg = pct === 100 ? '¡Perfecto! 🎉' :
+        pct >= 80 ? 'Muy bien 👍' :
+          pct >= 60 ? 'Buen esfuerzo 💪' :
+            'Sigue practicando 📚';
+
+      container.style.display = 'none';
+      score.innerHTML = `
+    <div class="score-circle">
+      <span class="score-number">${pct}%</span>
+      <span class="score-label">${correct}/${total} correctas</span>
+    </div>
+    <p class="score-message">${msg}</p>
+    <p class="score-sub">Respondiste ${correct} de ${total} preguntas correctamente.</p>
+    <button class="btn-retry" id="btn-retry">Intentar de nuevo</button>`;
+      score.classList.add('show');
+
+      document.getElementById('btn-retry').addEventListener('click', resetQuiz);
+    }
+
+    function resetQuiz() {
+      quizState.answers = {};
+      quizState.revealed = {};
+      quizState.current = 0;
+
+      const score = document.getElementById('score-panel');
+      const content = document.getElementById('quiz-content');
+      score.classList.remove('show');
+      content.style.display = '';
+      renderCurrent();
+      updateDots();
+    }
+
+    function renderCurrent() {
+      const container = document.getElementById('quiz-content');
+      if (!container) return;
+      container.innerHTML = renderQuestion(quizState.current);
+      attachQuizEvents(container);
+      updateDots();
+    }
+
+    function attachQuizEvents(container) {
+      container.querySelectorAll('.option-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const idx = quizState.current;
+          if (quizState.revealed[idx]) return;
+
+          quizState.answers[idx] = parseInt(item.dataset.opt);
+          quizState.revealed[idx] = true;
+          renderCurrent();
+        });
+      });
+
+      container.querySelector('#btn-prev')?.addEventListener('click', () => {
+        if (quizState.current > 0) { quizState.current--; renderCurrent(); }
+      });
+
+      container.querySelector('#btn-next')?.addEventListener('click', () => {
+        const total = quizState.questions.length;
+        if (quizState.current < total - 1) { quizState.current++; renderCurrent(); }
+        else showScore();
+      });
+    }
+
+    function initEvaluation() {
+      const dotsEl = document.getElementById('quiz-dots');
+      const content = document.getElementById('quiz-content');
+      if (!content) return;
+
+      quizState.questions = QUESTIONS_DATA.questions;
+
+      if (dotsEl) dotsEl.innerHTML = buildDots(quizState.questions.length);
+
+      renderCurrent();
+    }
+
+    // ============================================================
+    // Boot
+    // ============================================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavigation();
+      initTheory();
+      initPractice();
+      initEvaluation();
+      navigateTo('theory');
+    });
+
+  </script>
+
+</body>
+
+</html>

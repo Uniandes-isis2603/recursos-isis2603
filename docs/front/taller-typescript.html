@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taller — Perfil Dinámico con TypeScript</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <style>
+    body { background-color: #f8f9fa; }
+
+    .step-heading {
+      border-left: 4px solid #212529;
+      padding-left: 12px;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #212529;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    pre {
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    pre .cm  { color: #6a9955; }
+    pre .kw  { color: #569cd6; }
+    pre .tp  { color: #4ec9b0; }
+    pre .st  { color: #ce9178; }
+    pre .nm  { color: #9cdcfe; }
+    pre .op  { color: #d4d4d4; }
+    pre .hl  { background-color: #2a3a2a; display: block; margin: 0 -1.25rem; padding: 0 1.25rem; }
+
+    code {
+      background-color: #e9ecef;
+      color: #212529;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+    pre code {
+      background: none; padding: 0;
+      border-radius: 0; font-size: inherit; color: inherit;
+    }
+
+    .callout {
+      border-left: 4px solid #0d6efd;
+      background-color: #f0f4ff;
+      padding: 0.75rem 1rem;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .callout.success { border-left-color: #198754; background-color: #f0faf4; }
+    .callout.warning { border-left-color: #fd7e14; background-color: #fff8f0; }
+    .callout.danger  { border-left-color: #dc3545; background-color: #fff5f5; }
+
+    /* Task checklist */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-check {
+      width: 22px; height: 22px; border: 2px solid #adb5bd;
+      border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Section divider */
+    .section-divider {
+      border: none;
+      border-top: 2px solid #dee2e6;
+      margin: 3rem 0;
+    }
+
+    .file-tag {
+      display: inline-block;
+      background-color: #212529;
+      color: #9cdcfe;
+      font-family: monospace;
+      font-size: 0.8rem;
+      padding: 2px 10px;
+      border-radius: 4px 4px 0 0;
+      margin-bottom: -2px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+<div class="container py-5" style="max-width: 860px;">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="mb-5">
+    <a href="ejemplo-perfil-dinamic.html" class="text-secondary small">&larr; Ver la página dinámica</a>
+    <h1 class="fw-bold mt-2">Taller: Perfil Dinámico con TypeScript</h1>
+    <p class="text-secondary">
+      Tres actividades prácticas para extender la página de perfil.
+      Cada actividad construye sobre la anterior.
+      Lee cada paso completo antes de escribir código.
+    </p>
+    <div class="d-flex gap-2 flex-wrap mt-3">
+      <span class="badge bg-dark">Actividad 1 — Tus datos en JSON</span>
+      <span class="badge bg-dark">Actividad 2 — Métodos en la clase Person</span>
+      <span class="badge bg-dark">Actividad 3 — Lista de estudiantes</span>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ACTIVIDAD 1 — Cambiar los datos                                       -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-1">
+      <span class="step-badge" style="width:44px;height:44px;font-size:1rem;">A1</span>
+      <h2 class="step-heading mb-0">Actividad 1 — Mostrar tus propios datos</h2>
+    </div>
+    <p class="text-secondary mb-4">
+      El archivo HTML no se toca. Solo editas el JSON y la página cambia sola.
+    </p>
+
+    <!-- Paso 1.1 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">1</span>
+      <h5 class="mb-0">Abre el archivo de datos</h5>
+    </div>
+    <p>
+      Abre el archivo <code>data/student.json</code>. Verás esta estructura:
+    </p>
+    <div class="file-tag">data/student.json</div>
+    <pre><code><span class="op">{</span>
+  <span class="st">"name"</span><span class="op">:</span>     <span class="st">"Ana María Suarez"</span><span class="op">,</span>
+  <span class="st">"code"</span><span class="op">:</span>     <span class="st">"10234320"</span><span class="op">,</span>
+  <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"12221122"</span><span class="op">,</span>
+  <span class="st">"age"</span><span class="op">:</span>      <span class="nm">25</span><span class="op">,</span>
+  <span class="st">"address"</span><span class="op">:</span>  <span class="st">"Calle falsa 123"</span><span class="op">,</span>
+  <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"018002500"</span><span class="op">,</span>
+  <span class="st">"courses"</span><span class="op">: [</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Ingeniería de SW"</span><span class="op">,</span>     <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Pablo Picasso"</span>    <span class="op">},</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Futbol I"</span><span class="op">,</span>             <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Juan Piña"</span>        <span class="op">},</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Algoritmos Genéticos"</span><span class="op">,</span>  <span class="st">"professor"</span><span class="op">:</span> <span class="st">"María de la Rosa"</span>  <span class="op">}</span>
+  <span class="op">]</span>
+<span class="op">}</span></code></pre>
+
+    <!-- Paso 1.2 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">2</span>
+      <h5 class="mb-0">Reemplaza los valores con tus datos reales</h5>
+    </div>
+    <p>
+      Cambia cada valor (solo los que están entre comillas o son números)
+      con tu información. Por ejemplo:
+    </p>
+    <div class="file-tag">data/student.json — después de editar</div>
+    <pre><code><span class="op">{</span>
+  <span class="st">"name"</span><span class="op">:</span>     <span class="st">"</span><span class="hl"><span class="st">Carlos Rodríguez López</span></span><span class="st">"</span><span class="op">,</span>
+  <span class="st">"code"</span><span class="op">:</span>     <span class="st">"</span><span class="hl"><span class="st">20221234</span></span><span class="st">"</span><span class="op">,</span>
+  <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"</span><span class="hl"><span class="st">1020304050</span></span><span class="st">"</span><span class="op">,</span>
+  <span class="st">"age"</span><span class="op">:</span>      <span class="hl"><span class="nm">22</span></span><span class="op">,</span>
+  <span class="st">"address"</span><span class="op">:</span>  <span class="st">"</span><span class="hl"><span class="st">Av. Siempreviva 742</span></span><span class="st">"</span><span class="op">,</span>
+  <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"</span><span class="hl"><span class="st">3001234567</span></span><span class="st">"</span><span class="op">,</span>
+  <span class="st">"courses"</span><span class="op">: [</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"</span><span class="hl"><span class="st">Ingeniería de Software</span></span><span class="st">"</span><span class="op">,</span>  <span class="st">"professor"</span><span class="op">:</span> <span class="st">"</span><span class="hl"><span class="st">Mario López</span></span><span class="st">"</span> <span class="op">},</span>
+    <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"</span><span class="hl"><span class="st">Cálculo Diferencial</span></span><span class="st">"</span><span class="op">,</span>    <span class="st">"professor"</span><span class="op">:</span> <span class="st">"</span><span class="hl"><span class="st">Clara Ríos</span></span><span class="st">"</span>   <span class="op">}</span>
+  <span class="op">]</span>
+<span class="op">}</span></code></pre>
+
+    <div class="callout warning mt-3">
+      <strong>Reglas del formato JSON:</strong>
+      todos los nombres de campo van entre comillas dobles,
+      los textos también van entre comillas dobles,
+      los números <em>no</em> llevan comillas,
+      y no puede quedar una coma después del último elemento de un arreglo.
+    </div>
+
+    <!-- Paso 1.3 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">3</span>
+      <h5 class="mb-0">Guarda y verifica en el navegador</h5>
+    </div>
+    <p>
+      Guarda el archivo y recarga <code>ejemplo-perfil-dinamic.html</code>
+      en el navegador. La página debe mostrar tu nombre y tus cursos sin haber
+      tocado el HTML ni el JavaScript.
+    </p>
+    <p>
+      Abre la consola del navegador (<kbd>F12</kbd> → pestaña
+      <strong>Console</strong>) y confirma que el objeto impreso tiene
+      tus datos:
+    </p>
+    <pre><code><span class="cm">// Deberías ver algo así en la consola:</span>
+<span class="tp">Person</span> <span class="op">{</span>
+  <span class="nm">name</span><span class="op">:</span>     <span class="st">'Carlos Rodríguez López'</span><span class="op">,</span>
+  <span class="nm">code</span><span class="op">:</span>     <span class="st">'20221234'</span><span class="op">,</span>
+  <span class="nm">courses</span><span class="op">:</span>  <span class="op">[ </span><span class="tp">Course</span><span class="op"> { ... },</span> <span class="tp">Course</span><span class="op"> { ... } ]</span>
+<span class="op">}</span></code></pre>
+
+    <div class="callout success mt-3">
+      <strong>Punto clave:</strong> el JavaScript no cambió. Solo cambiaron los datos.
+      Esta separación es fundamental en el desarrollo de software real.
+    </div>
+
+    <!-- Checklist A1 -->
+    <div class="bg-white border rounded p-3 mt-4">
+      <p class="fw-bold mb-2">Lista de verificación — Actividad 1</p>
+      <div class="task-item"><div class="task-check"></div><span>El archivo JSON tiene mis datos reales</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La página muestra mi nombre en el encabezado</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La tabla de cursos muestra mis cursos actuales</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La consola muestra un objeto <code>Person</code> con mis datos</span></div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ACTIVIDAD 2 — Métodos en la clase Person                             -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-1">
+      <span class="step-badge" style="width:44px;height:44px;font-size:1rem;">A2</span>
+      <h2 class="step-heading mb-0">Actividad 2 — Métodos en la clase <code>Person</code></h2>
+    </div>
+    <p class="text-secondary mb-4">
+      Un método es una función que pertenece a una clase y puede acceder
+      a sus atributos usando <code>this</code>. Vas a agregar dos métodos
+      a la clase <code>Person</code>.
+    </p>
+
+    <!-- Concepto -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-2">
+      <span class="step-badge">1</span>
+      <h5 class="mb-0">Entiende la estructura de un método</h5>
+    </div>
+    <p>
+      Un método se escribe dentro de la clase, después del constructor,
+      sin la palabra <code>function</code>. Usa <code>this</code> para
+      acceder a los atributos del objeto:
+    </p>
+    <pre><code><span class="kw">class</span> <span class="tp">Person</span> <span class="op">{</span>
+  <span class="cm">// ... atributos y constructor ...</span>
+
+  <span class="cm">// Método: no necesita la palabra "function"</span>
+  <span class="nm">fullSummary</span><span class="op">() {</span>
+    <span class="kw">return</span> <span class="kw">this</span><span class="op">.</span><span class="nm">name</span> <span class="op">+</span> <span class="st">' — Código: '</span> <span class="op">+</span> <span class="kw">this</span><span class="op">.</span><span class="nm">code</span><span class="op">;</span>
+  <span class="op">}</span>
+<span class="op">}</span>
+
+<span class="cm">// Cómo llamarlo:</span>
+<span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="nm">person</span><span class="op">.</span><span class="nm">fullSummary</span><span class="op">());</span>
+<span class="cm">// → "Carlos Rodríguez López — Código: 20221234"</span></code></pre>
+
+    <!-- Paso 2.2 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">2</span>
+      <h5 class="mb-0">Agrega el método <code>fullSummary()</code></h5>
+    </div>
+    <p>
+      Abre <code>ejemplo-perfil-dinamic.html</code> y busca la clase
+      <code>Person</code> dentro del bloque <code>&lt;script&gt;</code>.
+      Agrega el método resaltado <strong>después del constructor</strong>,
+      antes del cierre de la clase:
+    </p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — clase Person</div>
+    <pre><code><span class="kw">class</span> <span class="tp">Person</span> <span class="op">{</span>
+  <span class="kw">constructor</span><span class="op">(</span><span class="nm">name</span><span class="op">,</span> <span class="nm">code</span><span class="op">,</span> <span class="nm">idNumber</span><span class="op">,</span> <span class="nm">age</span><span class="op">,</span> <span class="nm">address</span><span class="op">,</span> <span class="nm">phone</span><span class="op">,</span> <span class="nm">courses</span><span class="op">) {</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">name</span>     <span class="op">=</span> <span class="nm">name</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">code</span>     <span class="op">=</span> <span class="nm">code</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">idNumber</span> <span class="op">=</span> <span class="nm">idNumber</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">age</span>      <span class="op">=</span> <span class="nm">age</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">address</span>  <span class="op">=</span> <span class="nm">address</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">phone</span>    <span class="op">=</span> <span class="nm">phone</span><span class="op">;</span>
+    <span class="kw">this</span><span class="op">.</span><span class="nm">courses</span>  <span class="op">=</span> <span class="nm">courses</span><span class="op">;</span>
+  <span class="op">}</span>
+
+<span class="hl">  <span class="cm">// Devuelve un resumen en una sola línea de texto</span>
+</span><span class="hl">  <span class="nm">fullSummary</span><span class="op">() {</span>
+</span><span class="hl">    <span class="kw">return</span> <span class="kw">this</span><span class="op">.</span><span class="nm">name</span> <span class="op">+</span> <span class="st">' — Código: '</span> <span class="op">+</span> <span class="kw">this</span><span class="op">.</span><span class="nm">code</span>
+</span><span class="hl">           <span class="op">+</span> <span class="st">' — Edad: '</span> <span class="op">+</span> <span class="kw">this</span><span class="op">.</span><span class="nm">age</span> <span class="op">+</span> <span class="st">' años'</span><span class="op">;</span>
+</span><span class="hl">  <span class="op">}</span>
+</span>
+<span class="hl">  <span class="cm">// Devuelve cuántos cursos tiene el estudiante</span>
+</span><span class="hl">  <span class="nm">courseCount</span><span class="op">() {</span>
+</span><span class="hl">    <span class="kw">return</span> <span class="kw">this</span><span class="op">.</span><span class="nm">courses</span><span class="op">.</span><span class="nm">length</span><span class="op">;</span>
+</span><span class="hl">  <span class="op">}</span>
+</span>
+<span class="op">}</span></code></pre>
+
+    <!-- Paso 2.3 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">3</span>
+      <h5 class="mb-0">Llama los métodos desde la consola</h5>
+    </div>
+    <p>
+      En el bloque de arranque (la llamada a <code>.then()</code>) agrega
+      estas dos líneas de <code>console.log</code> para verificar que
+      los métodos funcionan:
+    </p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — bloque de arranque</div>
+    <pre><code><span class="nm">loadPerson</span><span class="op">(</span><span class="st">'data/student.json'</span><span class="op">)</span>
+  <span class="op">.</span><span class="nm">then</span><span class="op">(</span><span class="nm">person</span> <span class="op">=&gt; {</span>
+    <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="nm">person</span><span class="op">);</span>
+<span class="hl">    <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="st">'Resumen:'</span><span class="op">,</span>        <span class="nm">person</span><span class="op">.</span><span class="nm">fullSummary</span><span class="op">());</span>
+</span><span class="hl">    <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="st">'Total de cursos:'</span><span class="op">,</span> <span class="nm">person</span><span class="op">.</span><span class="nm">courseCount</span><span class="op">());</span>
+</span>    <span class="nm">renderPerson</span><span class="op">(</span><span class="nm">person</span><span class="op">);</span>
+  <span class="op">})</span>
+  <span class="op">.</span><span class="nm">catch</span><span class="op">(</span><span class="nm">err</span> <span class="op">=&gt;</span> <span class="nm">console</span><span class="op">.</span><span class="nm">error</span><span class="op">(</span><span class="nm">err</span><span class="op">));</span></code></pre>
+
+    <p class="mt-3">
+      Abre la consola (<kbd>F12</kbd>) y deberías ver:
+    </p>
+    <pre><code><span class="nm">Resumen:</span>       <span class="st">Carlos Rodríguez López — Código: 20221234 — Edad: 22 años</span>
+<span class="nm">Total de cursos:</span> <span class="nm">2</span></code></pre>
+
+    <!-- Paso 2.4 — Reto -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">4</span>
+      <h5 class="mb-0">Reto: muestra el resumen en la página</h5>
+    </div>
+    <p>
+      Hasta ahora los métodos solo se usan en la consola. El reto es mostrar
+      el resultado de <code>fullSummary()</code> en la página, debajo del
+      nombre del estudiante.
+    </p>
+    <p><strong>Pistas:</strong></p>
+    <ol>
+      <li>
+        Agrega un elemento vacío con un <code>id</code> en el HTML,
+        justo después del <code>&lt;h1&gt;</code>:
+        <pre class="mt-2"><code><span class="op">&lt;</span><span class="tp">h1</span> <span class="nm">id</span><span class="op">=</span><span class="st">"student-name"</span> <span class="nm">class</span><span class="op">=</span><span class="st">"fw-bold mb-2"</span><span class="op">&gt;&lt;/</span><span class="tp">h1</span><span class="op">&gt;</span>
+<span class="op">&lt;</span><span class="tp">p</span> <span class="nm">id</span><span class="op">=</span><span class="st">"student-summary"</span> <span class="nm">class</span><span class="op">=</span><span class="st">"text-secondary mb-4"</span><span class="op">&gt;&lt;/</span><span class="tp">p</span><span class="op">&gt;</span></code></pre>
+      </li>
+      <li class="mt-2">
+        En <code>renderPerson</code>, agrega una línea que rellene ese
+        elemento usando <code>textContent</code> y el método
+        <code>fullSummary()</code>.
+      </li>
+    </ol>
+
+    <div class="callout mt-3">
+      <strong>Solución esperada en <code>renderPerson</code>:</strong><br>
+      <code>document.getElementById('student-summary').textContent = person.fullSummary();</code>
+    </div>
+
+    <!-- Checklist A2 -->
+    <div class="bg-white border rounded p-3 mt-4">
+      <p class="fw-bold mb-2">Lista de verificación — Actividad 2</p>
+      <div class="task-item"><div class="task-check"></div><span>La clase <code>Person</code> tiene el método <code>fullSummary()</code></span></div>
+      <div class="task-item"><div class="task-check"></div><span>La clase <code>Person</code> tiene el método <code>courseCount()</code></span></div>
+      <div class="task-item"><div class="task-check"></div><span>La consola imprime el resumen y el total de cursos</span></div>
+      <div class="task-item"><div class="task-check"></div><span>El resumen aparece en la página debajo del nombre (reto)</span></div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!--  ACTIVIDAD 3 — Lista de estudiantes                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section class="mb-5">
+    <div class="d-flex align-items-center gap-3 mb-1">
+      <span class="step-badge" style="width:44px;height:44px;font-size:1rem;">A3</span>
+      <h2 class="step-heading mb-0">Actividad 3 — Lista de estudiantes</h2>
+    </div>
+    <p class="text-secondary mb-4">
+      Hasta ahora la página muestra un solo estudiante. En esta actividad
+      cambiarás el JSON para tener varios estudiantes y modificarás
+      el JavaScript para renderizar todos.
+    </p>
+
+    <!-- Paso 3.1 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-2">
+      <span class="step-badge">1</span>
+      <h5 class="mb-0">Cambia el JSON a un arreglo de estudiantes</h5>
+    </div>
+    <p>
+      El JSON actual tiene un solo objeto. Vamos a envolverlo en un
+      arreglo <code>[ ]</code> y agregar dos estudiantes más.
+      Crea un nuevo archivo <code>data/students.json</code>:
+    </p>
+    <div class="file-tag">data/students.json — nuevo archivo</div>
+    <pre><code><span class="op">[</span>
+  <span class="op">{</span>
+    <span class="st">"name"</span><span class="op">:</span>     <span class="st">"Ana María Suarez"</span><span class="op">,</span>
+    <span class="st">"code"</span><span class="op">:</span>     <span class="st">"10234320"</span><span class="op">,</span>
+    <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"12221122"</span><span class="op">,</span>
+    <span class="st">"age"</span><span class="op">:</span>      <span class="nm">25</span><span class="op">,</span>
+    <span class="st">"address"</span><span class="op">:</span>  <span class="st">"Calle falsa 123"</span><span class="op">,</span>
+    <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"018002500"</span><span class="op">,</span>
+    <span class="st">"courses"</span><span class="op">: [</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Ingeniería de SW"</span><span class="op">,</span>    <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Pablo Picasso"</span>   <span class="op">},</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Algoritmos Genéticos"</span><span class="op">,</span> <span class="st">"professor"</span><span class="op">:</span> <span class="st">"María de la Rosa"</span> <span class="op">}</span>
+    <span class="op">]</span>
+  <span class="op">},</span>
+  <span class="op">{</span>
+    <span class="st">"name"</span><span class="op">:</span>     <span class="st">"Carlos Rodríguez"</span><span class="op">,</span>
+    <span class="st">"code"</span><span class="op">:</span>     <span class="st">"20221234"</span><span class="op">,</span>
+    <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"1020304050"</span><span class="op">,</span>
+    <span class="st">"age"</span><span class="op">:</span>      <span class="nm">22</span><span class="op">,</span>
+    <span class="st">"address"</span><span class="op">:</span>  <span class="st">"Carrera 7 # 40-20"</span><span class="op">,</span>
+    <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"3001234567"</span><span class="op">,</span>
+    <span class="st">"courses"</span><span class="op">: [</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Cálculo Diferencial"</span><span class="op">,</span> <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Clara Ríos"</span>   <span class="op">},</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Física I"</span><span class="op">,</span>           <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Ernesto Paz"</span>  <span class="op">},</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Inglés II"</span><span class="op">,</span>          <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Laura Nieto"</span>  <span class="op">}</span>
+    <span class="op">]</span>
+  <span class="op">},</span>
+  <span class="op">{</span>
+    <span class="st">"name"</span><span class="op">:</span>     <span class="st">"Valentina Torres"</span><span class="op">,</span>
+    <span class="st">"code"</span><span class="op">:</span>     <span class="st">"20219876"</span><span class="op">,</span>
+    <span class="st">"idNumber"</span><span class="op">:</span> <span class="st">"1098765432"</span><span class="op">,</span>
+    <span class="st">"age"</span><span class="op">:</span>      <span class="nm">23</span><span class="op">,</span>
+    <span class="st">"address"</span><span class="op">:</span>  <span class="st">"Calle 100 # 15-30"</span><span class="op">,</span>
+    <span class="st">"phone"</span><span class="op">:</span>    <span class="st">"3109876543"</span><span class="op">,</span>
+    <span class="st">"courses"</span><span class="op">: [</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Ingeniería de SW"</span><span class="op">,</span> <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Pablo Picasso"</span> <span class="op">},</span>
+      <span class="op">{</span> <span class="st">"name"</span><span class="op">:</span> <span class="st">"Bases de Datos"</span><span class="op">,</span>   <span class="st">"professor"</span><span class="op">:</span> <span class="st">"Jorge Mora"</span>    <span class="op">}</span>
+    <span class="op">]</span>
+  <span class="op">}</span>
+<span class="op">]</span></code></pre>
+
+    <div class="callout warning mt-3">
+      <strong>Atención:</strong> el arreglo no lleva una coma después del
+      último objeto (el de Valentina Torres). Si la pones obtendrás un
+      error de JSON inválido.
+    </div>
+
+    <!-- Paso 3.2 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">2</span>
+      <h5 class="mb-0">Crea una función <code>loadStudents()</code></h5>
+    </div>
+    <p>
+      Necesitamos una nueva función que cargue el arreglo completo.
+      Observa la diferencia con <code>loadPerson()</code>:
+    </p>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <p class="small text-secondary fw-bold mb-1">loadPerson() — carga UN objeto</p>
+        <pre><code><span class="kw">const</span> <span class="nm">data</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">response</span><span class="op">.</span><span class="nm">json</span><span class="op">();</span>
+<span class="cm">// data es { name, code, ... }</span>
+
+<span class="kw">return new</span> <span class="tp">Person</span><span class="op">( ... );</span></code></pre>
+      </div>
+      <div class="col-md-6">
+        <p class="small text-secondary fw-bold mb-1">loadStudents() — carga un ARREGLO</p>
+        <pre><code><span class="kw">const</span> <span class="nm">data</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">response</span><span class="op">.</span><span class="nm">json</span><span class="op">();</span>
+<span class="cm">// data es [ {...}, {...}, {...} ]</span>
+
+<span class="kw">return</span> <span class="nm">data</span><span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">d</span> <span class="op">=&gt; </span><span class="kw">new</span> <span class="tp">Person</span><span class="op">( ... ));</span></code></pre>
+      </div>
+    </div>
+
+    <p>Agrega esta función al bloque <code>&lt;script&gt;</code>, después de <code>loadPerson</code>:</p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — nueva función</div>
+    <pre><code><span class="kw">async function</span> <span class="nm">loadStudents</span><span class="op">(</span><span class="nm">url</span><span class="op">) {</span>
+  <span class="kw">const</span> <span class="nm">response</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">fetch</span><span class="op">(</span><span class="nm">url</span><span class="op">);</span>
+  <span class="kw">if</span> <span class="op">(!</span><span class="nm">response</span><span class="op">.</span><span class="nm">ok</span><span class="op">)</span> <span class="kw">throw new</span> <span class="tp">Error</span><span class="op">(</span><span class="st">'HTTP '</span> <span class="op">+</span> <span class="nm">response</span><span class="op">.</span><span class="nm">status</span><span class="op">);</span>
+
+  <span class="kw">const</span> <span class="nm">data</span> <span class="op">=</span> <span class="kw">await</span> <span class="nm">response</span><span class="op">.</span><span class="nm">json</span><span class="op">();</span>   <span class="cm">// arreglo de objetos planos</span>
+
+  <span class="kw">return</span> <span class="nm">data</span><span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">d</span> <span class="op">=&gt; {</span>
+    <span class="kw">const</span> <span class="nm">courses</span> <span class="op">=</span> <span class="nm">d</span><span class="op">.</span><span class="nm">courses</span><span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">c</span> <span class="op">=&gt;</span> <span class="kw">new</span> <span class="tp">Course</span><span class="op">(</span><span class="nm">c</span><span class="op">.</span><span class="nm">name</span><span class="op">,</span> <span class="nm">c</span><span class="op">.</span><span class="nm">professor</span><span class="op">));</span>
+    <span class="kw">return new</span> <span class="tp">Person</span><span class="op">(</span><span class="nm">d</span><span class="op">.</span><span class="nm">name</span><span class="op">,</span> <span class="nm">d</span><span class="op">.</span><span class="nm">code</span><span class="op">,</span> <span class="nm">d</span><span class="op">.</span><span class="nm">idNumber</span><span class="op">,</span>
+                      <span class="nm">d</span><span class="op">.</span><span class="nm">age</span><span class="op">,</span>  <span class="nm">d</span><span class="op">.</span><span class="nm">address</span><span class="op">,</span>  <span class="nm">d</span><span class="op">.</span><span class="nm">phone</span><span class="op">,</span> <span class="nm">courses</span><span class="op">);</span>
+  <span class="op">});</span>
+<span class="op">}</span></code></pre>
+
+    <!-- Paso 3.3 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">3</span>
+      <h5 class="mb-0">Crea una función <code>renderList()</code></h5>
+    </div>
+    <p>
+      Esta función recibe el arreglo de objetos <code>Person</code> y construye
+      una tarjeta (<em>card</em>) de Bootstrap para cada estudiante.
+    </p>
+    <p>
+      Agrega un contenedor vacío en el HTML donde se insertará la lista,
+      <strong>fuera</strong> del bloque blanco del perfil actual:
+    </p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — nuevo contenedor HTML</div>
+    <pre><code><span class="op">&lt;</span><span class="tp">div</span> <span class="nm">id</span><span class="op">=</span><span class="st">"student-list"</span> <span class="nm">class</span><span class="op">=</span><span class="st">"mt-4 row g-3"</span><span class="op">&gt;
+  </span><span class="cm">&lt;!-- Las tarjetas se insertarán aquí --&gt;</span>
+<span class="op">&lt;/</span><span class="tp">div</span><span class="op">&gt;</span></code></pre>
+
+    <p class="mt-3">Ahora agrega la función en el bloque <code>&lt;script&gt;</code>:</p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — función renderList</div>
+    <pre><code><span class="kw">function</span> <span class="nm">renderList</span><span class="op">(</span><span class="nm">students</span><span class="op">) {</span>
+  <span class="kw">const</span> <span class="nm">container</span> <span class="op">=</span> <span class="nm">document</span><span class="op">.</span><span class="nm">getElementById</span><span class="op">(</span><span class="st">'student-list'</span><span class="op">);</span>
+
+  <span class="nm">container</span><span class="op">.</span><span class="nm">innerHTML</span> <span class="op">=</span> <span class="nm">students</span><span class="op">.</span><span class="nm">map</span><span class="op">(</span><span class="nm">s</span> <span class="op">=&gt;</span>
+    <span class="st">'&lt;div class="col-12 col-md-4"&gt;'</span> <span class="op">+</span>
+      <span class="st">'&lt;div class="bg-white border rounded p-3"&gt;'</span> <span class="op">+</span>
+        <span class="st">'&lt;p class="fw-bold mb-1"&gt;'</span> <span class="op">+</span> <span class="nm">s</span><span class="op">.</span><span class="nm">name</span>                      <span class="op">+</span> <span class="st">'&lt;/p&gt;'</span> <span class="op">+</span>
+        <span class="st">'&lt;p class="text-secondary small mb-2"&gt;Código: '</span> <span class="op">+</span> <span class="nm">s</span><span class="op">.</span><span class="nm">code</span>  <span class="op">+</span> <span class="st">'&lt;/p&gt;'</span> <span class="op">+</span>
+        <span class="st">'&lt;p class="text-secondary small mb-0"&gt;'</span>
+          <span class="op">+</span> <span class="nm">s</span><span class="op">.</span><span class="nm">courseCount</span><span class="op">()</span> <span class="op">+</span> <span class="st">' cursos matriculados&lt;/p&gt;'</span> <span class="op">+</span>
+      <span class="st">'&lt;/div&gt;'</span> <span class="op">+</span>
+    <span class="st">'&lt;/div&gt;'</span>
+  <span class="op">).</span><span class="nm">join</span><span class="op">(</span><span class="st">''</span><span class="op">);</span>
+<span class="op">}</span></code></pre>
+
+    <!-- Paso 3.4 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">4</span>
+      <h5 class="mb-0">Conecta todo en el arranque</h5>
+    </div>
+    <p>
+      Reemplaza la llamada a <code>loadPerson</code> en el arranque por
+      la nueva llamada a <code>loadStudents</code>:
+    </p>
+    <div class="file-tag">ejemplo-perfil-dinamic.html — nuevo arranque</div>
+    <pre><code><span class="nm">loadStudents</span><span class="op">(</span><span class="st">'data/students.json'</span><span class="op">)</span>
+  <span class="op">.</span><span class="nm">then</span><span class="op">(</span><span class="nm">students</span> <span class="op">=&gt; {</span>
+    <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="st">'Estudiantes cargados:'</span><span class="op">,</span> <span class="nm">students</span><span class="op">.</span><span class="nm">length</span><span class="op">);</span>
+    <span class="nm">students</span><span class="op">.</span><span class="nm">forEach</span><span class="op">(</span><span class="nm">s</span> <span class="op">=&gt;</span> <span class="nm">console</span><span class="op">.</span><span class="nm">log</span><span class="op">(</span><span class="nm">s</span><span class="op">.</span><span class="nm">fullSummary</span><span class="op">()));</span>
+    <span class="nm">renderList</span><span class="op">(</span><span class="nm">students</span><span class="op">);</span>
+  <span class="op">})</span>
+  <span class="op">.</span><span class="nm">catch</span><span class="op">(</span><span class="nm">err</span> <span class="op">=&gt;</span> <span class="nm">console</span><span class="op">.</span><span class="nm">error</span><span class="op">(</span><span class="nm">err</span><span class="op">));</span></code></pre>
+
+    <p class="mt-3">
+      La consola debe mostrar:
+    </p>
+    <pre><code><span class="nm">Estudiantes cargados:</span> <span class="nm">3</span>
+<span class="nm">Ana María Suarez — Código: 10234320 — Edad: 25 años</span>
+<span class="nm">Carlos Rodríguez — Código: 20221234 — Edad: 22 años</span>
+<span class="nm">Valentina Torres — Código: 20219876 — Edad: 23 años</span></code></pre>
+
+    <!-- Reto A3 -->
+    <div class="d-flex align-items-center gap-3 mb-2 mt-4">
+      <span class="step-badge">5</span>
+      <h5 class="mb-0">Reto: al hacer clic en una tarjeta, muestra el perfil completo</h5>
+    </div>
+    <p>
+      Cuando el usuario haga clic en una de las tarjetas de la lista, la
+      sección de perfil de arriba debe actualizarse con los datos de ese
+      estudiante usando la función <code>renderPerson()</code> que ya existe.
+    </p>
+    <p><strong>Pistas:</strong></p>
+    <ol>
+      <li>En <code>renderList</code>, agrega <code>onclick</code> a cada tarjeta.</li>
+      <li>
+        El evento necesita acceder al objeto <code>Person</code> correspondiente.
+        Usa el índice del <code>.map()</code> para encontrar el estudiante correcto
+        en el arreglo <code>students</code>.
+      </li>
+      <li>Llama a <code>renderPerson(students[i])</code> dentro del handler.</li>
+    </ol>
+
+    <div class="callout mt-3">
+      <strong>Pista de código para el onclick:</strong><br>
+      <code>onclick="renderPerson(students[0])"</code> — reemplaza
+      <code>0</code> por la variable del índice en tu <code>.map()</code>.
+    </div>
+
+    <!-- Checklist A3 -->
+    <div class="bg-white border rounded p-3 mt-4">
+      <p class="fw-bold mb-2">Lista de verificación — Actividad 3</p>
+      <div class="task-item"><div class="task-check"></div><span>El archivo <code>data/students.json</code> existe y tiene 3 estudiantes</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La función <code>loadStudents()</code> está definida en el script</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La función <code>renderList()</code> muestra una tarjeta por cada estudiante</span></div>
+      <div class="task-item"><div class="task-check"></div><span>La consola imprime el resumen de los 3 estudiantes</span></div>
+      <div class="task-item"><div class="task-check"></div><span>Al hacer clic en una tarjeta el perfil superior se actualiza (reto)</span></div>
+    </div>
+  </section>
+
+
+  <!-- ── Pie ───────────────────────────────────────────────────────────────── -->
+  <div class="border-top pt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <a href="example-typescript.html" class="text-secondary small">&larr; Ver la explicación técnica</a>
+    <a href="ejemplo-perfil-dinamic.html" class="text-secondary small">Ver la página dinámica &rarr;</a>
+  </div>
+
+</div>
+</body>
+</html>
