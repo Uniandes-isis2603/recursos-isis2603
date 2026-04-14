@@ -808,6 +808,49 @@ aplicar(doble, <span class="nm">5</span>);  <span class="cm">// 10</span></code>
           </div>
         </div>
 
+        <!-- Card: operador flecha => -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-icon">➡️</span>
+            <h2>Operador flecha <code>=&gt;</code></h2>
+          </div>
+          <p>El operador <code>=&gt;</code> define una <strong>función flecha</strong> (<em>arrow function</em>). Es una sintaxis compacta que reemplaza la palabra clave <code>function</code> y tiene dos variantes según la complejidad del cuerpo.</p>
+
+          <pre><code><span class="cm">// Sintaxis completa: con llaves y return explícito</span>
+<span class="kw">const</span> cuadrado = (x: <span class="ty">number</span>): <span class="ty">number</span> =&gt; {
+  <span class="kw">return</span> x * x;
+};
+
+<span class="cm">// Retorno implícito: sin llaves, una sola expresión</span>
+<span class="kw">const</span> cuadrado = (x: <span class="ty">number</span>): <span class="ty">number</span> =&gt; x * x;
+
+<span class="cm">// Un solo parámetro: los paréntesis son opcionales</span>
+<span class="kw">const</span> doble = (x: <span class="ty">number</span>) =&gt; x * <span class="nm">2</span>;
+
+<span class="cm">// Sin parámetros: paréntesis vacíos obligatorios</span>
+<span class="kw">const</span> ahora = (): <span class="ty">Date</span> =&gt; <span class="kw">new</span> Date();</code></pre>
+
+          <p>La flecha brilla especialmente en los métodos de array <code>map</code>, <code>filter</code> y <code>forEach</code>, donde la función se pasa como argumento:</p>
+
+          <pre><code><span class="kw">const</span> notas: <span class="ty">number</span>[] = [<span class="nm">3.2</span>, <span class="nm">4.5</span>, <span class="nm">2.8</span>, <span class="nm">4.9</span>];
+
+<span class="cm">// map — transforma cada elemento</span>
+<span class="kw">const</span> redondeadas = notas.map(n =&gt; Math.round(n));
+<span class="cm">// [3, 5, 3, 5]</span>
+
+<span class="cm">// filter — conserva los que cumplen la condición</span>
+<span class="kw">const</span> aprobadas = notas.filter(n =&gt; n &gt;= <span class="nm">3.0</span>);
+<span class="cm">// [3.2, 4.5, 4.9]</span>
+
+<span class="cm">// forEach — ejecuta una acción por cada elemento</span>
+aprobadas.forEach(n =&gt; console.log(<span class="st">`Nota: ${n}`</span>));</code></pre>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">TIP</span>
+            <p>Usa <strong>retorno implícito</strong> (sin llaves) cuando el cuerpo sea una sola expresión: el código queda más legible. Agrega llaves y <code>return</code> cuando necesites varias líneas o variables intermedias.</p>
+          </div>
+        </div>
+
       </div><!-- /ttab-funciones -->
 
     </section><!-- /tab-teoria -->
@@ -889,6 +932,14 @@ aplicar(doble, <span class="nm">5</span>);  <span class="cm">// 10</span></code>
         <p>Este taller recorre tres versiones del mismo ejemplo: una página de perfil de estudiante. Cada versión agrega una capa de complejidad — de HTML estático a datos cargados desde JSON con clases TypeScript.</p>
         <div class="highlight">
           Sigue el orden: primero entiende la estructura HTML y Bootstrap, luego observa cómo JavaScript remplaza el contenido estático con datos dinámicos, y finalmente practica tú mismo en el taller.
+        </div>
+        <div style="margin-top:16px;">
+          <a href="../taller-typescript.zip" download
+             style="display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); text-decoration:none;"
+             onmouseover="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'" onmouseout="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'"
+             onfocus="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'"    onblur="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'">
+            ⬇ Descargar archivos del taller
+          </a>
         </div>
       </div>
 
