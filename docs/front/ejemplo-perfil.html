@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil Estudiante</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    body {
+      background-color: #f0f0f0;
+    }
+
+    .avatar-circle {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background-color: #ece8e2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .avatar-circle i {
+      font-size: 100px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container py-5">
+    <div class="bg-white border rounded p-4">
+      <div class="row g-4 align-items-start">
+
+        <!-- Columna izquierda: nombre, avatar, datos personales -->
+        <div class="col-12 col-md-5">
+
+          <h1 class="fw-bold mb-4">Ana María Suarez</h1>
+
+          <!-- Avatar -->
+          <div class="d-flex justify-content-center mb-4">
+            <div class="avatar-circle">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </div>
+
+          <!-- Datos Personales -->
+          <div class="border rounded p-3">
+            <p class="fw-bold mb-2">Datos Personales</p>
+            <hr class="mt-1 mb-0" />
+            <table class="table table-borderless table-sm mb-0">
+              <tbody>
+                <tr class="border-top">
+                  <td class="text-secondary" style="width: 40%;">Código</td>
+                  <td>10234320</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="text-secondary">Cédula</td>
+                  <td>12221122</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="text-secondary">Edad</td>
+                  <td>25 Años</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="text-secondary">Dirección</td>
+                  <td>Calle falsa 123</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="text-secondary">Teléfono</td>
+                  <td>018002500</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha: cursos actuales -->
+        <div class="col-12 col-md-7">
+
+          <div class="border rounded p-3">
+            <p class="fw-bold mb-3">Cursos Actuales</p>
+            <table class="table mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th>Curso</th>
+                  <th>Profesor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-secondary">Ingeniería de SW</td>
+                  <td class="text-secondary">Pablo Picasso</td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Futbol I</td>
+                  <td class="text-secondary">Juan Piña</td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Algoritmos Genéticos</td>
+                  <td class="text-secondary">María de la Rosa</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

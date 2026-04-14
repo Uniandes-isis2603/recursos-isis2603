@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de Clases Bootstrap – ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════════
+       TOKENS — no modificar
+       ══════════════════════════════════════════════ */
+    :root {
+      --bg:          #f2efe9;
+      --surface:     #faf8f4;
+      --surface2:    #ffffff;
+      --border:      #ddd8d0;
+      --border2:     #ece8e0;
+
+      --ink:         #1c1814;
+      --ink-mid:     #4a4440;
+      --ink-soft:    #8c847c;
+
+      /* Capa Frontend / API REST (verde) */
+      --layer:     #0e7a5a;
+      --layer-bg:  #e6f5f0;
+      --layer-bdr: #9dd9c5;
+
+      --shadow-sm:   0 1px 4px rgba(28,24,20,.06);
+      --shadow:      0 4px 20px rgba(28,24,20,.09);
+      --shadow-lg:   0 8px 40px rgba(28,24,20,.12);
+      --radius:      12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══════════════════════════════════════════════
+       HEADER CANÓNICO
+       ══════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content {
+      position: relative;
+      text-align: center;
+      max-width: 900px;
+    }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(255,255,255,.35); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: rgba(255,255,255,.38);
+      text-decoration: none; letter-spacing: 1.5px; transition: color .2s;
+    }
+    .back-link:hover, .back-link:focus { color: rgba(255,255,255,.85); }
+
+    /* ══════════════════════════════════════════════
+       TIPOGRAFÍA BASE
+       ══════════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px; color: var(--ink); margin-bottom: 20px;
+      border-left: 4px solid var(--layer); padding-left: 16px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink-mid); margin: 20px 0 8px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 12px; }
+
+    /* ══════════════════════════════════════════════
+       CONTENEDOR PRINCIPAL
+       ══════════════════════════════════════════════ */
+    .container { max-width: 1000px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══════════════════════════════════════════════
+       CARDS
+       ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer);
+      margin-bottom: 28px;
+    }
+    .card-flat {
+      background: var(--layer-bg);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      border: 1px solid var(--layer-bdr);
+      margin-bottom: 12px;
+    }
+
+    /* ══════════════════════════════════════════════
+       CÓDIGO
+       ══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.6;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* ══════════════════════════════════════════════
+       CALLOUTS
+       ══════════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; flex-shrink: 0; margin-top: 2px;
+    }
+    .callout p { margin: 0; }
+    .callout-tip     { background: var(--layer-bg); border-left: 4px solid var(--layer); }
+    .callout-tip     .callout-icon { color: var(--layer); }
+    .callout-info    { background: #e8eefb; border-left: 4px solid #1d4ed8; }
+    .callout-info    .callout-icon { color: #1d4ed8; }
+
+    /* ══════════════════════════════════════════════
+       TABLA DE REFERENCIA
+       ══════════════════════════════════════════════ */
+    .tbl {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 0; font-size: 14px;
+    }
+    .tbl th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 10px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .tbl td {
+      padding: 10px 16px; color: var(--ink-mid);
+      border-bottom: 1px solid var(--border2);
+      vertical-align: top; font-size: 13px;
+    }
+    .tbl tr:hover td { background: var(--layer-bg); }
+
+    /* ══════════════════════════════════════════════
+       CLASE ENTRY (dentro de cada sección)
+       ══════════════════════════════════════════════ */
+    .cls-list { display: flex; flex-direction: column; gap: 12px; }
+    .cls-entry {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 12px 20px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      align-items: start;
+    }
+    .cls-name {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .cls-name code { font-size: 13px; }
+    .cls-css {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      line-height: 1.5;
+    }
+    .cls-desc { font-size: 14px; line-height: 1.6; color: var(--ink-mid); }
+    .cls-desc small {
+      display: block; margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+    }
+
+    /* ══════════════════════════════════════════════
+       DIAGRAMA DE GRILLA
+       ══════════════════════════════════════════════ */
+    .grid-demo { margin: 16px 0; }
+    .grid-demo-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .grid-visual {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .grid-visual.stacked { flex-direction: column; }
+    .grid-col {
+      background: var(--layer-bg);
+      border: 2px solid var(--layer-bdr);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--layer);
+      text-align: center; font-weight: 600;
+    }
+    .grid-col.col5 { flex: 5; }
+    .grid-col.col7 { flex: 7; }
+    .grid-col.col12 { flex: 1; }
+    .grid-track {
+      display: flex; gap: 2px; margin: 6px 0 2px;
+    }
+    .grid-track-cell {
+      flex: 1; height: 8px; border-radius: 2px;
+      background: var(--border);
+    }
+    .grid-track-cell.used { background: var(--layer-bdr); }
+    .grid-track-cell.used2 { background: #9dd9c5aa; }
+
+    /* ══════════════════════════════════════════════
+       ESCALA DE ESPACIADO
+       ══════════════════════════════════════════════ */
+    .space-scale { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+    .space-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .space-bar-wrap { flex: 1; }
+    .space-bar {
+      height: 16px; background: var(--layer-bg);
+      border: 1px solid var(--layer-bdr); border-radius: 3px;
+    }
+    .space-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--ink-mid);
+      width: 120px; flex-shrink: 0;
+    }
+    .space-rem {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      width: 60px; flex-shrink: 0; text-align: right;
+    }
+
+    /* ══════════════════════════════════════════════
+       FOOTER CANÓNICO
+       ══════════════════════════════════════════════ */
+    footer {
+      margin-top: 60px; padding: 24px;
+      text-align: center; border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: .5px; margin: 0;
+    }
+    footer span { color: var(--layer); }
+
+    /* ══════════════════════════════════════════════
+       MOBILE
+       ══════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header  { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card   { padding: 20px 16px; }
+      .cls-entry { grid-template-columns: 1fr; }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="typescript.html" class="back-link">← TypeScript</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Front-end · Bootstrap 5</div>
+    <h1>Guía de Clases <em>Bootstrap</em></h1>
+    <div class="hdr-sub">clases usadas en ejemplo-perfil.html · grilla · espaciado · tablas</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="content">
+
+    <!-- INTRO -->
+    <div class="card">
+      <h2>¿Qué son las clases Bootstrap?</h2>
+      <p>
+        Bootstrap es una librería CSS que expone utilidades como <em>clases HTML</em>. En lugar de escribir CSS
+        propio para cada elemento, se aplican clases predefinidas directamente en el atributo <code>class</code>.
+        El ejemplo <code>ejemplo-perfil.html</code> usa un subconjunto pequeño y enfocado de esas clases:
+        grilla responsiva, espaciado, tipografía, bordes y tablas.
+      </p>
+      <div class="callout callout-tip">
+        <span class="callout-icon">TIP</span>
+        <p>Abre <code>ejemplo-perfil.html</code> junto a esta guía. Cada clase documentada aquí aparece marcada
+        en el HTML del ejemplo.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 1. CONTENEDOR Y FILA ═══════════════ -->
+    <div class="card">
+      <h2>1 · Contenedor y fila</h2>
+      <p>La grilla de Bootstrap necesita tres capas: <code>container</code> → <code>row</code> → <code>col-*</code>.
+      Aquí se documentan el contenedor y la fila.</p>
+
+      <div class="cls-list">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.container</code>
+            <span class="cls-css">max-width: variable por breakpoint<br>margin: 0 auto<br>padding: 0 12px</span>
+          </div>
+          <div class="cls-desc">
+            Centra el contenido horizontalmente y limita su ancho máximo según el tamaño de pantalla.
+            En pantallas grandes (~1200 px) el ancho máximo es 1140 px.
+            <small>Usado en: <code>&lt;div class="container py-5"&gt;</code></small>
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.row</code>
+            <span class="cls-css">display: flex<br>flex-wrap: wrap<br>margin: 0 calc(var(--bs-gutter-x) * -.5)</span>
+          </div>
+          <div class="cls-desc">
+            Crea una fila flex que contiene columnas. Los márgenes negativos compensan el padding interno
+            de cada columna para que los bordes queden alineados.
+            <small>Usado en: <code>&lt;div class="row g-4 align-items-start"&gt;</code></small>
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.g-4</code>
+            <span class="cls-css">--bs-gutter-x: 1.5rem<br>--bs-gutter-y: 1.5rem</span>
+          </div>
+          <div class="cls-desc">
+            Establece el espacio (gap) entre columnas y filas en <strong>1.5 rem (24 px)</strong>.
+            La escala va de <code>g-0</code> (0 px) a <code>g-5</code> (3 rem).
+            <small>Aplicado junto con <code>.row</code> para separar la columna izquierda de la derecha.</small>
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.align-items-start</code>
+            <span class="cls-css">align-items: flex-start</span>
+          </div>
+          <div class="cls-desc">
+            Alinea las columnas al tope de la fila. Sin esta clase, columnas de distinta altura se
+            estiran para ocupar la misma altura (comportamiento por defecto de flex).
+            <small>Evita que la columna corta se expanda verticalmente para igualar a la larga.</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ 2. COLUMNAS RESPONSIVAS ═══════════════ -->
+    <div class="card">
+      <h2>2 · Columnas responsivas</h2>
+      <p>Bootstrap divide cada fila en <strong>12 columnas virtuales</strong>. La clase <code>col-N</code>
+      indica cuántas de esas 12 ocupa el elemento. El sufijo <code>-md-</code> indica que la regla
+      se aplica solo en pantallas medianas (≥ 768 px).</p>
+
+      <!-- Diagrama responsivo -->
+      <div class="grid-demo">
+        <div class="grid-demo-label">Pantalla ≥ 768 px (md) — lado a lado</div>
+        <div class="grid-visual">
+          <div class="grid-col col5">
+            col-md-5<br><span style="font-size:10px;font-weight:400;opacity:.7">5 / 12 = 41.67 %</span>
+          </div>
+          <div class="grid-col col7">
+            col-md-7<br><span style="font-size:10px;font-weight:400;opacity:.7">7 / 12 = 58.33 %</span>
+          </div>
+        </div>
+
+        <div class="grid-demo-label" style="margin-top:12px">Pantalla &lt; 768 px (xs/sm) — apiladas</div>
+        <div class="grid-visual stacked">
+          <div class="grid-col col12">col-12 — 100 %<br><span style="font-size:10px;font-weight:400;opacity:.7">columna izquierda ocupa todo el ancho</span></div>
+          <div class="grid-col col12">col-12 — 100 %<br><span style="font-size:10px;font-weight:400;opacity:.7">columna derecha ocupa todo el ancho</span></div>
+        </div>
+      </div>
+
+      <div class="cls-list" style="margin-top:20px">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.col-12</code>
+            <span class="cls-css">flex: 0 0 100%<br>max-width: 100%</span>
+          </div>
+          <div class="cls-desc">
+            El elemento ocupa el <strong>100 % del ancho</strong> de la fila. Al combinarlo con
+            <code>col-md-5</code>, esta regla aplica en móvil y el <code>col-md-5</code> sobreescribe
+            en pantallas ≥ 768 px.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.col-md-5</code>
+            <span class="cls-css">@media (min-width: 768px) {<br>  flex: 0 0 41.67%<br>  max-width: 41.67%<br>}</span>
+          </div>
+          <div class="cls-desc">
+            5 de 12 columnas virtuales → <strong>41.67 %</strong> del ancho disponible.
+            Aplica solo en pantallas medianas y mayores (≥ 768 px).
+            <small>Usado en la columna izquierda: nombre, avatar y datos personales.</small>
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.col-md-7</code>
+            <span class="cls-css">@media (min-width: 768px) {<br>  flex: 0 0 58.33%<br>  max-width: 58.33%<br>}</span>
+          </div>
+          <div class="cls-desc">
+            7 de 12 columnas virtuales → <strong>58.33 %</strong> del ancho disponible.
+            5 + 7 = 12, por lo que las dos columnas llenan exactamente la fila.
+            <small>Usado en la columna derecha: tabla de cursos actuales.</small>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info" style="margin-top:16px">
+        <span class="callout-icon">NOTA</span>
+        <p>Los breakpoints de Bootstrap: <code>sm</code> ≥ 576 px · <code>md</code> ≥ 768 px ·
+        <code>lg</code> ≥ 992 px · <code>xl</code> ≥ 1200 px · <code>xxl</code> ≥ 1400 px.
+        Sin sufijo (<code>col-12</code>), la regla aplica a todos los tamaños.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 3. ESPACIADO ═══════════════ -->
+    <div class="card">
+      <h2>3 · Espaciado</h2>
+      <p>Bootstrap define utilidades de espaciado con la forma <code>{propiedad}{lados}-{nivel}</code>.
+      El nivel va de <code>0</code> a <code>5</code> y cada paso equivale a <strong>0.25 rem (4 px)</strong>
+      multiplicado por el nivel.</p>
+
+      <div class="space-scale">
+        <div class="space-row">
+          <span class="space-label">nivel 0</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:0"></div></div>
+          <span class="space-rem">0 rem</span>
+        </div>
+        <div class="space-row">
+          <span class="space-label">nivel 1</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:16.7%"></div></div>
+          <span class="space-rem">0.25 rem</span>
+        </div>
+        <div class="space-row">
+          <span class="space-label">nivel 2</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:33.3%"></div></div>
+          <span class="space-rem">0.5 rem</span>
+        </div>
+        <div class="space-row">
+          <span class="space-label">nivel 3</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:50%"></div></div>
+          <span class="space-rem">1 rem</span>
+        </div>
+        <div class="space-row">
+          <span class="space-label">nivel 4</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:75%"></div></div>
+          <span class="space-rem">1.5 rem</span>
+        </div>
+        <div class="space-row">
+          <span class="space-label">nivel 5</span>
+          <div class="space-bar-wrap"><div class="space-bar" style="width:100%"></div></div>
+          <span class="space-rem">3 rem</span>
+        </div>
+      </div>
+
+      <div class="cls-list" style="margin-top:16px">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.py-5</code>
+            <span class="cls-css">padding-top: 3rem<br>padding-bottom: 3rem</span>
+          </div>
+          <div class="cls-desc">
+            <strong>p</strong>adding en el eje <strong>y</strong> (vertical) nivel 5 → 3 rem (48 px).
+            Crea el espacio superior e inferior alrededor de toda la tarjeta del perfil.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.p-4</code>
+            <span class="cls-css">padding: 1.5rem</span>
+          </div>
+          <div class="cls-desc">
+            <strong>p</strong>adding en los <strong>4</strong> lados, nivel 4 → 1.5 rem (24 px).
+            Da el espacio interior a la tarjeta blanca principal (<code>.bg-white.border.rounded</code>).
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.p-3</code>
+            <span class="cls-css">padding: 1rem</span>
+          </div>
+          <div class="cls-desc">
+            Padding en los 4 lados, nivel 3 → 1 rem (16 px).
+            Usado en las tarjetas interiores "Datos Personales" y "Cursos Actuales".
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.mb-0</code>
+            <span class="cls-css">margin-bottom: 0</span>
+          </div>
+          <div class="cls-desc">
+            Elimina el margen inferior. Útil para anular el margen por defecto de elementos como
+            <code>&lt;p&gt;</code> o <code>&lt;table&gt;</code> cuando están al final de un contenedor.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.mb-2</code>
+            <span class="cls-css">margin-bottom: 0.5rem</span>
+          </div>
+          <div class="cls-desc">Margen inferior pequeño → 0.5 rem (8 px). Usado bajo el título "Datos Personales".</div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.mb-3</code>
+            <span class="cls-css">margin-bottom: 1rem</span>
+          </div>
+          <div class="cls-desc">Margen inferior estándar → 1 rem (16 px). Separa el enlace "Ver guía" del contenido principal.</div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.mb-4</code>
+            <span class="cls-css">margin-bottom: 1.5rem</span>
+          </div>
+          <div class="cls-desc">Margen inferior amplio → 1.5 rem (24 px). Separa el título <code>h1</code> del avatar, y el avatar de la tarjeta de datos.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. TIPOGRAFÍA ═══════════════ -->
+    <div class="card">
+      <h2>4 · Tipografía</h2>
+      <p>Clases que modifican el peso, tamaño, color o alineación del texto sin cambiar el elemento HTML.</p>
+
+      <div class="cls-list">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.fw-bold</code>
+            <span class="cls-css">font-weight: 700</span>
+          </div>
+          <div class="cls-desc">
+            Texto en negrita. Usado en el nombre "Ana María Suarez" (<code>h1</code>) y en los títulos
+            "Datos Personales" / "Cursos Actuales" (<code>p</code>).
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.text-secondary</code>
+            <span class="cls-css">color: #6c757d</span>
+          </div>
+          <div class="cls-desc">
+            Aplica el color gris secundario de Bootstrap (#6c757d). Usado en las etiquetas de la tabla
+            ("Código", "Cédula", "Edad"…) y en los datos de los cursos, para dar menor peso visual a
+            información de soporte.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.small</code>
+            <span class="cls-css">font-size: 0.875em</span>
+          </div>
+          <div class="cls-desc">
+            Reduce el tamaño de fuente al 87.5 % del elemento padre. Usado en el enlace "Ver guía de
+            clases Bootstrap" para que sea discreto respecto al contenido principal.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.text-end</code>
+            <span class="cls-css">text-align: right</span>
+          </div>
+          <div class="cls-desc">
+            Alinea el contenido del elemento a la derecha. Posiciona el enlace a esta guía en la
+            esquina superior derecha de la tarjeta.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. BORDES Y FONDO ═══════════════ -->
+    <div class="card">
+      <h2>5 · Bordes y fondo</h2>
+      <p>Utilidades visuales para agregar bordes, esquinas redondeadas y color de fondo.</p>
+
+      <div class="cls-list">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.bg-white</code>
+            <span class="cls-css">background-color: #fff</span>
+          </div>
+          <div class="cls-desc">
+            Fondo blanco. Contrasta con el fondo gris claro del <code>body</code> (<code>#f0f0f0</code>)
+            para resaltar la tarjeta del perfil.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.border</code>
+            <span class="cls-css">border: 1px solid #dee2e6</span>
+          </div>
+          <div class="cls-desc">
+            Agrega un borde de 1 px en color gris suave en los cuatro lados. Delimita visualmente
+            la tarjeta principal y las tarjetas interiores de datos y cursos.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.rounded</code>
+            <span class="cls-css">border-radius: 0.375rem</span>
+          </div>
+          <div class="cls-desc">
+            Redondea las esquinas (6 px). Se usa junto con <code>.border</code> para dar estilo de
+            "tarjeta" a los contenedores.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.border-top</code>
+            <span class="cls-css">border-top: 1px solid #dee2e6</span>
+          </div>
+          <div class="cls-desc">
+            Agrega borde solo en la parte superior. Usado en cada <code>&lt;tr&gt;</code> de la tabla
+            de datos personales para separar las filas sin usar el modo con bordes por defecto.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ 6. FLEXBOX ═══════════════ -->
+    <div class="card">
+      <h2>6 · Flexbox</h2>
+      <p>Bootstrap expone las propiedades CSS Flexbox como utilidades de clase. En el ejemplo se usan
+      para centrar el avatar horizontalmente.</p>
+
+      <div class="cls-list">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.d-flex</code>
+            <span class="cls-css">display: flex</span>
+          </div>
+          <div class="cls-desc">
+            Activa el modelo de caja flex en el elemento. Sus hijos directos se convierten en
+            <em>flex items</em> que se pueden alinear y distribuir con utilidades adicionales.
+            <small>Usado en: <code>&lt;div class="d-flex justify-content-center mb-4"&gt;</code> (contenedor del avatar).</small>
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.justify-content-center</code>
+            <span class="cls-css">justify-content: center</span>
+          </div>
+          <div class="cls-desc">
+            Centra los hijos a lo largo del eje principal (horizontal por defecto). Junto con
+            <code>.d-flex</code> centra el círculo del avatar dentro de su columna.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ 7. TABLAS ═══════════════ -->
+    <div class="card">
+      <h2>7 · Tablas</h2>
+      <p>Bootstrap extiende el elemento <code>&lt;table&gt;</code> HTML con clases que ajustan bordes,
+      densidad y color. Siempre se parte de la clase base <code>.table</code>.</p>
+
+      <div class="cls-list">
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.table</code>
+            <span class="cls-css">width: 100%<br>border-collapse: collapse<br>padding en th/td: 0.5rem</span>
+          </div>
+          <div class="cls-desc">
+            Clase base obligatoria. Aplica ancho completo, colapso de bordes y padding uniforme a
+            las celdas. Sin ella las demás clases de tabla no tienen efecto.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.table-borderless</code>
+            <span class="cls-css">td, th { border: none }</span>
+          </div>
+          <div class="cls-desc">
+            Elimina todos los bordes de celdas y filas. Úsala cuando el contenido ya está delimitado
+            por un contenedor con borde, como en "Datos Personales" donde la tarjeta exterior define el límite.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.table-sm</code>
+            <span class="cls-css">td, th { padding: 0.25rem }</span>
+          </div>
+          <div class="cls-desc">
+            Reduce el padding de las celdas a la mitad para lograr una tabla más compacta.
+            Ideal para datos de soporte como la lista de atributos del perfil.
+          </div>
+        </div>
+
+        <div class="cls-entry">
+          <div class="cls-name">
+            <code>.table-dark</code>
+            <span class="cls-css">background-color: #212529<br>color: #fff<br>border-color: #373b3e</span>
+          </div>
+          <div class="cls-desc">
+            Aplica fondo oscuro y texto blanco. En el ejemplo se aplica solo al <code>&lt;thead&gt;</code>
+            de la tabla de cursos para destacar los encabezados "Curso" y "Profesor".
+            <small>Aplicado en: <code>&lt;thead class="table-dark"&gt;</code>.</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ REFERENCIA RÁPIDA ═══════════════ -->
+    <div class="card">
+      <h2>Referencia rápida</h2>
+      <p>Todas las clases usadas en <code>ejemplo-perfil.html</code> de un vistazo.</p>
+
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Clase</th>
+            <th>Categoría</th>
+            <th>Efecto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>.container</code></td><td>Grilla</td><td>Contenedor centrado con ancho máximo responsivo</td></tr>
+          <tr><td><code>.row</code></td><td>Grilla</td><td>Fila flex para contener columnas</td></tr>
+          <tr><td><code>.g-4</code></td><td>Grilla</td><td>Gap de 1.5 rem entre columnas y filas</td></tr>
+          <tr><td><code>.align-items-start</code></td><td>Grilla</td><td>Alinea columnas al tope de la fila</td></tr>
+          <tr><td><code>.col-12</code></td><td>Columnas</td><td>Ancho 100 % (todos los tamaños)</td></tr>
+          <tr><td><code>.col-md-5</code></td><td>Columnas</td><td>41.67 % en pantallas ≥ 768 px</td></tr>
+          <tr><td><code>.col-md-7</code></td><td>Columnas</td><td>58.33 % en pantallas ≥ 768 px</td></tr>
+          <tr><td><code>.py-5</code></td><td>Espaciado</td><td>Padding vertical 3 rem</td></tr>
+          <tr><td><code>.p-4</code></td><td>Espaciado</td><td>Padding todos los lados 1.5 rem</td></tr>
+          <tr><td><code>.p-3</code></td><td>Espaciado</td><td>Padding todos los lados 1 rem</td></tr>
+          <tr><td><code>.mb-0</code></td><td>Espaciado</td><td>Elimina margen inferior</td></tr>
+          <tr><td><code>.mb-2</code></td><td>Espaciado</td><td>Margen inferior 0.5 rem</td></tr>
+          <tr><td><code>.mb-3</code></td><td>Espaciado</td><td>Margen inferior 1 rem</td></tr>
+          <tr><td><code>.mb-4</code></td><td>Espaciado</td><td>Margen inferior 1.5 rem</td></tr>
+          <tr><td><code>.fw-bold</code></td><td>Tipografía</td><td>Negrita (font-weight: 700)</td></tr>
+          <tr><td><code>.text-secondary</code></td><td>Tipografía</td><td>Color gris secundario (#6c757d)</td></tr>
+          <tr><td><code>.small</code></td><td>Tipografía</td><td>Fuente al 87.5 % del padre</td></tr>
+          <tr><td><code>.text-end</code></td><td>Tipografía</td><td>Alineación derecha</td></tr>
+          <tr><td><code>.bg-white</code></td><td>Fondo</td><td>Fondo blanco</td></tr>
+          <tr><td><code>.border</code></td><td>Borde</td><td>Borde 1 px gris en los 4 lados</td></tr>
+          <tr><td><code>.rounded</code></td><td>Borde</td><td>Esquinas redondeadas 0.375 rem</td></tr>
+          <tr><td><code>.border-top</code></td><td>Borde</td><td>Borde 1 px solo en la parte superior</td></tr>
+          <tr><td><code>.d-flex</code></td><td>Flexbox</td><td>display: flex</td></tr>
+          <tr><td><code>.justify-content-center</code></td><td>Flexbox</td><td>Centra los hijos horizontalmente</td></tr>
+          <tr><td><code>.table</code></td><td>Tabla</td><td>Estilos base de tabla Bootstrap</td></tr>
+          <tr><td><code>.table-borderless</code></td><td>Tabla</td><td>Elimina bordes de celdas</td></tr>
+          <tr><td><code>.table-sm</code></td><td>Tabla</td><td>Padding reducido en celdas</td></tr>
+          <tr><td><code>.table-dark</code></td><td>Tabla</td><td>Encabezado con fondo oscuro y texto blanco</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+  <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic</p>
+</footer>
+
+</body>
+</html>

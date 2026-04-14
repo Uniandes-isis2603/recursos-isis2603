@@ -441,7 +441,7 @@
 <body>
 
 <header>
-  <a href="index-front.html" class="back-link">← Front</a>
+  <a href="../index.html" class="back-link">← Inicio</a>
   <div class="hdr-content">
     <div class="hdr-tag">ISIS2603 · Frontend · TypeScript</div>
     <h1>Type<em>Script</em></h1>
@@ -452,6 +452,7 @@
 <div class="top-tab-nav" role="tablist">
   <button class="top-tab-btn active" onclick="switchTab(event,'tab-teoria')"    role="tab">TEORÍA</button>
   <button class="top-tab-btn"        onclick="switchTab(event,'tab-practica')"   role="tab">PRÁCTICA</button>
+  <button class="top-tab-btn"        onclick="switchTab(event,'tab-taller')"     role="tab">TALLER</button>
   <button class="top-tab-btn"        onclick="switchTab(event,'tab-evaluacion')" role="tab">EVALUACIÓN</button>
 </div>
 
@@ -875,10 +876,99 @@ aplicar(doble, <span class="nm">5</span>);  <span class="cm">// 10</span></code>
     </section><!-- /tab-practica -->
 
 
+    <!-- ══════════════════════════════ TALLER ══ -->
+    <section class="top-tab-panel" id="tab-taller">
+
+      <span class="section-label">03 — Taller</span>
+
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-icon">🛠️</span>
+          <h2>Taller — Perfil de Estudiante</h2>
+        </div>
+        <p>Este taller recorre tres versiones del mismo ejemplo: una página de perfil de estudiante. Cada versión agrega una capa de complejidad — de HTML estático a datos cargados desde JSON con clases TypeScript.</p>
+        <div class="highlight">
+          Sigue el orden: primero entiende la estructura HTML y Bootstrap, luego observa cómo JavaScript remplaza el contenido estático con datos dinámicos, y finalmente practica tú mismo en el taller.
+        </div>
+      </div>
+
+      <!-- Paso 1 — Ejemplo estático -->
+      <div class="card">
+        <div style="display:flex; gap:20px; align-items:flex-start;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:40px; color:var(--layer); opacity:.25; font-weight:700; line-height:1; flex-shrink:0; min-width:48px; text-align:right;">01</div>
+          <div style="flex:1;">
+            <h2 style="border-left:none; padding-left:0;">Ejemplo estático</h2>
+            <p>Una página HTML + Bootstrap con el perfil de una estudiante escrito directamente en el HTML. No hay JavaScript. Sirve de referencia visual y de punto de partida para entender la estructura de la interfaz.</p>
+            <p>Observa la grilla responsiva (<code>col-12 col-md-5</code> / <code>col-md-7</code>), los utilitarios de espaciado y la tabla con encabezado oscuro.</p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:4px;">
+              <a href="ejemplo-perfil.html" target="_blank"
+                 style="display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; background:var(--layer); color:#fff; text-decoration:none; transition:background .15s;"
+                 onmouseover="this.style.background='#0b6449'" onmouseout="this.style.background='var(--layer)'"
+                 onfocus="this.style.background='#0b6449'"    onblur="this.style.background='var(--layer)'">
+                Abrir ejemplo estático →
+              </a>
+              <a href="guia-estilos.html" target="_blank"
+                 style="display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); text-decoration:none;"
+                 onmouseover="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'" onmouseout="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'"
+                 onfocus="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'"    onblur="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'">
+                Ver guía de estilos →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2 — Ejemplo dinámico -->
+      <div class="card">
+        <div style="display:flex; gap:20px; align-items:flex-start;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:40px; color:var(--layer); opacity:.25; font-weight:700; line-height:1; flex-shrink:0; min-width:48px; text-align:right;">02</div>
+          <div style="flex:1;">
+            <h2 style="border-left:none; padding-left:0;">Ejemplo dinámico</h2>
+            <p>La misma página, pero ahora el contenido se carga desde un archivo <code>data/student.json</code> usando <code>fetch</code>. Las clases <code>Course</code> y <code>Person</code> (definidas en <code>src/person.ts</code>) modelan los datos; JavaScript construye las filas de la tabla en tiempo de ejecución.</p>
+            <p>Compara el <code>&lt;script type="module"&gt;</code> con el HTML estático del paso anterior: el mismo resultado visual, generado dinámicamente. Este es el patrón que usarás en Angular.</p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:4px;">
+              <a href="tallerTS/ejemplo-perfil-dinamic.html" target="_blank"
+                 style="display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; background:var(--layer); color:#fff; text-decoration:none;"
+                 onmouseover="this.style.background='#0b6449'" onmouseout="this.style.background='var(--layer)'"
+                 onfocus="this.style.background='#0b6449'"    onblur="this.style.background='var(--layer)'">
+                Abrir ejemplo dinámico →
+              </a>
+              <a href="example-typescript.html" target="_blank"
+                 style="display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--ink-soft); text-decoration:none;"
+                 onmouseover="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'" onmouseout="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'"
+                 onfocus="this.style.color='var(--layer)';this.style.borderColor='var(--layer-bdr)'"    onblur="this.style.color='var(--ink-soft)';this.style.borderColor='var(--border)'">
+                Ver explicación técnica →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3 — Taller -->
+      <div class="card">
+        <div style="display:flex; gap:20px; align-items:flex-start;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:40px; color:var(--layer); opacity:.25; font-weight:700; line-height:1; flex-shrink:0; min-width:48px; text-align:right;">03</div>
+          <div style="flex:1;">
+            <h2 style="border-left:none; padding-left:0;">Taller práctico</h2>
+            <p>Ahora te toca a ti. El taller parte de una versión incompleta del ejemplo dinámico y te pide completar las piezas que faltan: definir las clases TypeScript, escribir la función <code>loadPerson</code> y conectar los datos al DOM.</p>
+            <p>Lee las instrucciones de cada ejercicio con cuidado. Puedes consultar <code>src/person.ts</code> del ejemplo dinámico como referencia, pero intenta resolverlo primero por tu cuenta.</p>
+            <a href="taller-typescript.html" target="_blank"
+               style="display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; letter-spacing:.5px; padding:10px 24px; border-radius:8px; background:var(--layer); color:#fff; text-decoration:none;"
+               onmouseover="this.style.background='#0b6449'" onmouseout="this.style.background='var(--layer)'"
+               onfocus="this.style.background='#0b6449'"    onblur="this.style.background='var(--layer)'">
+              Ir al taller →
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /tab-taller -->
+
+
     <!-- ══════════════════════════════ EVALUACIÓN ══ -->
     <section class="top-tab-panel" id="tab-evaluacion">
 
-      <span class="section-label">03 — Evaluación</span>
+      <span class="section-label">04 — Evaluación</span>
 
       <div class="quiz-score-bar">
         <div class="score-big" id="score-num">0</div>

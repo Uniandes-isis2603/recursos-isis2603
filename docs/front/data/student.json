@@ -1,0 +1,13 @@
+{
+  "name": "Ana María Suarez",
+  "code": "10234320",
+  "idNumber": "12221122",
+  "age": 25,
+  "address": "Calle falsa 123",
+  "phone": "018002500",
+  "courses": [
+    { "name": "Ingeniería de SW",      "professor": "Pablo Picasso"    },
+    { "name": "Futbol I",              "professor": "Juan Piña"        },
+    { "name": "Algoritmos Genéticos",  "professor": "María de la Rosa" }
+  ]
+}
