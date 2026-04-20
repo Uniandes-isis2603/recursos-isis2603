@@ -72,6 +72,14 @@ Current artifacts in `docs/front/`:
 | `html-css-intro.html` | HTML & CSS fundamentals intro |
 | `styles-front.html` | Styling patterns and responsive layout |
 
+## Writing Style for Artifact Content
+
+All explanatory text inside HTML artifacts must follow these rules:
+
+- **Third person only.** Write "el estudiante", "el desarrollador", "el equipo", "el framework", etc.
+- **No second person** in any form: neither "vos", "tú", "usted", nor implied second person ("tu proyecto", "tu componente").
+- This applies to all prose, callouts, highlights, and table descriptions inside the artifacts.
+
 ## Architecture Decision Records
 
 Use `ADR/adr-template.md` as the template when creating new ADRs. The template is in Spanish and follows the standard MADR structure (Context → Decision Drivers → Considered Options → Decision Outcome → Pros/Cons).

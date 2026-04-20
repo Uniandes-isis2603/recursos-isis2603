@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular: el framework – ISIS2603</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══ TOKENS ════════════════════════════════════════════ */
+    :root {
+      --bg:        #f2efe9;
+      --surface:   #faf8f4;
+      --surface2:  #ffffff;
+      --border:    #ddd8d0;
+      --border2:   #ece8e0;
+      --ink:       #1c1814;
+      --ink-mid:   #4a4440;
+      --ink-soft:  #8c847c;
+      --layer:     #be185d;
+      --layer-bg:  #fce7f3;
+      --layer-bdr: #f9a8d4;
+      --shadow-sm: 0 1px 4px rgba(28,24,20,.06);
+      --shadow:    0 4px 20px rgba(28,24,20,.09);
+      --radius:    12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ══ HEADER ════════════════════════════════════════════ */
+    header {
+      background: var(--ink);
+      padding: 48px 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 60px,
+        rgba(255,255,255,.025) 60px, rgba(255,255,255,.025) 61px
+      );
+    }
+    .hdr-content { position: relative; text-align: center; max-width: 900px; }
+    .hdr-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--layer-bdr); margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: #faf8f4; line-height: 1.1; margin-bottom: 12px;
+    }
+    header h1 em { font-style: italic; color: var(--layer-bdr); }
+    .hdr-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.5);
+      line-height: 1.6; max-width: 600px; margin: 0 auto;
+    }
+    .back-link {
+      position: absolute; top: 16px; left: 24px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--layer-bdr);
+      text-decoration: none; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: .75; transition: opacity .15s;
+    }
+    .back-link:hover { opacity: 1; }
+
+    /* ══ TOP-LEVEL TABS ═════════════════════════════════════ */
+    .top-tab-nav {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      gap: 0;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .top-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: .5px;
+      padding: 14px 22px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .top-tab-btn:hover { color: var(--ink-mid); }
+    .top-tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .top-tab-panel { display: none; }
+    .top-tab-panel.active { display: block; }
+
+    /* ══ TYPOGRAPHY ═════════════════════════════════════════ */
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px; color: var(--ink); margin-bottom: 14px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink-mid); margin: 20px 0 8px;
+    }
+    p { font-size: 15px; line-height: 1.8; color: var(--ink-mid); margin-bottom: 14px; }
+
+    /* ══ LAYOUT ═════════════════════════════════════════════ */
+    .container { max-width: 1000px; margin: 0 auto; }
+    .content   { padding: 40px 24px; }
+
+    /* ══ CARDS ══════════════════════════════════════════════ */
+    .card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--layer);
+      margin-bottom: 24px;
+    }
+    .card-hdr {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+    .card-hdr h2 { margin-bottom: 0; }
+
+    /* ══ CODE ═══════════════════════════════════════════════ */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--layer);
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7;
+      background: var(--ink);
+      color: #e8e0d8;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* Syntax coloring */
+    .kw  { color: #c084fc; }   /* keywords */
+    .ty  { color: #67e8f9; }   /* types / decorators */
+    .st  { color: #86efac; }   /* strings */
+    .cm  { color: #6b7280; font-style: italic; }  /* comments */
+    .nm  { color: #fdba74; }   /* numbers / selectors */
+    .fn  { color: #fde68a; }   /* function names */
+
+    /* ══ CALLOUTS ═══════════════════════════════════════════ */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .callout-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; flex-shrink: 0; margin-top: 3px;
+    }
+    .callout p { margin: 0; }
+    .callout-tip     { background: var(--layer-bg); border-left: 4px solid var(--layer); }
+    .callout-tip     .callout-icon { color: var(--layer); }
+    .callout-info    { background: #e8eefb; border-left: 4px solid #1d4ed8; }
+    .callout-info    .callout-icon { color: #1d4ed8; }
+    .callout-warning { background: #fef4e6; border-left: 4px solid #b45309; }
+    .callout-warning .callout-icon { color: #b45309; }
+
+    /* ══ SECTION LABEL ══════════════════════════════════════ */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--layer); margin-bottom: 24px;
+      display: block;
+    }
+
+    /* ══ INNER THEORY TABS ══════════════════════════════════ */
+    .theory-tab-nav {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .theory-tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .8px;
+      padding: 8px 18px;
+      border: none; background: none;
+      color: var(--ink-soft); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .15s, border-color .15s;
+    }
+    .theory-tab-btn:hover { color: var(--ink-mid); }
+    .theory-tab-btn.active { color: var(--layer); border-bottom-color: var(--layer); }
+    .theory-tab-panel { display: none; }
+    .theory-tab-panel.active { display: block; }
+
+    /* ══ TABLE ══════════════════════════════════════════════ */
+    .tbl { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .tbl th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--ink-soft); background: var(--surface);
+      padding: 10px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .tbl td {
+      padding: 12px 16px; color: var(--ink-mid);
+      border-bottom: 1px solid var(--border2); vertical-align: top;
+    }
+    .tbl tr:hover td { background: var(--layer-bg); }
+
+    /* ══ TWO-COL LAYOUT ═════════════════════════════════════ */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px; margin: 16px 0;
+    }
+    .col-box {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 20px 22px;
+      border: 1px solid var(--border2);
+    }
+    .col-box-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--ink); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .col-box ul {
+      padding-left: 18px;
+      font-size: 13px; color: var(--ink-mid); line-height: 1.8;
+    }
+
+    /* ══ HIGHLIGHT BOX ══════════════════════════════════════ */
+    .highlight {
+      background: var(--layer-bg);
+      border-left: 4px solid var(--layer);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+    }
+
+    /* ══ COMPONENT ANATOMY DIAGRAM ══════════════════════════ */
+    .anatomy {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 2px solid var(--border);
+      margin: 20px 0;
+    }
+    .anatomy-part {
+      padding: 20px 18px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .anatomy-part-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+    .anatomy-part-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px;
+    }
+    .anatomy-part-desc {
+      font-size: 12px; line-height: 1.5; color: var(--ink-mid);
+    }
+    .anatomy-template { background: #fce7f3; border-right: 1px solid var(--layer-bdr); }
+    .anatomy-template .anatomy-part-label { color: var(--layer); }
+    .anatomy-template .anatomy-part-title { color: var(--layer); }
+    .anatomy-class    { background: #e8eefb; border-right: 1px solid #93aef0; }
+    .anatomy-class    .anatomy-part-label { color: #1d4ed8; }
+    .anatomy-class    .anatomy-part-title { color: #1d4ed8; }
+    .anatomy-styles   { background: #fef4e6; }
+    .anatomy-styles   .anatomy-part-label { color: #b45309; }
+    .anatomy-styles   .anatomy-part-title { color: #b45309; }
+    .anatomy-footer {
+      grid-column: 1 / -1;
+      background: var(--ink);
+      padding: 14px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: rgba(255,255,255,.6);
+      text-align: center;
+      letter-spacing: .5px;
+    }
+    .anatomy-footer strong { color: rgba(255,255,255,.9); }
+
+    /* ══ LAYER STACK DIAGRAM ════════════════════════════════ */
+    .stack {
+      display: flex; flex-direction: column;
+      gap: 0; border-radius: var(--radius);
+      overflow: hidden; border: 2px solid var(--border);
+      margin: 20px 0;
+    }
+    .stack-layer {
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--border2);
+      transition: opacity .2s;
+    }
+    .stack-layer:last-child { border-bottom: none; }
+    .stack-layer-icon { font-size: 20px; flex-shrink: 0; }
+    .stack-layer-text { flex: 1; }
+    .stack-layer-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600; color: var(--ink);
+    }
+    .stack-layer-desc {
+      font-size: 12px; color: var(--ink-soft); margin-top: 2px;
+    }
+    .stack-layer-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+      flex-shrink: 0;
+    }
+    .stack-front    { background: var(--layer-bg); }
+    .stack-front    .stack-layer-tag { background: var(--layer); color: #fff; }
+    .stack-api      { background: #e6f5f0; }
+    .stack-api      .stack-layer-tag { background: #0e7a5a; color: #fff; }
+    .stack-logic    { background: #e8eefb; }
+    .stack-logic    .stack-layer-tag { background: #1d4ed8; color: #fff; }
+    .stack-persist  { background: #fef4e6; }
+    .stack-persist  .stack-layer-tag { background: #b45309; color: #fff; }
+    .stack-arrow {
+      text-align: center; font-size: 18px;
+      color: var(--ink-soft); padding: 6px 0;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border2);
+    }
+
+    /* ══ PROS/CONS TABLE ════════════════════════════════════ */
+    .compare {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin: 16px 0;
+    }
+    .compare-col {
+      background: var(--surface);
+      border-radius: 10px; padding: 18px 20px;
+      border: 1px solid var(--border2);
+    }
+    .compare-col-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 12px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+    }
+    .compare-col.vanilla .compare-col-title { color: #b45309; border-bottom-color: #f6c87a; }
+    .compare-col.angular .compare-col-title { color: var(--layer); border-bottom-color: var(--layer-bdr); }
+    .compare-col ul {
+      list-style: none; padding: 0;
+      font-size: 13px; color: var(--ink-mid); line-height: 1.9;
+    }
+    .compare-col ul li::before { content: '→ '; color: var(--ink-soft); }
+
+    /* ══ TIMELINE / PROGRESS ════════════════════════════════ */
+    .timeline {
+      display: flex; flex-direction: column; gap: 0;
+      border-left: 3px solid var(--layer-bdr);
+      margin: 20px 0 20px 10px;
+      padding-left: 24px;
+    }
+    .timeline-item {
+      position: relative; padding-bottom: 24px;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot {
+      position: absolute; left: -35px; top: 3px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--layer);
+      border: 2px solid var(--layer-bg);
+    }
+    .timeline-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--layer); margin-bottom: 4px;
+    }
+    .timeline-text {
+      font-size: 14px; color: var(--ink-mid); line-height: 1.6;
+    }
+
+    /* ══ PLACEHOLDER (other tabs) ═══════════════════════════ */
+    .coming-soon {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink-soft);
+    }
+    .coming-soon-icon { font-size: 40px; margin-bottom: 16px; }
+    .coming-soon-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 1px;
+    }
+
+    /* ══ FOOTER ════════════════════════════════════════════ */
+    footer {
+      margin-top: 60px; padding: 24px;
+      text-align: center; border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: .5px; margin: 0;
+    }
+    footer span { color: var(--layer); }
+
+    /* ══ MOBILE ═════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      header  { padding: 32px 20px 28px; }
+      .content { padding: 24px 16px; }
+      .card   { padding: 20px 16px; }
+      .two-col, .compare, .anatomy { grid-template-columns: 1fr; }
+      .anatomy-template, .anatomy-class { border-right: none; border-bottom: 1px solid var(--layer-bdr); }
+      .top-tab-btn { padding: 10px 14px; font-size: 11px; }
+      .top-tab-nav { padding: 0 16px; }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html" class="back-link">← Artefactos</a>
+  <div class="hdr-content">
+    <div class="hdr-tag">ISIS2603 · Frontend · Angular 17+</div>
+    <h1>Angular: <em>el framework</em></h1>
+    <div class="hdr-sub">por qué existe · modelo de componentes · arquitectura · lugar en el stack</div>
+  </div>
+</header>
+
+<!-- ══ TOP-LEVEL TABS ══════════════════════════════════════ -->
+<nav class="top-tab-nav" role="tablist">
+  <button class="top-tab-btn active" onclick="switchTopTab(event,'tab-teoria')" role="tab">TEORÍA</button>
+  <button class="top-tab-btn" onclick="switchTopTab(event,'tab-practica')" role="tab">PRÁCTICA</button>
+  <button class="top-tab-btn" onclick="switchTopTab(event,'tab-evaluacion')" role="tab">EVALUACIÓN</button>
+  <button class="top-tab-btn" onclick="switchTopTab(event,'tab-taller')" role="tab">TALLER</button>
+</nav>
+
+<div class="container">
+  <div class="content">
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB: TEORÍA
+         ══════════════════════════════════════════════════════ -->
+    <div id="tab-teoria" class="top-tab-panel active">
+
+      <span class="section-label">Teoría — A1 · Angular: el framework</span>
+
+      <!-- INNER THEORY TABS -->
+      <div class="card">
+        <div class="theory-tab-nav">
+          <button class="theory-tab-btn active" onclick="switchTheoryTab(event,'tt-problema')">El problema</button>
+          <button class="theory-tab-btn" onclick="switchTheoryTab(event,'tt-componentes')">Modelo de componentes</button>
+          <button class="theory-tab-btn" onclick="switchTheoryTab(event,'tt-arquitectura')">Arquitectura Angular</button>
+          <button class="theory-tab-btn" onclick="switchTheoryTab(event,'tt-stack')">Angular en el stack</button>
+        </div>
+
+        <!-- ─── T1: EL PROBLEMA ─────────────────────────────── -->
+        <div id="tt-problema" class="theory-tab-panel active">
+
+          <div class="card-hdr">
+            <span class="card-icon">🧩</span>
+            <h2>¿Por qué existe un framework?</h2>
+          </div>
+
+          <p>
+            Antes de entender qué es Angular, es más útil entender <strong>qué problema vino a resolver</strong>.
+            Cuando una aplicación web es pequeña — una página con tres botones — JavaScript vanilla es suficiente.
+            El problema aparece cuando la aplicación crece.
+          </p>
+
+          <h3>El modelo mental de JavaScript vanilla</h3>
+          <p>
+            En JavaScript puro, el HTML que el usuario ve vive en el DOM. El estado de la aplicación
+            (datos que el código conoce) vive en variables. <strong>No hay ningún mecanismo automático
+            que los mantenga sincronizados.</strong>
+          </p>
+          <p>
+            Cada vez que el estado cambia, el desarrollador debe recordar qué parte del DOM reflejar
+            ese cambio y escribir el código imperativo para hacerlo. Esto funciona, pero no escala.
+          </p>
+
+          <div class="two-col">
+            <div class="col-box">
+              <div class="col-box-title">
+                <span>⚠️</span> Vanilla JS — código imperativo
+              </div>
+              <pre><code><span class="cm">// El estado vive aquí</span>
+<span class="kw">let</span> contador = <span class="nm">0</span>;
+
+<span class="cm">// El DOM vive en otro lugar</span>
+<span class="kw">const</span> btn  = <span class="fn">document</span>.<span class="fn">querySelector</span>(<span class="st">'#btn'</span>);
+<span class="kw">const</span> span = <span class="fn">document</span>.<span class="fn">querySelector</span>(<span class="st">'#valor'</span>);
+
+<span class="cm">// El desarrollador sincroniza manualmente</span>
+btn.<span class="fn">addEventListener</span>(<span class="st">'click'</span>, () => {
+  contador++;
+  span.textContent = contador; <span class="cm">// ← obligatorio</span>
+});</code></pre>
+              <p style="font-size:13px; margin-top:8px;">
+                Con 3 variables y 2 elementos funciona. Con 50 variables y 200 elementos,
+                olvidar una sincronización produce bugs silenciosos.
+              </p>
+            </div>
+            <div class="col-box">
+              <div class="col-box-title">
+                <span>✅</span> Angular — declarativo
+              </div>
+              <pre><code><span class="cm">// El estado vive en la clase</span>
+<span class="nm">contador</span> = <span class="nm">0</span>;
+
+<span class="cm">// El template declara la relación</span>
+<span class="cm">// &lt;span&gt;{{ contador }}&lt;/span&gt;</span>
+<span class="cm">// &lt;button (click)="contador++"&gt;</span>
+
+<span class="cm">// Angular se encarga de la sincronización.</span>
+<span class="cm">// El desarrollador solo describe</span>
+<span class="cm">// qué debe mostrarse, no cómo hacerlo.</span></code></pre>
+              <p style="font-size:13px; margin-top:8px;">
+                La cantidad de elementos en pantalla puede crecer
+                sin agregar complejidad a la sincronización.
+              </p>
+            </div>
+          </div>
+
+          <h3>Qué pasa cuando una app crece sin framework</h3>
+
+          <div class="compare">
+            <div class="compare-col vanilla">
+              <div class="compare-col-title">Complejidad que aparece</div>
+              <ul>
+                <li>Estado disperso en múltiples variables globales</li>
+                <li>Código duplicado para actualizar vistas similares</li>
+                <li>Difícil reutilizar un "componente" de UI</li>
+                <li>Sin convención de estructura, cada equipo inventa la suya</li>
+                <li>Las pruebas deben simular el DOM completo</li>
+                <li>Gestionar dependencias entre módulos se vuelve manual</li>
+              </ul>
+            </div>
+            <div class="compare-col angular">
+              <div class="compare-col-title">Lo que un framework aporta</div>
+              <ul>
+                <li>Estado encapsulado por componente o servicio</li>
+                <li>Sincronización automática vista ↔ estado</li>
+                <li>Unidad de reutilización formal: el componente</li>
+                <li>Estructura de proyecto predefinida y compartida</li>
+                <li>Arquitectura que facilita las pruebas unitarias</li>
+                <li>Sistema de inyección de dependencias integrado</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">INFO</span>
+            <p>
+              Angular no es el único framework que resuelve este problema — React y Vue lo abordan también,
+              con filosofías distintas. La diferencia es que Angular es un <strong>framework completo y
+              <em>opinionated</em></strong> — el framework ya tomó las decisiones de diseño — e incluye router,
+              HTTP client, formularios y DI. React en cambio es solo la capa de UI;
+              el equipo elige el resto.
+            </p>
+          </div>
+
+          <h3>El cambio conceptual clave: de imperativo a declarativo</h3>
+          <p>
+            El salto mental más importante al adoptar Angular no es aprender su sintaxis — es
+            cambiar la forma de pensar:
+          </p>
+
+          <div class="highlight">
+            En JavaScript vanilla se dice <strong>cómo</strong> actualizar la UI (busca el elemento, cambia
+            su texto, agrega esta clase). En Angular se declara <strong>qué</strong> debe mostrarse en función
+            del estado, y el framework se encarga del cómo.
+          </div>
+
+          <p>
+            Esto es posible porque Angular <strong>compila</strong> los templates: convierte el HTML con
+            sintaxis Angular en código JavaScript optimizado que sabe exactamente qué partes del DOM
+            deben actualizarse cuando cada pieza del estado cambia.
+          </p>
+
+        </div><!-- /tt-problema -->
+
+        <!-- ─── T2: MODELO DE COMPONENTES ───────────────────── -->
+        <div id="tt-componentes" class="theory-tab-panel">
+
+          <div class="card-hdr">
+            <span class="card-icon">🧱</span>
+            <h2>El modelo de componentes</h2>
+          </div>
+
+          <p>
+            La unidad fundamental de Angular es el <strong>componente</strong>. Todo lo que el usuario
+            ve en pantalla está construido con componentes. Entender qué es un componente, qué contiene
+            y cómo se relacionan entre sí es la base de todo lo demás.
+          </p>
+
+          <h3>¿Qué es un componente?</h3>
+          <p>
+            Un componente es una <strong>pieza de UI autocontenida</strong> que encapsula tres cosas:
+          </p>
+
+          <div class="anatomy">
+            <div class="anatomy-part anatomy-template">
+              <span class="anatomy-part-label">Template (.html)</span>
+              <span class="anatomy-part-title">Estructura</span>
+              <span class="anatomy-part-desc">
+                El HTML que describe qué se renderiza. Puede contener
+                bindings (<code>{{ }}</code>), directivas (<code>@if</code>, <code>@for</code>)
+                y eventos (<code>(click)</code>).
+              </span>
+            </div>
+            <div class="anatomy-part anatomy-class">
+              <span class="anatomy-part-label">Clase (.ts)</span>
+              <span class="anatomy-part-title">Comportamiento</span>
+              <span class="anatomy-part-desc">
+                TypeScript que define el estado del componente (propiedades)
+                y su lógica (métodos). El template solo accede a lo que
+                la clase expone.
+              </span>
+            </div>
+            <div class="anatomy-part anatomy-styles">
+              <span class="anatomy-part-label">Estilos (.css)</span>
+              <span class="anatomy-part-title">Apariencia</span>
+              <span class="anatomy-part-desc">
+                CSS <strong>encapsulado</strong>: los estilos de un componente
+                no afectan a otros componentes por defecto. Cada componente
+                tiene su propio ámbito de estilos.
+              </span>
+            </div>
+            <div class="anatomy-footer">
+              Los tres archivos se declaran juntos con el decorador
+              <strong>@Component</strong> — Angular los trata como una unidad.
+            </div>
+          </div>
+
+          <pre><code><span class="ty">@Component</span>({
+  <span class="nm">selector</span>:    <span class="st">'app-album-card'</span>,  <span class="cm">// etiqueta HTML personalizada</span>
+  <span class="nm">templateUrl</span>: <span class="st">'./album-card.component.html'</span>,
+  <span class="nm">styleUrl</span>:    <span class="st">'./album-card.component.css'</span>,
+  <span class="nm">standalone</span>:  <span class="kw">true</span>,              <span class="cm">// Angular 17+: sin NgModule</span>
+})
+<span class="kw">export class</span> <span class="ty">AlbumCardComponent</span> {
+  <span class="nm">titulo</span>: <span class="ty">string</span> = <span class="st">'Thriller'</span>;
+  <span class="nm">anio</span>:   <span class="ty">number</span> = <span class="nm">1982</span>;
+
+  <span class="fn">reproducir</span>() {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">`Reproduciendo <span class="nm">${this.titulo}</span>`</span>);
+  }
+}</code></pre>
+
+          <h3>El árbol de componentes</h3>
+          <p>
+            Una aplicación Angular es un árbol de componentes. El componente raíz (<code>AppComponent</code>)
+            contiene a todos los demás. Cada componente puede contener otros componentes,
+            formando una jerarquía.
+          </p>
+
+          <div class="highlight">
+            La idea de árbol de componentes no es exclusiva de Angular — es el modelo mental
+            de todo framework moderno (React, Vue, Svelte). Una vez internalizado en Angular,
+            los otros frameworks resultan familiares.
+          </div>
+
+          <pre><code><span class="cm">── AppComponent (raíz)</span>
+<span class="cm">   ├── NavbarComponent</span>
+<span class="cm">   ├── RouterOutlet  ← el router inserta el componente activo aquí</span>
+<span class="cm">   │     ├── AlbumListComponent</span>
+<span class="cm">   │     │     └── AlbumCardComponent  (se repite con @for)</span>
+<span class="cm">   │     └── AlbumDetailComponent</span>
+<span class="cm">   └── FooterComponent</span></code></pre>
+
+          <h3>Comunicación entre componentes</h3>
+          <p>
+            Los componentes se comunican a través de un contrato formal:
+          </p>
+
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Mecanismo</th>
+                <th>Dirección</th>
+                <th>Para qué</th>
+                <th>Decorador</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@Input()</code></td>
+                <td>Padre → Hijo</td>
+                <td>Pasar datos al componente hijo</td>
+                <td><code>[propiedad]="valor"</code></td>
+              </tr>
+              <tr>
+                <td><code>@Output()</code></td>
+                <td>Hijo → Padre</td>
+                <td>Notificar eventos al componente padre</td>
+                <td><code>(evento)="handler()"</code></td>
+              </tr>
+              <tr>
+                <td>Servicio compartido</td>
+                <td>Cualquiera</td>
+                <td>Compartir estado entre componentes no relacionados</td>
+                <td><code>inject(MiServicio)</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">TIP</span>
+            <p>
+              El patrón <strong>smart / dumb</strong> (también llamado container / presentational) organiza
+              los componentes en dos categorías: los que saben de dónde vienen los datos (smart) y los que
+              solo saben mostrarlos (dumb). Los componentes dumb son más fáciles de reutilizar y probar
+              porque no tienen dependencias externas.
+            </p>
+          </div>
+
+          <h3>Declarativo en la práctica: binding y control flow</h3>
+          <p>
+            El template Angular extiende el HTML con sintaxis para reflejar el estado declarativamente:
+          </p>
+
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Sintaxis</th>
+                <th>Nombre</th>
+                <th>Qué hace</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>{{ expresion }}</code></td>
+                <td>Interpolación</td>
+                <td>Muestra el valor de una expresión como texto</td>
+              </tr>
+              <tr>
+                <td><code>[propiedad]="valor"</code></td>
+                <td>Property binding</td>
+                <td>Pasa un valor a una propiedad del elemento o componente hijo</td>
+              </tr>
+              <tr>
+                <td><code>(evento)="handler()"</code></td>
+                <td>Event binding</td>
+                <td>Reacciona a eventos del DOM o del componente hijo</td>
+              </tr>
+              <tr>
+                <td><code>@if (condicion) { … }</code></td>
+                <td>Control flow</td>
+                <td>Renderiza el bloque solo si la condición es verdadera</td>
+              </tr>
+              <tr>
+                <td><code>@for (item of lista) { … }</code></td>
+                <td>Control flow</td>
+                <td>Repite el bloque por cada elemento de la lista</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div><!-- /tt-componentes -->
+
+        <!-- ─── T3: ARQUITECTURA ANGULAR ─────────────────────── -->
+        <div id="tt-arquitectura" class="theory-tab-panel">
+
+          <div class="card-hdr">
+            <span class="card-icon">🏗️</span>
+            <h2>Arquitectura de Angular</h2>
+          </div>
+
+          <p>
+            Angular es un framework <strong><em>opinionated</em></strong> — término técnico en inglés que
+            significa que el framework ya tomó decisiones de diseño por el equipo: cómo estructurar
+            el proyecto, dónde vive la lógica, qué herramientas usar para routing, HTTP y formularios.
+            No ofrece libertad total; provee una guía prescriptiva. Esto reduce la fricción inicial
+            y facilita el trabajo en equipo, porque todos siguen las mismas convenciones.
+            Conocer sus piezas principales permite tomar decisiones de diseño informadas.
+          </p>
+
+          <h3>Las piezas del framework</h3>
+
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Pieza</th>
+                <th>Responsabilidad</th>
+                <th>Analogía</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Componente</strong></td>
+                <td>Unidad de UI + comportamiento</td>
+                <td>Un widget con estado propio</td>
+              </tr>
+              <tr>
+                <td><strong>Servicio</strong></td>
+                <td>Lógica reutilizable, acceso a datos</td>
+                <td>La capa de negocio del frontend</td>
+              </tr>
+              <tr>
+                <td><strong>Router</strong></td>
+                <td>Navegar entre vistas según la URL</td>
+                <td>El controlador de flujo de la app</td>
+              </tr>
+              <tr>
+                <td><strong>HttpClient</strong></td>
+                <td>Comunicación con APIs REST</td>
+                <td>El cliente HTTP del backend</td>
+              </tr>
+              <tr>
+                <td><strong>Formularios reactivos</strong></td>
+                <td>Captura y validación de input del usuario</td>
+                <td>Estado del formulario como objeto TypeScript</td>
+              </tr>
+              <tr>
+                <td><strong>DI (Inyección de Dep.)</strong></td>
+                <td>Proveer instancias de servicios a quien los necesite</td>
+                <td>El contenedor de Spring, en el frontend</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Standalone components (Angular 17+)</h3>
+          <p>
+            Hasta Angular 15 cada componente debía pertenecer a un <strong>NgModule</strong>, un archivo
+            que agrupaba componentes, directivas y servicios y declaraba sus dependencias.
+            A partir de Angular 17 los componentes pueden ser <strong>standalone</strong>: se autodescriben,
+            declaran sus propias importaciones y no necesitan NgModule.
+          </p>
+
+          <div class="two-col">
+            <div class="col-box">
+              <div class="col-box-title">Antes — con NgModule</div>
+              <pre style="font-size:12px; margin:0;"><code><span class="ty">@NgModule</span>({
+  <span class="nm">declarations</span>: [AlbumListComponent],
+  <span class="nm">imports</span>:      [CommonModule, HttpClientModule],
+  <span class="nm">exports</span>:      [AlbumListComponent],
+})
+<span class="kw">export class</span> <span class="ty">AlbumModule</span> {}</code></pre>
+              <p style="font-size:12px; margin-top:10px; color:var(--ink-soft);">
+                Archivos adicionales obligatorios aunque el módulo hiciera poco.
+              </p>
+            </div>
+            <div class="col-box">
+              <div class="col-box-title">Ahora — standalone</div>
+              <pre style="font-size:12px; margin:0;"><code><span class="ty">@Component</span>({
+  <span class="nm">standalone</span>: <span class="kw">true</span>,
+  <span class="nm">imports</span>: [HttpClientModule],
+  <span class="nm">template</span>: <span class="st">`…`</span>,
+})
+<span class="kw">export class</span> <span class="ty">AlbumListComponent</span> {}</code></pre>
+              <p style="font-size:12px; margin-top:10px; color:var(--ink-soft);">
+                El componente declara sus dependencias directamente. Sin módulo intermediario.
+              </p>
+            </div>
+          </div>
+
+          <h3>El ciclo de vida de la compilación</h3>
+          <p>
+            Angular no ejecuta los templates en tiempo de ejecución como lo hace jQuery.
+            Los templates son <strong>compilados</strong> por el Angular Compiler durante el build
+            a JavaScript optimizado. Esto tiene dos consecuencias importantes:
+          </p>
+          <ul style="padding-left:20px; font-size:14px; color:var(--ink-mid); line-height:1.9; margin:12px 0;">
+            <li>Los <strong>errores de template</strong> se detectan en tiempo de compilación, no en el browser.</li>
+            <li>El código resultante es más pequeño y rápido porque Angular sabe exactamente qué puede cambiar.</li>
+          </ul>
+
+          <h3>Señales (Signals) — el nuevo modelo de reactividad</h3>
+          <p>
+            Angular 17 introdujo las <strong>signals</strong> como el mecanismo de reactividad
+            de primera clase, complementando y gradualmente reemplazando a Zone.js.
+          </p>
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-label">Angular 1–15 · Zone.js</div>
+              <div class="timeline-text">
+                Angular detecta cambios "envolviendo" las APIs del browser (setTimeout, eventos, HTTP).
+                Cuando cualquiera de ellas se ejecuta, Angular revisa todo el árbol de componentes.
+                Funciona, pero es poco preciso.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-label">Angular 16 · Signals (preview)</div>
+              <div class="timeline-text">
+                Se introduce <code>signal()</code>, <code>computed()</code> y <code>effect()</code>.
+                Un signal notifica exactamente qué cambió, Angular actualiza solo el componente
+                que depende de ese valor.
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-label">Angular 17+ · Signals estables</div>
+              <div class="timeline-text">
+                Signals son la forma recomendada para manejar estado local en componentes.
+                Más predecible, mejor rendimiento, sin necesidad de Zone.js en el futuro.
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-warning">
+            <span class="callout-icon">OJO</span>
+            <p>
+              En este curso trabajaremos con Angular 17+ usando standalone components y signals.
+              Si encontrás tutoriales más viejos que usan NgModules o la sintaxis <code>*ngIf</code> /
+              <code>*ngFor</code>, son válidos técnicamente pero corresponden a Angular 14 o anterior.
+              La sintaxis nueva (<code>@if</code> / <code>@for</code>) es más limpia y es la que se
+              mantiene a futuro.
+            </p>
+          </div>
+
+        </div><!-- /tt-arquitectura -->
+
+        <!-- ─── T4: ANGULAR EN EL STACK ──────────────────────── -->
+        <div id="tt-stack" class="theory-tab-panel">
+
+          <div class="card-hdr">
+            <span class="card-icon">🗺️</span>
+            <h2>Angular en el stack completo</h2>
+          </div>
+
+          <p>
+            Ya conocés la arquitectura del backend: tres capas (API REST, Lógica de Negocio,
+            Persistencia) construidas en Java y Spring Boot. Angular es la <strong>capa cliente</strong>
+            que vive en el browser del usuario y se comunica con ese backend a través de HTTP.
+          </p>
+
+          <h3>El stack completo visualizado</h3>
+
+          <div class="stack">
+            <div class="stack-layer stack-front">
+              <span class="stack-layer-icon">🌐</span>
+              <div class="stack-layer-text">
+                <div class="stack-layer-name">Angular (browser)</div>
+                <div class="stack-layer-desc">Componentes, servicios, router, formularios — lo que el usuario ve e interactúa</div>
+              </div>
+              <span class="stack-layer-tag">FRONTEND</span>
+            </div>
+            <div class="stack-arrow">↕ HTTP / JSON</div>
+            <div class="stack-layer stack-api">
+              <span class="stack-layer-icon">🔌</span>
+              <div class="stack-layer-text">
+                <div class="stack-layer-name">API REST — Spring Boot controllers</div>
+                <div class="stack-layer-desc">Endpoints, DTOs, validación de formato, autenticación</div>
+              </div>
+              <span class="stack-layer-tag">CAPA 1</span>
+            </div>
+            <div class="stack-arrow">↕ llamada a método</div>
+            <div class="stack-layer stack-logic">
+              <span class="stack-layer-icon">⚙️</span>
+              <div class="stack-layer-text">
+                <div class="stack-layer-name">Lógica de Negocio — Spring services</div>
+                <div class="stack-layer-desc">Reglas de dominio, validaciones, orquestación</div>
+              </div>
+              <span class="stack-layer-tag">CAPA 2</span>
+            </div>
+            <div class="stack-arrow">↕ JPA / ORM</div>
+            <div class="stack-layer stack-persist">
+              <span class="stack-layer-icon">💾</span>
+              <div class="stack-layer-text">
+                <div class="stack-layer-name">Persistencia — JPA / repositorios</div>
+                <div class="stack-layer-desc">Entidades, relaciones, acceso a la base de datos</div>
+              </div>
+              <span class="stack-layer-tag">CAPA 3</span>
+            </div>
+          </div>
+
+          <h3>La frontera crítica: el contrato HTTP</h3>
+          <p>
+            Angular y Spring Boot son independientes: hablan a través de HTTP con JSON.
+            El contrato entre los dos lados — las URLs, los verbos, los DTOs — es lo que estudiaste
+            en los artefactos del backend. Angular consume exactamente esos endpoints.
+          </p>
+
+          <div class="highlight">
+            Un cambio en el DTO de respuesta del backend <em>rompe</em> el frontend si no se
+            actualiza el modelo TypeScript correspondiente. El contrato HTTP es la interfaz
+            compartida entre equipos. Mantenerlo estable (o versionarlo) es fundamental.
+          </div>
+
+          <h3>Mapeo conceptual: backend ↔ frontend</h3>
+
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Concepto backend</th>
+                <th>Equivalente Angular</th>
+                <th>Qué conecta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Controller / <code>@RestController</code></td>
+                <td>Componente Angular</td>
+                <td>Recibe la interacción del usuario, delega al servicio</td>
+              </tr>
+              <tr>
+                <td>Service / <code>@Service</code></td>
+                <td>Servicio Angular (<code>@Injectable</code>)</td>
+                <td>Encapsula la lógica de llamadas HTTP y reglas del cliente</td>
+              </tr>
+              <tr>
+                <td>DTO (Data Transfer Object)</td>
+                <td>Interface o clase TypeScript</td>
+                <td>Define la forma del JSON que viaja entre capas</td>
+              </tr>
+              <tr>
+                <td>Repository</td>
+                <td>HttpClient en el servicio Angular</td>
+                <td>Accede a la fuente de datos — en este caso, la API REST</td>
+              </tr>
+              <tr>
+                <td>Validaciones (<code>@NotNull</code>, etc.)</td>
+                <td>Validators en formularios reactivos</td>
+                <td>Reglas de validación, en el cliente y en el servidor</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout callout-tip">
+            <span class="callout-icon">TIP</span>
+            <p>
+              La validación del cliente (Angular) <strong>no reemplaza</strong> la validación del
+              servidor (Spring Boot). El frontend valida para dar feedback rápido al usuario; el
+              backend valida para garantizar la integridad del sistema. Siempre ambas.
+            </p>
+          </div>
+
+          <h3>Responsabilidades del frontend que no tiene el backend</h3>
+          <p>
+            Angular tiene responsabilidades que no existen en el servidor:
+          </p>
+
+          <div class="two-col">
+            <div class="col-box">
+              <div class="col-box-title">Estado de la UI</div>
+              <ul>
+                <li>¿Está el menú desplegado?</li>
+                <li>¿Qué pestaña está activa?</li>
+                <li>¿Hay una operación en curso (loading)?</li>
+                <li>¿Qué mensaje de error mostrar?</li>
+              </ul>
+            </div>
+            <div class="col-box">
+              <div class="col-box-title">Experiencia del usuario</div>
+              <ul>
+                <li>Navegación sin recargar la página</li>
+                <li>Feedback inmediato en formularios</li>
+                <li>Actualización parcial de la vista</li>
+                <li>Caché de datos ya cargados</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">INFO</span>
+            <p>
+              El backend que construyeron en las capas anteriores del curso expone una API REST completa.
+              En los próximos artefactos vamos a consumirla desde Angular: listar álbumes, ver el detalle
+              de uno, crear uno nuevo y eliminarlo — todo el CRUD, desde el browser.
+            </p>
+          </div>
+
+        </div><!-- /tt-stack -->
+
+      </div><!-- /card -->
+    </div><!-- /tab-teoria -->
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB: PRÁCTICA (próximamente)
+         ══════════════════════════════════════════════════════ -->
+    <div id="tab-practica" class="top-tab-panel">
+      <div class="coming-soon">
+        <div class="coming-soon-icon">🛠️</div>
+        <div class="coming-soon-text">PRÁCTICA — próximamente</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB: EVALUACIÓN (próximamente)
+         ══════════════════════════════════════════════════════ -->
+    <div id="tab-evaluacion" class="top-tab-panel">
+      <div class="coming-soon">
+        <div class="coming-soon-icon">🎯</div>
+        <div class="coming-soon-text">EVALUACIÓN — próximamente</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TAB: TALLER (próximamente)
+         ══════════════════════════════════════════════════════ -->
+    <div id="tab-taller" class="top-tab-panel">
+      <div class="coming-soon">
+        <div class="coming-soon-icon">🔬</div>
+        <div class="coming-soon-text">TALLER — próximamente</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /container -->
+
+<footer>
+  <p>ISIS2603 · Desarrollo de Software en Equipos · Uniandes</p>
+  <p style="margin-top:6px">Construido con la ayuda de <span>Claude</span> &amp; <span>Claude Code</span> · Anthropic</p>
+</footer>
+
+<script>
+  function switchTopTab(e, panelId) {
+    document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.top-tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  function switchTheoryTab(e, panelId) {
+    const card = e.target.closest('.card');
+    card.querySelectorAll('.theory-tab-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.theory-tab-panel').forEach(p => p.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
